@@ -1,3 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS pathexplorer;
+SET search_path TO pathexplorer;
 CREATE TABLE "Users" (
   "user_id" integer PRIMARY KEY,
   "mail" varchar,

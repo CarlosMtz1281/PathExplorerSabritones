@@ -1,15 +1,309 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Capability {
+  capability_id          Int                      @id
+  capability_name        String?                  @db.VarChar
+  capability_lead_id     Int?
+  region_id              Int?
+  Users                  Users?                   @relation(fields: [capability_lead_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_lead")
+  Region                 Region?                  @relation(fields: [region_id], references: [region_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_region")
+  Capability_Employee    Capability_Employee[]
+  Capability_People_Lead Capability_People_Lead[]
+}
+
+model Capability_Employee {
+  capability_id                                   Int
+  people_lead_id                                  Int
+  employee_id                                     Int
+  Capability                                      Capability @relation(fields: [capability_id], references: [capability_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_emp_capability")
+  Users_Capability_Employee_people_lead_idToUsers Users      @relation("Capability_Employee_people_lead_idToUsers", fields: [people_lead_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_emp_lead")
+  Users_Capability_Employee_employee_idToUsers    Users      @relation("Capability_Employee_employee_idToUsers", fields: [employee_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_emp_user")
+
+  @@id([capability_id, people_lead_id, employee_id])
+}
+
+model Capability_People_Lead {
+  capability_id    Int
+  capability_pl_id Int
+  Capability       Capability @relation(fields: [capability_id], references: [capability_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_pl_capability")
+  Users            Users      @relation(fields: [capability_pl_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_pl_users")
+
+  @@id([capability_id, capability_pl_id])
+}
+
+model Certificate_Skills {
+  certificate_id Int
+  skill_id       Int
+  Certificates   Certificates @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_skills_certificate")
+  Skills         Skills       @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_skills_skill")
+
+  @@id([certificate_id, skill_id])
+}
+
+model Certificate_Users {
+  certificate_id              Int
+  user_id                     Int
+  certificate_date            DateTime?    @db.Timestamp(6)
+  certificate_expiration_date DateTime?    @db.Timestamp(6)
+  certificate_link            String?      @db.VarChar
+  certificate_valid           Boolean?
+  Certificates                Certificates @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_users_certificate")
+  Users                       Users        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_users_user")
+
+  @@id([certificate_id, user_id])
+}
+
+model Certificates {
+  certificate_id                Int                             @id
+  certificate_name              String?                         @db.VarChar
+  certificate_desc              String?
+  Certificate_Skills            Certificate_Skills[]
+  Certificate_Users             Certificate_Users[]
+  Project_Position_Certificates Project_Position_Certificates[]
+}
+
+model Course_Skills {
+  course_id Int
+  skill_id  Int
+  Courses   Courses @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_skills_course")
+  Skills    Skills  @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_skills_skill")
+
+  @@id([course_id, skill_id])
+}
+
+model Course_Users {
+  course_id         Int
+  user_id           Int
+  course_start_date DateTime? @db.Timestamp(6)
+  progress          Int?
+  course_link       String?   @db.VarChar
+  finished          Boolean?
+  Courses           Courses   @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_users_course")
+  Users             Users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_users_user")
+
+  @@id([course_id, user_id])
+}
+
+model Courses {
+  course_id      Int             @id
+  course_name    String?         @db.VarChar
+  course_desc    String?
+  estimated_time String?         @db.VarChar
+  Course_Skills  Course_Skills[]
+  Course_Users   Course_Users[]
+}
+
+model Employee_Position {
+  position_id   Int
+  user_id       Int
+  start_date    DateTime?     @db.Timestamp(6)
+  end_date      DateTime?     @db.Timestamp(6)
+  Users         Users         @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_position_user")
+  Work_Position Work_Position @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_position_work")
+
+  @@id([position_id, user_id])
+}
+
+model Feedback {
+  feedback_id Int       @id
+  project_id  Int?
+  user_id     Int?
+  desc        String?
+  score       Int?
+  Projects    Projects? @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_feedback_project")
+  Users       Users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_feedback_user")
+}
+
+model Goal_Skills {
+  goal_id  Int
+  skill_id Int
+  Goals    Goals  @relation(fields: [goal_id], references: [goal_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_skills_goal")
+  Skills   Skills @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_skills_skill")
+
+  @@id([goal_id, skill_id])
+}
+
+model Goal_Users {
+  goal_id       Int
+  user_id       Int
+  create_date   DateTime? @db.Timestamp(6)
+  finished_date DateTime? @db.Timestamp(6)
+  completed     Boolean?
+  Goals         Goals     @relation(fields: [goal_id], references: [goal_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_users_goal")
+  Users         Users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_users_user")
+
+  @@id([goal_id, user_id])
+}
+
+model Goals {
+  goal_id     Int           @id
+  goal_name   String?       @db.VarChar
+  goal_desc   String?
+  Goal_Skills Goal_Skills[]
+  Goal_Users  Goal_Users[]
+}
+
+model Meeting {
+  meeting_id   Int            @id
+  meeting_date DateTime?      @db.Timestamp(6)
+  meeting_link String?        @db.VarChar
+  Postulations Postulations[]
+}
+
+model Permits {
+  role_id            Int      @id
+  is_employee        Boolean?
+  is_people_lead     Boolean?
+  is_capability_lead Boolean?
+  is_delivery_lead   Boolean?
+  is_admin           Boolean?
+  Users              Users[]
+}
+
+model Postulations {
+  postulation_id      Int                @id
+  project_position_id Int?
+  user_id             Int?
+  postulation_date    DateTime?          @db.Timestamp(6)
+  meeting_id          Int?
+  Meeting             Meeting?           @relation(fields: [meeting_id], references: [meeting_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_meeting")
+  Project_Positions   Project_Positions? @relation(fields: [project_position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_project_position")
+  Users               Users?             @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_user")
+}
+
+model Project_Position_Certificates {
+  position_id       Int
+  certificate_id    Int
+  Certificates      Certificates      @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_position_cert_certificate")
+  Project_Positions Project_Positions @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_position_cert_position")
+
+  @@id([position_id, certificate_id])
+}
+
+model Project_Position_Skills {
+  position_id       Int
+  skill_id          Int
+  Project_Positions Project_Positions @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_position_skills_position")
+  Skills            Skills            @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_position_skills_skill")
+
+  @@id([position_id, skill_id])
+}
+
+model Project_Positions {
+  position_id                   Int                             @id
+  project_id                    Int?
+  position_name                 String?                         @db.VarChar
+  position_desc                 String?
+  user_id                       Int?
+  Postulations                  Postulations[]
+  Project_Position_Certificates Project_Position_Certificates[]
+  Project_Position_Skills       Project_Position_Skills[]
+  Projects                      Projects?                       @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_positions_project")
+  Users                         Users?                          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_positions_user")
+}
+
+model Project_User {
+  user_id    Int
+  project_id Int
+  Projects   Projects @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_user_project")
+  Users      Users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_user_user")
+
+  @@id([user_id, project_id])
+}
+
+model Projects {
+  project_id            Int                 @id
+  delivery_lead_user_id Int?
+  project_name          String?             @db.VarChar
+  project_desc          String?
+  start_date            DateTime?           @db.Timestamp(6)
+  end_date              DateTime?           @db.Timestamp(6)
+  region_id             Int?
+  Feedback              Feedback[]
+  Project_Positions     Project_Positions[]
+  Project_User          Project_User[]
+  Users                 Users?              @relation(fields: [delivery_lead_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_lead")
+  Region                Region?             @relation(fields: [region_id], references: [region_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_region")
+}
+
+model Region {
+  region_id   Int          @id
+  region_name String?      @db.VarChar
+  country     String?      @db.VarChar
+  timezone    String?      @db.VarChar
+  Capability  Capability[]
+  Projects    Projects[]
+  Users       Users[]
+}
+
+model Skills {
+  skill_id                Int                       @id
+  name                    String?                   @db.VarChar
+  technical               Boolean?
+  Certificate_Skills      Certificate_Skills[]
+  Course_Skills           Course_Skills[]
+  Goal_Skills             Goal_Skills[]
+  Project_Position_Skills Project_Position_Skills[]
+  User_Skills             User_Skills[]
+}
+
+model User_Score {
+  score_id Int    @id
+  user_id  Int?
+  score    Int?
+  Users    Users? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_users_user")
+}
+
+model User_Skills {
+  user_id  Int
+  skill_id Int
+  Skills   Skills @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_skills_skill")
+  Users    Users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_skills_user")
+
+  @@id([user_id, skill_id])
+}
+
+model Users {
+  user_id                                                       Int                      @id
+  mail                                                          String?                  @db.VarChar
+  password                                                      String?                  @db.VarChar
+  name                                                          String?                  @db.VarChar
+  birthday                                                      DateTime?                @db.Timestamp(6)
+  hire_date                                                     DateTime?                @db.Timestamp(6)
+  role_id                                                       Int?
+  in_project                                                    Boolean?
+  region_id                                                     Int?
+  Capability                                                    Capability[]
+  Capability_Employee_Capability_Employee_people_lead_idToUsers Capability_Employee[]    @relation("Capability_Employee_people_lead_idToUsers")
+  Capability_Employee_Capability_Employee_employee_idToUsers    Capability_Employee[]    @relation("Capability_Employee_employee_idToUsers")
+  Capability_People_Lead                                        Capability_People_Lead[]
+  Certificate_Users                                             Certificate_Users[]
+  Course_Users                                                  Course_Users[]
+  Employee_Position                                             Employee_Position[]
+  Feedback                                                      Feedback[]
+  Goal_Users                                                    Goal_Users[]
+  Postulations                                                  Postulations[]
+  Project_Positions                                             Project_Positions[]
+  Project_User                                                  Project_User[]
+  Projects                                                      Projects[]
+  User_Score                                                    User_Score[]
+  User_Skills                                                   User_Skills[]
+  Region                                                        Region?                  @relation(fields: [region_id], references: [region_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_region")
+  Permits                                                       Permits?                 @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
+}
+
+model Work_Position {
+  position_id       Int                 @id
+  position_name     String?             @db.VarChar
+  position_desc     String?
+  company           String?             @db.VarChar
+  Employee_Position Employee_Position[]
 }
