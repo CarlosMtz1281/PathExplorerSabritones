@@ -1,4 +1,4 @@
-import prisma from "../db/prisma";
+import prisma from "../db/prisma.js";
 
 interface AggregatedProjectTime {
   user_id: number;
@@ -7,9 +7,7 @@ interface AggregatedProjectTime {
   adjusted_hire_date: Date | null; // Typically a Date
 }
 
-export default async function getTotalProjectTimeAndAdjustedHireDate(
-  userId: number
-) {
+async function getCargabilidad(userId: number) {
   const results = await prisma.$queryRaw<AggregatedProjectTime[]>`
       SELECT
         u."user_id",
@@ -32,3 +30,5 @@ export default async function getTotalProjectTimeAndAdjustedHireDate(
   // Probably only one row in "results", or null if no projects
   return results[0] ?? null;
 }
+
+module.exports = getCargabilidad;

@@ -1,8 +1,7 @@
 // File: poject.js
-const express = require("express");
-const prisma = require("../db/prisma"); // ← CommonJS version
-
-const dotenv = require("dotenv");
+import express from "express";
+import dotenv from "dotenv";
+import prisma from "../db/prisma.js";
 
 dotenv.config();
 
@@ -13,4 +12,4 @@ router.get("/", async (req, res) => {
   res.json({ message: "Projects base" });
 });
 
-module.exports = router;
+export default router;
