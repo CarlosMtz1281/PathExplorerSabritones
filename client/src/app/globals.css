@@ -11,7 +11,7 @@
   --color-base-content: oklch(12% 0.042 264.695);
   --color-primary: oklch(55% 0.288 302.321);
   --color-primary-content: oklch(96% 0.018 272.314);
-  --color-secondary: oklch(38% 0.176 304.987);
+  --color-secondary: #423B6E;
   --color-secondary-content: oklch(100% 0 0);
   --color-accent: oklch(82% 0.119 306.383);
   --color-accent-content: oklch(29% 0.149 302.717);

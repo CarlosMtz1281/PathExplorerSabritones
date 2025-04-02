@@ -1,11 +1,11 @@
 import React from 'react';
 import Navbar from '../../components/nav/Navbar';
 
-const Layout: React.FC = ({ children }) => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
-        <div>
+        <div className="flex">
             <Navbar />
-            <main>{children}</main>
+            <main className="flex-grow">{children}</main>
         </div>
     );
 };
