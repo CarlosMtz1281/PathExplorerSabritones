@@ -6,6 +6,7 @@ import generalRoutes from "./routes/general";
 import projectRoutes from "./routes/project";
 import employeeRoutes from "./routes/employee";
 import courseRoutes from "./routes/course";
+import fs from "fs";
 
 dotenv.config();
 
@@ -27,6 +28,18 @@ app.use("/course", courseRoutes);
 app.get("/", (req, res) => {
   res.send("Hello, World! 🌍");
 });
+
+app.get("/schema", (req, res) => {
+  const schemaPath = path.join(__dirname, "../prisma", "schema.prisma");
+  
+  fs.readFile(schemaPath, "utf8", (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to read schema.prisma" });
+    }
+    res.type("text/plain").send(data);
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
