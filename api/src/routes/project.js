@@ -1,16 +1,16 @@
-// File: employee.js
+// File: poject.js
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+const prisma = require("../db/prisma"); // ← CommonJS version
+
 const dotenv = require("dotenv");
 
 dotenv.config();
 
-const prisma = new PrismaClient();
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-    console.log("Employee base");
-    res.json({ message: "Employee base" });
+  console.log("Projects base");
+  res.json({ message: "Projects base" });
 });
 
 module.exports = router;

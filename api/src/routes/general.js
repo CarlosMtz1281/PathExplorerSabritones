@@ -1,8 +1,7 @@
 // File: user.js
-import prisma from "../src/db/prisma";
+const prisma = require("../db/prisma"); // ← CommonJS version
 const express = require("express");
 const dotenv = require("dotenv");
-import {} from "";
 dotenv.config();
 
 const router = express.Router();
