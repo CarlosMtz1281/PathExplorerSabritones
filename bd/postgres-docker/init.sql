@@ -1,5 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS pathexplorer;
 SET search_path TO pathexplorer;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- =======================
 CREATE TABLE "Users" (
   "user_id" integer PRIMARY KEY,
   "mail" varchar,
@@ -177,6 +179,11 @@ CREATE TABLE "Goal_Users" (
   "completed" boolean,
   PRIMARY KEY ("goal_id", "user_id")
 );
+CREATE TABLE "Session" (
+  "session_id" varchar PRIMARY KEY DEFAULT encode(gen_random_bytes(32), 'base64'),
+  "user_id" integer NOT NULL,
+  "expires_at" timestamp NOT NULL DEFAULT NOW() + INTERVAL '1 week'
+);
 -- =======================
 --    FOREIGN KEY SETUP
 -- =======================
@@ -241,6 +248,19 @@ ADD CONSTRAINT fk_goal_users_user FOREIGN KEY ("user_id") REFERENCES "Users"("us
 ALTER TABLE "Goal_Users"
 ADD CONSTRAINT fk_goal_users_goal FOREIGN KEY ("goal_id") REFERENCES "Goals"("goal_id"),
   ADD CONSTRAINT fk_goal_users_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id");
+ALTER TABLE "Session"
+  ADD CONSTRAINT fk_session_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE CASCADE;
+-- ========================
+--   STORED PROCEDURES
+-- ========================
+CREATE OR REPLACE PROCEDURE delete_expired_sessions()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  DELETE FROM "Session"
+  WHERE "expires_at" <= NOW();
+END;
+$$;
 -- ========================
 --   DUMMY DATA INSERTION
 -- ========================
