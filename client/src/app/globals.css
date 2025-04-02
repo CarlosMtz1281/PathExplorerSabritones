@@ -1,7 +1,4 @@
 @import "tailwindcss";
-
-@plugin "daisyui";
-
 @plugin "daisyui/theme" {
   name: "sabritones";
   default: false;
