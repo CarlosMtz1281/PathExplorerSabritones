@@ -1,7 +1,7 @@
 // File: user.js
 import express from "express";
 import dotenv from "dotenv";
-import prisma from "../db/prisma.js";
+import prisma from "../db/prisma";
 dotenv.config();
 
 const router = express.Router();
@@ -37,13 +37,13 @@ router.get("/", async (req, res) => {
 
 // Validate user login and returns userID
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { mail, password } = req.body;
   const user = await prisma.users.findUnique({
-    where: { email },
+    where: { mail } as any,
   });
   if (user && user.password === password) {
-    user.id = user.id.toString();
-    res.json({ success: true, id: user.id });
+    const user_id = user.user_id.toString();
+    res.json({ success: true, id: user.user_id });
   } else {
     res.json({ success: false });
   }
@@ -52,7 +52,7 @@ router.post("/login", async (req, res) => {
 // Add a new user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, birthday } = req.body;
+    const { name, mail, password, birthday } = req.body;
 
     // Convert birthday string to a Date object
     const formattedBirthday = new Date(birthday);
@@ -64,10 +64,10 @@ router.post("/register", async (req, res) => {
     }
 
     const user = await prisma.users.create({
-      data: { name, email, password, birthday: formattedBirthday },
+      data: { name, mail, password, birthday: formattedBirthday } as any,
     });
 
-    res.json({ success: true, id: user.id.toString() });
+    res.json({ success: true, id: user.user_id.toString() });
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -92,4 +92,5 @@ router.get("/cargabilidad", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 export default router;

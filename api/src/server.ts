@@ -1,19 +1,16 @@
 import express from "express";
 import cors from "cors";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
+import path from "path";
 import dotenv from "dotenv";
-
-import generalRoutes from "./routes/general.js";
-import projectRoutes from "./routes/project.js";
-import employeeRoutes from "./routes/employee.js";
-import courseRoutes from "./routes/course.js";
+import generalRoutes from "./routes/general";
+import projectRoutes from "./routes/project";
+import employeeRoutes from "./routes/employee";
+import courseRoutes from "./routes/course";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+// Use __dirname directly in CommonJS
+// Node.js in CommonJS mode provides __dirname globally
 const app = express();
 const PORT = process.env.PORT || 3003;
 
