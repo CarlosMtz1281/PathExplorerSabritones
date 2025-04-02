@@ -1,6 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export default function LoginPage() {
+
+    const router = useRouter();
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-base-300 text-base-content">
       <div className="w-full max-w-md p-8 shadow-xl bg-base-100 rounded-lg">
@@ -16,7 +21,7 @@ export default function LoginPage() {
             placeholder="Password"
             className="input input-bordered w-full"
           />
-          <button className="btn btn-active btn-primary w-full">Login</button>
+          <button className="btn btn-active btn-primary w-full" onClick={() => router.push("/dashboard")}>Login</button>
         </form>
         <p className="mt-4 text-center text-secondary">
           Don't have an account? <a href="/signup" className="text-primary">Sign up</a>
