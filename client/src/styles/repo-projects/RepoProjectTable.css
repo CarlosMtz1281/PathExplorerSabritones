@@ -1,0 +1,120 @@
+.table-container {
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-header th {
+  padding: 1rem 2rem;
+}
+
+.name-header {
+  width: 50%;
+  text-align: left;
+}
+
+.date-header {
+  width: 30%;
+  text-align: center;
+  padding-right: 2rem;
+}
+
+.vacancies-header {
+  width: 20%;
+  text-align: center;
+  padding-right: 2rem;
+}
+
+.table-row {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.3s ease;
+}
+
+.table-row.hovered {
+  background-color: #f3e8ff;
+}
+
+.content-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.content-main div {
+  padding: 1.5rem 2rem;
+}
+
+.name-column {
+  width: 50%;
+}
+
+.date-column {
+  width: 30%;
+  padding-right: 2rem;
+  text-align: center;
+}
+
+.vacancies-column {
+  width: 20%;
+  padding-right: 2rem;
+  text-align: center;
+}
+
+.details-container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  padding: 0rem 2rem 1rem 2rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  opacity: 1;
+}
+
+.details-container.expanded {
+  opacity: 1;
+}
+
+.details-content {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  min-height: 0;
+  padding-top: 1rem;
+  line-height: 1.5;
+  gap: 2rem;
+}
+
+.details-delivery-empresa {
+  display: flex;
+  width: 30%;
+  flex-direction: column;
+  row-gap: 2rem;
+  min-width: 20rem;
+}
+
+.details-description {
+  width: 70%;
+  text-align: justify;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  padding-right: 3rem;
+}
+
+.details-content p {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.details-content strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
