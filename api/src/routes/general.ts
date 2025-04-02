@@ -6,27 +6,20 @@ dotenv.config();
 
 const router = express.Router();
 
-async function getCargabilidad(userId) {
-  const results = await prisma.$queryRaw`
+async function getCargabilidad(userId: number) {
+  const result = await prisma.$queryRaw<any[]>`
     SELECT
-      u."user_id",
-      u."name",
-      -- Casteamos el intervalo a texto para que Prisma no falle
-      SUM(COALESCE(p."end_date", NOW()) - p."start_date")::text AS "total_time_in_projects",
-      (
-        u."hire_date" 
-        - SUM(COALESCE(p."end_date", NOW()) - p."start_date")
-      )::date AS "adjusted_hire_date"
+      -- Calculamos el porcentaje de días en proyectos
+      (DATE_PART('day', SUM(COALESCE(p."end_date", NOW()) - p."start_date")) 
+      / DATE_PART('day', NOW() - u."hire_date")) * 100 AS "percentage_in_projects"
     FROM "Users" u
-    JOIN "Project_User" pu
-      ON u."user_id" = pu."user_id"
-    JOIN "Projects" p
-      ON pu."project_id" = p."project_id"
+    JOIN "Project_User" pu ON u."user_id" = pu."user_id"
+    JOIN "Projects" p ON pu."project_id" = p."project_id"
     WHERE u."user_id" = ${userId}
-    GROUP BY u."user_id", u."name", u."hire_date";
+    GROUP BY u."user_id", u."hire_date";
   `;
 
-  return results[0] ?? null;
+  return result[0]?.percentage_in_projects ?? 0;
 }
 
 // Get all users
