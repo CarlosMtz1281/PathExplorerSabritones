@@ -20,7 +20,7 @@ const Cargabilidad = ({ userId }: { userId: number }) => {
 
     fetchCargabilidad();
   }, [userId]);
-
+  // lit
   return (
     <div>
       <div className="card w-80 bg-base-100 shadow-sm p-3">
