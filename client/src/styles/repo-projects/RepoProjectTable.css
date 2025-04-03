@@ -42,7 +42,8 @@
   transition: all 0.3s ease;
 }
 
-.table-row.hovered {
+.table-row:hover {
+  cursor: pointer;
   background-color: oklch(from var(--color-accent) l c h / 30%);
 }
 
@@ -91,27 +92,39 @@
   width: 100%;
   flex-direction: row;
   min-height: 0;
-  padding-top: 1rem;
+  padding: 1rem 0;
   line-height: 1.5;
   gap: 2rem;
 }
 
 .details-delivery-empresa {
   display: flex;
-  width: 30%;
-  flex-direction: column;
-  row-gap: 2rem;
+  width: 80%;
+  flex-direction: row;
+  column-gap: 10rem;
   min-width: 20rem;
   font-size: 0.85rem;
 }
 
-.details-description {
-  font-size: 0.85rem;
-  width: 70%;
-  text-align: justify;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  padding-right: 3rem;
+.details-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20%;
+}
+
+.details-button-container button {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+  border: none;
+  padding: 0.5rem 2rem;
+  border-radius: var(--radius-selector);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.details-button-container button:hover {
+  background-color: oklch(from var(--color-primary) l c h / 80%);
 }
 
 .details-content p {

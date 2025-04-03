@@ -11,7 +11,7 @@ type Project = {
   details?: {
     lead: string;
     company: string;
-    description: string;
+    region: string;
   };
 };
 
@@ -24,8 +24,7 @@ const dummyProjects = [
     details: {
       lead: "Carlos Martínez",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "LATAM",
     },
   },
   {
@@ -36,8 +35,7 @@ const dummyProjects = [
     details: {
       lead: "Carlos Martínez",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "NA",
     },
   },
   {
@@ -48,8 +46,7 @@ const dummyProjects = [
     details: {
       lead: "Nicolas Treviño",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "EMEA",
     },
   },
   {
@@ -60,8 +57,7 @@ const dummyProjects = [
     details: {
       lead: "German Salas",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "APAC",
     },
   },
   {
@@ -72,8 +68,7 @@ const dummyProjects = [
     details: {
       lead: "Ivan Tamez",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "LATAM",
     },
   },
   {
@@ -84,8 +79,7 @@ const dummyProjects = [
     details: {
       lead: "Ivan Tamez",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "NA",
     },
   },
   {
@@ -96,8 +90,7 @@ const dummyProjects = [
     details: {
       lead: "Geran Salas",
       company: "Accenture",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "EMEA",
     },
   },
   {
@@ -108,8 +101,7 @@ const dummyProjects = [
     details: {
       lead: "Carlos Martínez",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "APAC",
     },
   },
   {
@@ -120,8 +112,7 @@ const dummyProjects = [
     details: {
       lead: "Carlos Martínez",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "LATAM",
     },
   },
   {
@@ -132,8 +123,7 @@ const dummyProjects = [
     details: {
       lead: "Carlos Martínez",
       company: "Cemex",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+      region: "NA",
     },
   },
 ];
@@ -142,12 +132,14 @@ export default function RepoProjects() {
   const [projects, setProjects] = useState<Project[]>(dummyProjects);
   const [searchTerm, setSearchTerm] = useState(""); //Almacena el texto
 
-  const filteredProjects = projects.filter((project) => { //Fitra los resultados
+  const filteredProjects = projects.filter((project) => {
+    //Fitra los resultados
     const term = searchTerm.toLowerCase(); //Ignora las mayusculas
     return (
       project.name.toLowerCase().includes(term) ||
       project.details?.lead.toLowerCase().includes(term) ||
-      project.details?.company.toLowerCase().includes(term)
+      project.details?.company.toLowerCase().includes(term) ||
+      project.details?.region.toLowerCase().includes(term)
     );
   });
 
@@ -157,17 +149,21 @@ export default function RepoProjects() {
         <p>Proyectos por Capability: Azure</p>
       </div>
       <div className="flex h-full max-h-full w-full flex-col bg-base-100 p-5 mt-5 rounded-md overflow-hidden border border-base-300">
-        
         <input //Barra de busqueda
           type="text"
           placeholder="Buscar por nombre, compañía o líder..."
-          className="input input-bordered w-full mb-4"
+          className="input input-bordered w-full mb-4 px-7 py-6 border-primary text-primary placeholder:text-primary text-base outline-none focus:outline-none"
           value={searchTerm}
+          style={{
+            backgroundColor: "oklch(from var(--color-accent) l c h / 30%)",
+          }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        
-        <RepoProjectTable projects={filteredProjects} />
-        
+
+        <RepoProjectTable
+          projects={filteredProjects}
+          setProjects={setProjects}
+        />
       </div>
     </div>
   );
