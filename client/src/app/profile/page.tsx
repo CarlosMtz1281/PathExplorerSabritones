@@ -1,7 +1,7 @@
 import Cargabilidad from "@/components/Cargabilidad";
 import React from "react";
 
-const Perfil = () => {
+const Profile = () => {
   return (
     <div className="">
       <p className="">Perfil</p>
@@ -10,4 +10,4 @@ const Perfil = () => {
   );
 };
 
-export default Perfil;
+export default Profile;
