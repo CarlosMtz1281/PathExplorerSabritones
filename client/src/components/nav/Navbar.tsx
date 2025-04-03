@@ -3,7 +3,14 @@
 import Image from "next/image";
 
 import { useState } from "react";
-import { FaHome, FaUser, FaCog, FaClipboardList, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import {
+  FaHome,
+  FaUser,
+  FaCog,
+  FaClipboardList,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 
 export default function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -17,45 +24,49 @@ export default function Navbar() {
       <div className="flex items-center justify-between mb-4 mt-5">
         {!isCollapsed && (
           <h2 className="text-3xl font-bold text-base-100 text-center">
-        PathExplorer
+            PathExplorer
           </h2>
         )}
-        <Image src="/Accenture.png" alt="Accenture Logo" width={40} height={40} />
+        <Image
+          src="/Accenture.png"
+          alt="Accenture Logo"
+          width={40}
+          height={40}
+        />
       </div>
-      
 
       <ul className="flex flex-col gap-4 flex-grow items-start mt-30">
         <li className="w-full">
-            <a
-            href="/dashboard/profile"
+          <a
+            href="/profile"
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
+          >
             <FaUser className="w-6 h-6" />
             {!isCollapsed && (
               <h3 className="text-2xl font-semibold">Profile</h3>
             )}
-            </a>
-        </li>
-        <li className="w-full">
-          <a
-        href="/dashboard/repo-projects"
-        className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-          >
-        <FaClipboardList className="w-5 h-5" />
-        {!isCollapsed && (
-          <h3 className="text-2xl font-semibold">CL Proyectos</h3>
-        )}
           </a>
         </li>
         <li className="w-full">
           <a
-        href="/dashboard/settings"
-        className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+            href="/dashboard/repo-projects"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
-        <FaCog className="w-5 h-5" />
-        {!isCollapsed && (
-          <h3 className="text-2xl font-semibold">DL Proyectos</h3>
-        )}
+            <FaClipboardList className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-2xl font-semibold">CL Proyectos</h3>
+            )}
+          </a>
+        </li>
+        <li className="w-full">
+          <a
+            href="/dashboard/settings"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaCog className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-2xl font-semibold">DL Proyectos</h3>
+            )}
           </a>
         </li>
       </ul>
@@ -63,7 +74,11 @@ export default function Navbar() {
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="btn btn-ghost text-base-100 hover:text-primary mt-auto flex items-center justify-center"
       >
-        {isCollapsed ? <FaChevronRight className="w-5 h-5" /> : <FaChevronLeft className="w-5 h-5" />}
+        {isCollapsed ? (
+          <FaChevronRight className="w-5 h-5" />
+        ) : (
+          <FaChevronLeft className="w-5 h-5" />
+        )}
       </button>
     </div>
   );
