@@ -9,25 +9,37 @@ type Project = {
   details?: {
     lead: string;
     company: string;
-    description: string;
+    region: string;
   };
 };
 
 type RepoProjectsTableProps = {
   projects: Project[];
+  setProjects?: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
-const MAX_DESCRIPTION_LENGTH = 80;
-
-export const RepoProjectTable = ({ projects }: RepoProjectsTableProps) => {
+export const RepoProjectTable = ({
+  projects,
+  setProjects,
+}: RepoProjectsTableProps) => {
   const [hoveredRow, setHoveredRow] = useState(0);
 
-  const truncateDescription = (text: string, maxWords: number) => {
-    const words = text.split(" ");
-    if (words.length > maxWords) {
-      return words.slice(0, maxWords).join(" ") + "...";
-    }
-    return text;
+  const handleRowClick = (id: number) => {
+    setHoveredRow((prev) => (prev === id ? 0 : id));
+  };
+
+  const handleDropdownClick = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    handleRowClick(id);
+  };
+
+  const handleAssignClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    // TO DO: routing to assign project page
+  };
+
+  const handleLoadMoreClick = () => {
+    // TO DO: api call pagination and set to projects
   };
 
   return (
@@ -47,12 +59,34 @@ export const RepoProjectTable = ({ projects }: RepoProjectsTableProps) => {
               className={`table-row ${
                 hoveredRow === project.id ? "hovered" : ""
               }`}
-              onMouseEnter={() => setHoveredRow(project.id)}
-              onMouseLeave={() => setHoveredRow(0)}
+              onClick={() => handleRowClick(project.id)}
             >
               <td colSpan={3}>
                 <div className="row-content">
                   <div className="content-main">
+                    <button
+                      className="dropdown-button ml-3 hover:cursor-pointer"
+                      onClick={(e) => handleDropdownClick(e, project.id)}
+                      aria-label="Toggle details"
+                    >
+                      <svg
+                        width="12"
+                        height="8"
+                        viewBox="0 0 12 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={`transition-transform ${
+                          hoveredRow === project.id ? "rotate-180" : ""
+                        }`}
+                      >
+                        <path
+                          d="M1 1L6 6L11 1"
+                          stroke="var(--color-base-content)"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
                     <div className="name-column">{project.name}</div>
                     <div className="date-column">{project.date}</div>
                     <div className="vacancies-column">{project.vacancies}</div>
@@ -74,15 +108,13 @@ export const RepoProjectTable = ({ projects }: RepoProjectsTableProps) => {
                             <strong>Empresa</strong>
                             <p>{project.details.company}</p>
                           </div>
+                          <div>
+                            <strong>Region</strong>
+                            <p>{project.details.region}</p>
+                          </div>
                         </div>
-                        <div className="details-description">
-                          <strong>Descripción</strong>
-                          <p>
-                            {truncateDescription(
-                              project.details.description,
-                              MAX_DESCRIPTION_LENGTH
-                            )}
-                          </p>
+                        <div className="details-button-container">
+                          <button onClick={handleAssignClick}>Asignar</button>
                         </div>
                       </div>
                     </div>
@@ -93,6 +125,14 @@ export const RepoProjectTable = ({ projects }: RepoProjectsTableProps) => {
           ))}
         </tbody>
       </table>
+      <div className="flex w-full items-center justify-center py-8">
+        <button
+          className="bg-primary text-base-100 text-center hover:cursor-pointer py-3 px-10 rounded-md font-semibold hover:opacity-80"
+          onClick={handleLoadMoreClick}
+        >
+          Cargar más proyectos
+        </button>
+      </div>
     </div>
   );
 };
