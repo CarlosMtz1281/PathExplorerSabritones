@@ -142,7 +142,8 @@ export default function RepoProjects() {
   const [projects, setProjects] = useState<Project[]>(dummyProjects);
   const [searchTerm, setSearchTerm] = useState(""); //Almacena el texto
 
-  const filteredProjects = projects.filter((project) => { //Fitra los resultados
+  const filteredProjects = projects.filter((project) => {
+    //Fitra los resultados
     const term = searchTerm.toLowerCase(); //Ignora las mayusculas
     return (
       project.name.toLowerCase().includes(term) ||
@@ -157,17 +158,18 @@ export default function RepoProjects() {
         <p>Proyectos por Capability: Azure</p>
       </div>
       <div className="flex h-full max-h-full w-full flex-col bg-base-100 p-5 mt-5 rounded-md overflow-hidden border border-base-300">
-        
         <input //Barra de busqueda
           type="text"
           placeholder="Buscar por nombre, compañía o líder..."
-          className="input input-bordered w-full mb-4"
+          className="input input-bordered w-full mb-4 px-7 py-6 border-primary text-primary placeholder:text-primary text-base outline-none focus:outline-none"
           value={searchTerm}
+          style={{
+            backgroundColor: "oklch(from var(--color-accent) l c h / 30%)",
+          }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        
+
         <RepoProjectTable projects={filteredProjects} />
-        
       </div>
     </div>
   );
