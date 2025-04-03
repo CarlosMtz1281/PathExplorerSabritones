@@ -1,41 +1,34 @@
 import { useState } from "react";
 import "@/styles/repo-projects/RepoProjectTable.css";
 
-export const RepoProjectTable = () => {
-  const [hoveredRow, setHoveredRow] = useState(null);
+type Project = {
+  id: number;
+  name: string;
+  date: string;
+  vacancies: number;
+  details?: {
+    lead: string;
+    company: string;
+    description: string;
+  };
+};
 
-  const projects = [
-    {
-      id: 1,
-      name: "Proyecto 1",
-      date: "25/03/2025 - 03/05/2025",
-      vacancies: 8,
-    },
-    {
-      id: 2,
-      name: "Proyecto 1",
-      date: "25/03/2025 - 03/05/2025",
-      vacancies: 8,
-    },
-    {
-      id: 3,
-      name: "Proyecto 1",
-      date: "25/03/2025 - 03/05/2025",
-      vacancies: 8,
-      details: {
-        lead: "Carlos Martínez",
-        company: "Cemex",
-        description:
-          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-      },
-    },
-    {
-      id: 4,
-      name: "Proyecto 1",
-      date: "25/03/2025 - 03/05/2025",
-      vacancies: 8,
-    },
-  ];
+type RepoProjectsTableProps = {
+  projects: Project[];
+};
+
+const MAX_DESCRIPTION_LENGTH = 80;
+
+export const RepoProjectTable = ({ projects }: RepoProjectsTableProps) => {
+  const [hoveredRow, setHoveredRow] = useState(0);
+
+  const truncateDescription = (text: string, maxWords: number) => {
+    const words = text.split(" ");
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(" ") + "...";
+    }
+    return text;
+  };
 
   return (
     <div className="table-container">
@@ -55,7 +48,7 @@ export const RepoProjectTable = () => {
                 hoveredRow === project.id ? "hovered" : ""
               }`}
               onMouseEnter={() => setHoveredRow(project.id)}
-              onMouseLeave={() => setHoveredRow(null)}
+              onMouseLeave={() => setHoveredRow(0)}
             >
               <td colSpan={3}>
                 <div className="row-content">
@@ -65,7 +58,7 @@ export const RepoProjectTable = () => {
                     <div className="vacancies-column">{project.vacancies}</div>
                   </div>
 
-                  {project.details && hoveredRow === project.id && (
+                  {project.details && (
                     <div
                       className={`details-container ${
                         hoveredRow === project.id ? "expanded" : ""
@@ -83,8 +76,13 @@ export const RepoProjectTable = () => {
                           </div>
                         </div>
                         <div className="details-description">
-                          <strong>Descripción</strong>{" "}
-                          <p>{project.details.description}</p>
+                          <strong>Descripción</strong>
+                          <p>
+                            {truncateDescription(
+                              project.details.description,
+                              MAX_DESCRIPTION_LENGTH
+                            )}
+                          </p>
                         </div>
                       </div>
                     </div>
