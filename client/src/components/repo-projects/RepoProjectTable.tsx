@@ -4,11 +4,12 @@ import "@/styles/repo-projects/RepoProjectTable.css";
 type Project = {
   id: number;
   name: string;
-  date: string;
-  vacancies: number;
+  start_date: string;
+  end_date: string;
+  vacants: number;
   details?: {
-    lead: string;
-    company: string;
+    capability: string;
+    company?: string;
     region: string;
   };
 };
@@ -83,8 +84,10 @@ export const RepoProjectTable = ({
                       </svg>
                     </button>
                     <div className="name-column">{project.name}</div>
-                    <div className="date-column">{project.date}</div>
-                    <div className="vacancies-column">{project.vacancies}</div>
+                    <div className="date-column">
+                      {project.start_date} - {project.end_date}
+                    </div>
+                    <div className="vacancies-column">{project.vacants}</div>
                   </div>
 
                   {project.details && (
@@ -97,7 +100,7 @@ export const RepoProjectTable = ({
                         <div className="details-delivery-empresa">
                           <div>
                             <strong>Delivery Lead</strong>
-                            <p>{project.details.lead}</p>
+                            <p>{project.details.capability}</p>
                           </div>
                           <div>
                             <strong>Empresa</strong>
