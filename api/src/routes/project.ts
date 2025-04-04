@@ -42,11 +42,14 @@ router.get("/repositories", async (req, res) => {
     const formattedProjects = availableProjects.map((project) => ({
       id: project.project_id,
       name: project.project_name,
-      start_date: project.start_date,
-      end_date: project.end_date,
+      start_date: project.start_date.toLocaleDateString("es-ES"),
+      end_date: project.end_date.toLocaleDateString("es-ES"),
       vacants: project.Project_Positions.length,
-      region: project.Region.region_name,
-      capability: project.Users.name,
+      details: {
+        company: project.company_name,
+        region: project.Region.region_name,
+        capability: project.Users.name,
+      },
     }));
 
     res.json(formattedProjects);

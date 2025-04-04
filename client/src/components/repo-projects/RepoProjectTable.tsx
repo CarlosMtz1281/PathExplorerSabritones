@@ -4,11 +4,12 @@ import "@/styles/repo-projects/RepoProjectTable.css";
 type Project = {
   id: number;
   name: string;
-  date: string;
-  vacancies: number;
+  start_date: string;
+  end_date: string;
+  vacants: number;
   details?: {
-    lead: string;
-    company: string;
+    capability: string;
+    company?: string;
     region: string;
   };
 };
@@ -31,15 +32,6 @@ export const RepoProjectTable = ({
   const handleDropdownClick = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
     handleRowClick(id);
-  };
-
-  const handleAssignClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    // TO DO: routing to assign project page
-  };
-
-  const handleLoadMoreClick = () => {
-    // TO DO: api call pagination and set to projects
   };
 
   return (
@@ -88,8 +80,10 @@ export const RepoProjectTable = ({
                       </svg>
                     </button>
                     <div className="name-column">{project.name}</div>
-                    <div className="date-column">{project.date}</div>
-                    <div className="vacancies-column">{project.vacancies}</div>
+                    <div className="date-column">
+                      {project.start_date} - {project.end_date}
+                    </div>
+                    <div className="vacancies-column">{project.vacants}</div>
                   </div>
 
                   {project.details && (
@@ -102,7 +96,7 @@ export const RepoProjectTable = ({
                         <div className="details-delivery-empresa">
                           <div>
                             <strong>Delivery Lead</strong>
-                            <p>{project.details.lead}</p>
+                            <p>{project.details.capability}</p>
                           </div>
                           <div>
                             <strong>Empresa</strong>
@@ -114,7 +108,11 @@ export const RepoProjectTable = ({
                           </div>
                         </div>
                         <div className="details-button-container">
-                          <button onClick={handleAssignClick}>Asignar</button>
+                          <a
+                            href={`/dashboard/repo-projects/project-details?id=${project.id}`}
+                          >
+                            <button>Asignar</button>
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -125,14 +123,6 @@ export const RepoProjectTable = ({
           ))}
         </tbody>
       </table>
-      <div className="flex w-full items-center justify-center py-8">
-        <button
-          className="bg-primary text-base-100 text-center hover:cursor-pointer py-3 px-10 rounded-md font-semibold hover:opacity-80"
-          onClick={handleLoadMoreClick}
-        >
-          Cargar más proyectos
-        </button>
-      </div>
     </div>
   );
 };
