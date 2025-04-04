@@ -223,6 +223,7 @@ model Projects {
   project_id            Int                 @id
   delivery_lead_user_id Int?
   project_name          String?             @db.VarChar
+  company_name          String?             @db.VarChar
   project_desc          String?
   start_date            DateTime?           @db.Timestamp(6)
   end_date              DateTime?           @db.Timestamp(6)
