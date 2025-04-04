@@ -46,7 +46,7 @@ router.get("/repositories", async (req, res) => {
       end_date: project.end_date.toLocaleDateString("es-ES"),
       vacants: project.Project_Positions.length,
       details: {
-        //company: project.company,
+        company: project.company_name,
         region: project.Region.region_name,
         capability: project.Users.name,
       },
