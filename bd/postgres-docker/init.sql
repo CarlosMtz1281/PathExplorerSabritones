@@ -507,6 +507,42 @@ VALUES (
     '2023-02-01',
     '2023-08-31',
     2
+  ),
+  (
+    3,  
+    4,
+    'Project Gamma', 
+    'Cloud infrastructure migration',
+    '2026-01-01',
+    '2026-12-31',
+    1
+  ),
+  (
+    4,
+    4,
+    'Project Delta',
+    'Mobile app development',
+    '2026-01-01',
+    '2026-06-30',
+    2
+  ),
+  (
+    5,
+    4,
+    'Project Epsilon',
+    'AI Research initiative',
+    '2025-12-01',
+    '2026-05-31',
+    1
+  ),
+  (
+    6,
+    4,
+    'Project Zeta',
+    'Cybersecurity audit',
+    '2025-09-01',
+    '2025-12-31',
+    3
   );
 -- 14) Meeting
 INSERT INTO "Meeting" ("meeting_id", "meeting_date", "meeting_link")
@@ -548,6 +584,34 @@ VALUES (
     'Python Developer',
     'Works on data analysis with Python for Project Beta',
     3
+  ),
+  (
+    4,
+    3,
+    'Cloud Architect',
+    'Design AWS infrastructure',
+    NULL
+  ),
+  (
+    5,
+    3,
+    'DevOps Engineer',
+    'Implement CI/CD pipelines',
+    3
+  ),
+  (
+    6,
+    4,
+    'Flutter Developer',
+    'Build cross-platform app',
+    NULL
+  ),
+  (
+    7,
+    5,  
+    'ML Engineer',
+    'Develop machine learning models',
+    NULL 
   );
 -- 16) Project_User
 INSERT INTO "Project_User" ("user_id", "project_id")
