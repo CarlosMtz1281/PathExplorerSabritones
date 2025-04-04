@@ -3,6 +3,7 @@ import Cargabilidad from "@/components/Cargabilidad";
 
 const Profile = () => {
   return (
+<<<<<<< HEAD
     <div className="flex  items-center h-screen bg-base-100 ml-15">
       <div className="card w-full max-w-sm bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
@@ -65,6 +66,11 @@ const Profile = () => {
             </div>
         </div>
       </div>
+=======
+    <div className="flex min-h-screen max-h-screen flex-col items-center bg-base-200 px-15 py-10">
+      <p className="">Perfil</p>
+      <Cargabilidad userId={1} />
+>>>>>>> 785f968 (modified profile view)
     </div>
   );
 };
