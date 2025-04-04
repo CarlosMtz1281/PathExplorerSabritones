@@ -35,7 +35,7 @@ export default function RepoProjects() {
   const fetchProjects = async () => {
     try {
       const response = await axios.get(
-        process.env.NEXT_PUBLIC_API_BASE + "/projects/repositories"
+        process.env.NEXT_PUBLIC_API_BASE + "/project/repositories"
       );
       setProjects(response.data);
     } catch (error) {
@@ -50,7 +50,7 @@ export default function RepoProjects() {
   return (
     <div className="flex min-h-screen max-h-screen flex-col items-center bg-base-200 px-15 py-10">
       <div className="flex w-full items-center bg-base-100 p-5 text-3xl font-semibold rounded-md border border-base-300">
-        <p>Proyectos por Capability: Azure</p>
+        <p>Proyectos por Capability</p>
       </div>
       <div className="flex h-full max-h-full w-full flex-col bg-base-100 p-5 mt-5 rounded-md overflow-hidden border border-base-300">
         <input //Barra de busqueda

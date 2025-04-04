@@ -34,10 +34,6 @@ export const RepoProjectTable = ({
     handleRowClick(id);
   };
 
-  const handleLoadMoreClick = () => {
-    // TO DO: api call pagination and set to projects
-  };
-
   return (
     <div className="table-container">
       <table className="project-table">
@@ -127,16 +123,6 @@ export const RepoProjectTable = ({
           ))}
         </tbody>
       </table>
-      {projects.length > 10 && (
-        <div className="flex w-full items-center justify-center py-8">
-          <button
-            className="bg-primary text-base-100 text-center hover:cursor-pointer py-3 px-10 rounded-md font-semibold hover:opacity-80"
-            onClick={handleLoadMoreClick}
-          >
-            Cargar más proyectos
-          </button>
-        </div>
-      )}
     </div>
   );
 };
