@@ -26,12 +26,55 @@ export default function CreateProyects() {
           />
         </div>
 
-        {/*Empresa */}
+        
+        <div className="flex flex-row gap-6">
+          {/* Empresa */}
+          <div className="flex-1"> {/* Para que ocupe el espacio comppleto de la mitad del contendor */}
+            <label className="text-xl font-semibold">Empresa</label>
+            <input
+              type="text"
+              placeholder="Empresa"
+              className="input input-bordered w-full mt-2 px-6 p-5 border-primary text-primary placeholder:text-primary text-base"
+              style={{
+                backgroundColor: "oklch(from var(--color-accent) l c h / 30%)",
+              }}
+            />
+          </div>
+
+          {/* Región */}
+          <div className="flex-1">
+            <label className="text-xl font-semibold">Región</label>
+            <input
+              type="text"
+              placeholder="Región"
+              className="input input-bordered w-full mt-2 px-6 p-5 border-primary text-primary placeholder:text-primary text-base"
+              style={{
+                backgroundColor: "oklch(from var(--color-accent) l c h / 30%)",
+              }}
+            />
+          </div>
+        </div>
+
+
+        {/*Habilidades tecnicas */}
         <div>
-          <label className="text-xl font-semibold">Empresa</label>
+          <label className="text-xl font-semibold">Habilidades tecnicas requeridas</label>
           <input
             type="text"
-            placeholder="Nombre de la Empresa"
+            placeholder="Habilidades"
+            className="input input-bordered w-full mt-2 px-6 p-5 border-primary text-primary placeholder:text-primary text-base"
+            style={{
+              backgroundColor: "oklch(from var(--color-accent) l c h / 30%)",
+            }}
+          />
+        </div>
+
+        {/*Certificados */}
+        <div>
+          <label className="text-xl font-semibold">Certificaciones requeridas</label>
+          <input
+            type="text"
+            placeholder="Certificaciones"
             className="input input-bordered w-full mt-2 px-6 p-5 border-primary text-primary placeholder:text-primary text-base"
             style={{
               backgroundColor: "oklch(from var(--color-accent) l c h / 30%)",
