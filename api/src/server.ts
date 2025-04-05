@@ -7,12 +7,14 @@ import projectRoutes from "./routes/project";
 import employeeRoutes from "./routes/employee";
 import courseRoutes from "./routes/course";
 import fs from "fs";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 // Use __dirname directly in CommonJS
 // Node.js in CommonJS mode provides __dirname globally
 const app = express();
+app.use(cookieParser());
 const PORT = process.env.PORT || 3003;
 
 app.use(cors());
@@ -31,7 +33,7 @@ app.get("/", (req, res) => {
 
 app.get("/schema", (req, res) => {
   const schemaPath = path.join(__dirname, "../prisma", "schema.prisma");
-  
+
   fs.readFile(schemaPath, "utf8", (err, data) => {
     if (err) {
       return res.status(500).json({ error: "Failed to read schema.prisma" });
@@ -39,7 +41,6 @@ app.get("/schema", (req, res) => {
     res.type("text/plain").send(data);
   });
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

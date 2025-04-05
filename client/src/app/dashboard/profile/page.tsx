@@ -1,7 +1,11 @@
+"use client";
+
 import React from "react";
 import Cargabilidad from "@/components/Cargabilidad";
-
+import { useAuthContext } from "@/app/context/AuthContext";
 const Profile = () => {
+  const { authUser } = useAuthContext();
+  console.log("Auth User:", authUser);
   return (
     <div className="flex  items-center h-screen bg-base-100 ml-15">
       <div className="card w-full max-w-sm bg-base-100 shadow-xl">
