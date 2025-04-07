@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession } from "next-auth/react";
+
 
 export default function SplitPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [activeSection, setActiveSection] = useState<'top' | 'bottom'>('top');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
 
   const goToTop = () => setActiveSection('top');
   const goToBottom = () => setActiveSection('bottom');
@@ -25,25 +34,21 @@ export default function SplitPage() {
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mail: email,
-          password: password
-        }),
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+        callbackUrl: '/dashboard' // Explicit callback URL
       });
 
-      const data = await response.json();
+      console.log("SignIn result:", result); // Debug log
 
-      if (data.success) {
-        localStorage.setItem('sessionId', data.sessionId);
-        console.log('Login successful, sessionId:', data.sessionId);
-        router.push("/dashboard");
-      } else {
-        setError('Credenciales incorrectas');
+      if (result?.error) {
+        setError(result.error === "CredentialsSignin" 
+          ? 'Credenciales incorrectas' 
+          : `Error: ${result.error}`);
+      } else if (result?.url) {
+        router.push(result.url);
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -52,6 +57,7 @@ export default function SplitPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <>
