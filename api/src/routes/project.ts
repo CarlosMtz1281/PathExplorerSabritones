@@ -59,4 +59,59 @@ router.get("/repositories", async (req, res) => {
   }
 });
 
+router.post("/create", async (req, res) => {
+  const { project_name, desc, start_date, end_date, region_id, positions } = req.body;
+
+  try {
+    // Create the project
+    const project = await prisma.projects.create({
+      data: {
+        project_id: undefined, // Ensure Prisma auto-generates this field
+        project_name,
+        project_desc: desc,
+        start_date: new Date(start_date),
+        end_date: new Date(end_date),
+        Region: { connect: { region_id: Number(region_id) } },
+      },
+    });
+
+    // Create positions, skills, and certifications
+    for (const position of positions) {
+      const createdPosition = await prisma.project_Positions.create({
+        data: {
+          position_id: undefined, // Ensure Prisma auto-generates this field
+          position_name: position.name,
+          position_desc: position.desc,
+          Projects: { connect: { project_id: project.project_id } },
+        },
+      });
+
+      // Add skills to the position
+      for (const skill_id of position.skills) {
+        await prisma.project_Position_Skills.create({
+          data: {
+            position_id: createdPosition.position_id,
+            skill_id,
+          },
+        });
+      }
+
+      // Add certifications to the position
+      for (const certificate_id of position.certifications) {
+        await prisma.project_Position_Certificates.create({
+          data: {
+            position_id: createdPosition.position_id,
+            certificate_id,
+          },
+        });
+      }
+    }
+
+    res.status(201).json({ message: "Project created successfully", project });
+  } catch (error) {
+    console.error("Error creating project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
