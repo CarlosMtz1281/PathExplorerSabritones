@@ -2,8 +2,13 @@
 import React, { useEffect, useState } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import { User } from "@/interfaces/User"; 
+import { useSession } from "next-auth/react";
 
 const Profile = () => {
+  const { data: session, status } = useSession();
+
+
+
   const [userData, setUserData] = useState<User | null>(null);
 
   const fetchUserData = async () => {
