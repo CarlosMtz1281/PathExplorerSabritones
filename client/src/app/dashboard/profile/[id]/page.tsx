@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
+import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
-import { useAuthContext } from "@/app/context/AuthContext";
 import { User } from "@/interfaces/User";
 import { useSession } from "next-auth/react";
 
