@@ -2,7 +2,8 @@
 
 import React from "react";
 
-const ProjectDetails = () => {
+const ProjectDetails = ({ params }: { params: { id: string } }) => {
+  const { id } = params;
   const project = {
     name: "Proyecto 1",
     dates: "13 Marzo 2025 - 4 Mayo 2025",

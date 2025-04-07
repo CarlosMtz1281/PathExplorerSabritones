@@ -108,9 +108,7 @@ export const RepoProjectTable = ({
                           </div>
                         </div>
                         <div className="details-button-container">
-                          <a
-                            href={`/dashboard/repo-projects/project-details?id=${project.id}`}
-                          >
+                          <a href={`/dashboard/repo-projects/${project.id}`}>
                             <button>Asignar</button>
                           </a>
                         </div>
