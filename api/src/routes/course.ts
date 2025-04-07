@@ -1,7 +1,7 @@
 // File: course.js
 import express from "express";
 import dotenv from "dotenv";
-import prisma from "../db/prisma.js";
+import prisma from "../db/prisma";
 
 dotenv.config();
 

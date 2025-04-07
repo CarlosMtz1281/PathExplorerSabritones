@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 import {
   FaHome,
   FaUser,
@@ -10,10 +10,18 @@ import {
   FaClipboardList,
   FaChevronLeft,
   FaChevronRight,
+  FaSignOutAlt,
 } from "react-icons/fa";
 
 export default function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const handleLogout = async () => {
+    await signOut({
+      redirect: true,
+      callbackUrl: "/login"
+    });
+  };
 
   return (
     <div
@@ -81,6 +89,19 @@ export default function Navbar() {
           </a>
         </li>
       </ul>
+
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-red-500 hover:bg-base-200 justify-start mb-4"
+      >
+        <FaSignOutAlt className="w-5 h-5" />
+        {!isCollapsed && (
+          <h3 className="text-2xl font-semibold">Logout</h3>
+        )}
+      </button>
+
+      {/* Collapse Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="btn btn-ghost text-base-100 hover:text-primary mt-auto flex items-center justify-center"

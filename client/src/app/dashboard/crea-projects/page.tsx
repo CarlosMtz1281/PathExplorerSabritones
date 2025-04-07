@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+
 
 export default function CreateProyects() {
+  const { data: session, status } = useSession();
+  
   return (
     <div className="flex min-h-screen max-h-screen flex-col items-center bg-base-200 px-15 py-10">
       <div className="flex w-full items-center bg-base-100 p-5 text-3xl font-semibold rounded-md border border-base-300">

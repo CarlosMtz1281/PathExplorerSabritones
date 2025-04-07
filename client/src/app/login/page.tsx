@@ -3,16 +3,22 @@
 import { useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/app/context/AuthContext";
-
+import { signIn, useSession } from "next-auth/react";
 export default function SplitPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [activeSection, setActiveSection] = useState<"top" | "bottom">("top");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { authUser, setAuthUser } = useAuthContext();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
+
   const goToTop = () => setActiveSection("top");
   const goToBottom = () => setActiveSection("bottom");
 
@@ -26,25 +32,23 @@ export default function SplitPage() {
     setError("");
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/general/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include", // ✅ Important: allow cookies!
-          body: JSON.stringify({ mail: email, password: password }),
-        }
-      );
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+        callbackUrl: "/dashboard", // Explicit callback URL
+      });
 
-      const data = await response.json();
+      console.log("SignIn result:", result); // Debug log
 
-      if (data.success) {
-        console.log("Login successful, sessionId:", data.sessionId);
-        setAuthUser(data);
-        console.log("User data:", authUser);
-        router.push("/dashboard");
-      } else {
-        setError("Credenciales incorrectas");
+      if (result?.error) {
+        setError(
+          result.error === "CredentialsSignin"
+            ? "Credenciales incorrectas"
+            : `Error: ${result.error}`
+        );
+      } else if (result?.url) {
+        router.push(result.url);
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -71,10 +75,10 @@ export default function SplitPage() {
           style={{ backgroundImage: "url(/AccentureBack.png)" }}
         >
           {/* Top section (100% height) */}
-          <div className="absolute top-0 w-full h-screen flex items-center justify-center pb-60">
+          <div className="absolute top-0 w-full h-screen flex items-center justify-center pb-30">
             <div className="text-center font-[Kantumruy Pro]">
               <h1
-                className="text-8xl font-bold mb-1 pr-140"
+                className="text-8xl font-bold mb-1 pr-140 text-base-100"
                 style={{ fontFamily: "'Kantumruy Pro', sans-serif" }}
               >
                 Path
