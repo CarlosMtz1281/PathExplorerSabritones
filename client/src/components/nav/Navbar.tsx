@@ -23,6 +23,7 @@ export default function Navbar() {
     });
   };
   const { data: session, status } = useSession();
+  console.log("Session Status:", session);
   console.log("Session:", session);
 
   return (
@@ -48,7 +49,7 @@ export default function Navbar() {
       <ul className="flex flex-col gap-4 flex-grow items-start mt-30">
         <li className="w-full">
           <a
-            href={`/dashboard/profile/${session?.user?.id}`}
+            href={`/dashboard/profile/${session?.user.id}`}
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaUser className="w-6 h-6" />

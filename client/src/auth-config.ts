@@ -4,9 +4,13 @@ import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
 interface User {
-  id: string;
-  email?: string | null;
-  sessionId: string;
+  id: string; // Unique identifier for the user
+  email?: string | null; // User's email address (optional)
+  sessionId: string; // Session ID for the user
+  userId: string; // User's unique ID in your database
+  name: string; // User's name
+  region_id: number; // Region ID associated with the user
+  in_project: boolean; // Whether the user is part of a project
 }
 
 export const authOptions: NextAuthOptions = {
@@ -41,6 +45,9 @@ export const authOptions: NextAuthOptions = {
               email: credentials?.email,
               sessionId: data.sessionId,
               userId: data.userId,
+              name: data.name,
+              region_id: data.region_id,
+              in_project: data.in_project,
             };
           }
           return null;
@@ -55,11 +62,24 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }: { token: JWT; user?: any }) {
       if (user) {
         token.sessionId = user.sessionId;
+        token.sessionId = user.sessionId;
+        token.userId = user.userId;
+        token.name = user.name;
+        token.region_id = user.region_id;
+        token.in_project = user.in_project;
       }
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       session.sessionId = token.sessionId as string;
+      // You could also store these on `session.user`:
+      session.user = {
+        ...session.user,
+        id: token.userId as string,
+        name: token.name as string,
+        region_id: token.region_id as number,
+        in_project: token.in_project as boolean,
+      };
       return session;
     },
   },

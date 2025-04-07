@@ -38,35 +38,24 @@ router.post("/login", async (req, res) => {
     });
 
     // Return session ID
-    res
-      .cookie("sessionId", newSession, {
-        httpOnly: false, // ❗ set to true for better security
-        secure: false, // ❗ true if you're on HTTPS
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-        path: "/",
-      })
-      .json({
-        success: true,
-        sessionId: newSession,
-      });
+    res.json({
+      success: true,
+      sessionId: newSession.session_id,
+      userId: user.user_id,
+      name: user.name,
+      region_id: user.region_id,
+      in_project: user.in_project,
+    });
   } else {
     res.json({ success: false });
   }
 });
 
 router.get("/cargabilidad", async (req, res) => {
-  const session_id = req.query.session_id;
+  const userId = req.query.userId;
 
-  console.log("session_id:", session_id);
-
-  const userId = await getUserIdFromSession(session_id);
   if (!userId) {
     return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  if (isNaN(userId)) {
-    return res.status(400).json({ error: "Invalid or missing userId" });
   }
 
   try {
@@ -74,8 +63,6 @@ router.get("/cargabilidad", async (req, res) => {
     if (!result) {
       return res.status(404).json({ message: "No data found for user" });
     }
-
-    await updateSession(session_id);
 
     res.json(result);
   } catch (error) {
