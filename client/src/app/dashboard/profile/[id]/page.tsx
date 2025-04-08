@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import { User } from "@/interfaces/User";
 import { useSession } from "next-auth/react";
+import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 
 const Profile = ({ params }: { params: { id: string } }) => {
   const { id } = params;
@@ -41,7 +42,7 @@ const Profile = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className="flex items-center h-screen bg-base-100 ml-15">
+    <div className="flex flex-row h-screen bg-base-200 pl-15 gap-x-15 pr-15 py-20">
       <div className="card w-full max-w-sm bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
           {/* Profile Image */}
@@ -121,6 +122,9 @@ const Profile = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex flex-row w-full min-h-screen items-start">
+        <WidgetHabilidades />
       </div>
     </div>
   );

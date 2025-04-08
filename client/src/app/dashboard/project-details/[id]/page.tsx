@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, {useState} from "react";
 
 const ProjectDetails = ({ params }: { params: { id: string } }) => {
   const { id } = params;
@@ -17,6 +17,8 @@ const ProjectDetails = ({ params }: { params: { id: string } }) => {
       { role: "Azure nivel 10", count: 2 },
     ],
   };
+
+  const [selectedVacancy, setSelectedVacancy] = useState(project.vacancies[0].role);
 
   const candidates = [
     {
@@ -102,41 +104,73 @@ const ProjectDetails = ({ params }: { params: { id: string } }) => {
   return (
     <div className="min-h-screen bg-base-200 p-10">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Project Details */}
-        <div className="col-span-1 bg-base-100 rounded-lg shadow-md border border-base-300">
-          <div className="card">
-            <div className="card-title bg-primary text-primary-content p-4 rounded-t-lg">
-              <h2 className="text-2xl font-bold">{project.name}</h2>
+        {/* Project Details Column (now stacked vertically) */}
+        <div className="col-span-1 space-y-8">
+          {/* Project Info (top section) */}
+          <div className="bg-base-100 rounded-lg shadow-md border border-base-300">
+            <div className="card">
+              <div className="card-title bg-primary text-primary-content p-4 rounded-t-lg">
+                <h2 className="text-2xl font-bold">{project.name}</h2>
+              </div>
+              <div className="card-body p-6">
+                <p className="text-sm text-secondary mb-2">
+                  <strong>Fechas:</strong> {project.dates}
+                </p>
+                <p className="text-sm text-secondary mb-2">
+                  <strong>Duración:</strong>{" "}
+                  <a href="#" className="link link-primary">
+                    {project.duration}
+                  </a>
+                </p>
+                <p className="text-sm text-secondary mb-2">
+                  <strong>Delivery Lead:</strong> {project.lead}
+                </p>
+                <p className="text-sm text-secondary mb-2">
+                  <strong>Empresa:</strong> {project.company}
+                </p>
+                <p className="text-sm text-secondary">
+                  <strong>Descripción:</strong> {project.description}
+                </p>
+              </div>
             </div>
-            <div className="card-body p-6">
-              <p className="text-sm text-secondary mb-2">
-                <strong>Fechas:</strong> {project.dates}
-              </p>
-              <p className="text-sm text-secondary mb-2">
-                <strong>Duración:</strong>{" "}
-                <a href="#" className="link link-primary">
-                  {project.duration}
-                </a>
-              </p>
-              <p className="text-sm text-secondary mb-2">
-                <strong>Delivery Lead:</strong> {project.lead}
-              </p>
-              <p className="text-sm text-secondary mb-2">
-                <strong>Empresa:</strong> {project.company}
-              </p>
-              <p className="text-sm text-secondary mb-4">
-                <strong>Descripción:</strong> {project.description}
-              </p>
-              <p className="text-sm text-secondary">
-                <strong>Vacantes:</strong>
-              </p>
-              <ul className="list-disc list-inside text-sm text-secondary">
-                {project.vacancies.map((vacancy, index) => (
-                  <li key={index}>
-                    {vacancy.count} {vacancy.role}
-                  </li>
-                ))}
-              </ul>
+          </div>
+
+          {/* Vacancies (bottom section) */}
+          <div className="bg-base-100 rounded-lg shadow-md border border-base-300">
+            <div className="card">
+              <div className="card-title bg-primary text-primary-content p-4 rounded-t-lg">
+                <h2 className="text-2xl font-bold">Vacantes</h2>
+              </div>
+              <div className="card-body p-6">
+                <div className="form-control w-full mb-4">
+                  <label className="label">
+                    <span className="label-text">Seleccionar vacante</span>
+                  </label>
+                  <select 
+                    className="select select-bordered w-full"
+                    value={selectedVacancy}
+                    onChange={(e) => setSelectedVacancy(e.target.value)}
+                  >
+                    {project.vacancies.map((vacancy, index) => (
+                      <option key={index} value={vacancy.role}>
+                        {vacancy.role} ({vacancy.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="mt-4">
+                  <h3 className="font-bold mb-2">Detalles de la vacante seleccionada:</h3>
+                  <p className="text-sm text-secondary">
+                    <strong>Rol:</strong> {selectedVacancy}
+                  </p>
+                  <p className="text-sm text-secondary mt-2">
+                    <strong>Disponibles:</strong> {
+                      project.vacancies.find(v => v.role === selectedVacancy)?.count
+                    }
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
