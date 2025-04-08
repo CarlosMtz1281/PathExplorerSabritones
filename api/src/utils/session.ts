@@ -20,16 +20,29 @@ async function updateSession(sessionId: string) {
 }
 
 async function getUserIdFromSession(sessionId: string) {
-  const session = await prisma.session.findFirst({
-    where: {
-      session_id: sessionId,
-    },
-    select: {
-      user_id: true,
-    },
-  });
+  try {
+    const session = await prisma.session.findFirst({
+      where: {
+        session_id: sessionId,
+      },
+      select: {
+        user_id: true,
+        expires_at: true,
+      },
+    });
 
-  return session?.user_id;
+    if (!session) {
+      return null;
+    }
+
+    if (session.expires_at < new Date()) {
+      return "timeout";
+    }
+
+    return session.user_id;
+  } catch (error) {
+    return null;
+  }
 }
 
 export { updateSession, getUserIdFromSession };
