@@ -65,4 +65,30 @@ router.get("/skills", async (req, res) => {
   }
 });
 
+router.post("/skills", async (req, res) => {
+  try {
+    const { skills } = req.body;
+
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+
+    if (skills.length === 0) {
+      return res.status(400).json({ error: "Skills are required." });
+    }
+
+    skills.forEach(async (skill) => {
+      await prisma.user_Skills.create({
+        data: {
+          user_id: userId,
+          skill_id: skill,
+        },
+      });
+    });
+
+    res.status(200).json({ message: "Skills added successfully." });
+  } catch (error) {
+    console.error("Error adding user skills:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 export default router;
