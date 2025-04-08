@@ -4,9 +4,13 @@ import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
 interface User {
-    id: string;
-    email?: string | null;
-    sessionId: string;
+  id: string; // Unique identifier for the user
+  email?: string | null; // User's email address (optional)
+  sessionId: string; // Session ID for the user
+  userId: string; // User's unique ID in your database
+  name: string; // User's name
+  region_id: number; // Region ID associated with the user
+  in_project: boolean; // Whether the user is part of a project
 }
 
 export const authOptions: NextAuthOptions = {
@@ -15,53 +19,73 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              mail: credentials?.email,
-              password: credentials?.password
-            }),
-          });
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE}/general/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                mail: credentials?.email,
+                password: credentials?.password,
+              }),
+            }
+          );
 
           if (!response.ok) return null;
 
           const data = await response.json();
-          
+
           if (data.success) {
             return {
               id: data.sessionId,
               email: credentials?.email,
-              sessionId: data.sessionId
+              sessionId: data.sessionId,
+              userId: data.userId,
+              name: data.name,
+              region_id: data.region_id,
+              in_project: data.in_project,
             };
           }
           return null;
         } catch (error) {
-          console.error('Authorization error:', error);
+          console.error("Authorization error:", error);
           return null;
         }
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: any }) {
       if (user) {
         token.sessionId = user.sessionId;
+        token.sessionId = user.sessionId;
+        token.userId = user.userId;
+        token.name = user.name;
+        token.region_id = user.region_id;
+        token.in_project = user.in_project;
       }
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       session.sessionId = token.sessionId as string;
+      // You could also store these on `session.user`:
+      session.user = {
+        ...session.user,
+        id: token.userId as string,
+        name: token.name as string,
+        region_id: token.region_id as number,
+        in_project: token.in_project as boolean,
+      };
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/login',
-    error: '/login'
+    signIn: "/login",
+    error: "/login",
   },
   session: {
     strategy: "jwt",
@@ -71,7 +95,7 @@ export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development'
+  debug: process.env.NODE_ENV === "development",
 };
 
 export default authOptions;

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import {
   FaHome,
   FaUser,
@@ -19,9 +19,12 @@ export default function Navbar() {
   const handleLogout = async () => {
     await signOut({
       redirect: true,
-      callbackUrl: "/login"
+      callbackUrl: "/login",
     });
   };
+  const { data: session, status } = useSession();
+  console.log("Session Status:", session);
+  console.log("Session:", session);
 
   return (
     <div
@@ -46,7 +49,7 @@ export default function Navbar() {
       <ul className="flex flex-col gap-4 flex-grow items-start mt-30">
         <li className="w-full">
           <a
-            href="/dashboard/profile"
+            href={`/dashboard/profile/${session?.user.id}`}
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaUser className="w-6 h-6" />
@@ -96,9 +99,7 @@ export default function Navbar() {
         className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-red-500 hover:bg-base-200 justify-start mb-4"
       >
         <FaSignOutAlt className="w-5 h-5" />
-        {!isCollapsed && (
-          <h3 className="text-2xl font-semibold">Logout</h3>
-        )}
+        {!isCollapsed && <h3 className="text-2xl font-semibold">Logout</h3>}
       </button>
 
       {/* Collapse Button */}
