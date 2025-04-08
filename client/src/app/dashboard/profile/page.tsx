@@ -1,23 +1,25 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
-import { User } from "@/interfaces/User"; 
+import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
+import { User } from "@/interfaces/User";
 import { useSession } from "next-auth/react";
 
 const Profile = () => {
   const { data: session, status } = useSession();
 
-
-
   const [userData, setUserData] = useState<User | null>(null);
 
   const fetchUserData = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user`, {
-        headers: {
-          "user-id": "1", // Hardcoded user ID
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/employee/user`,
+        {
+          headers: {
+            "user-id": "1", // Hardcoded user ID
+          },
+        }
+      );
       if (!res.ok) {
         throw new Error("Failed to fetch user data");
       }
@@ -37,14 +39,14 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex items-center h-screen bg-base-100 ml-15">
+    <div className="flex flex-row h-screen bg-base-200 pl-15 gap-x-15 pr-15 py-20">
       <div className="card w-full max-w-sm bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
           {/* Profile Image */}
           <div className="avatar">
             <div className="w-40 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
               <img
-                src="/profilePic.jpg" 
+                src="/profilePic.jpg"
                 alt="Profile"
                 className="object-cover w-full h-full"
               />
@@ -84,7 +86,9 @@ const Profile = () => {
                   <p className="text-base font-semibold">
                     <strong>Oficina:</strong>
                   </p>
-                  <p className="text-base text-right">{userData.Region.region_name}</p>
+                  <p className="text-base text-right">
+                    {userData.Region.region_name}
+                  </p>
                 </div>
               </div>
               <div className="justify-between">
@@ -104,7 +108,8 @@ const Profile = () => {
                   </p>
                   <p className="text-base text-right">
                     {Math.floor(
-                      (new Date().getTime() - new Date(userData.hire_date).getTime()) /
+                      (new Date().getTime() -
+                        new Date(userData.hire_date).getTime()) /
                         (1000 * 60 * 60 * 24 * 30)
                     )}{" "}
                     meses
@@ -114,6 +119,9 @@ const Profile = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex flex-row w-full min-h-screen items-start">
+        <WidgetHabilidades />
       </div>
     </div>
   );
