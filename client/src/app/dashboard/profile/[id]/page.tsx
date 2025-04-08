@@ -3,7 +3,9 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
+import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import { User } from "@/interfaces/User";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 
 const Profile = ({ params }: { params: { id: string } }) => {
@@ -42,13 +44,15 @@ const Profile = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className="flex flex-row h-screen bg-base-200 pl-15 gap-x-15 pr-15 py-20">
+    <div className="flex flex-row h-screen bg-base-200 pl-15 gap-x-15 pr-15 py-10">
       <div className="card w-full max-w-sm bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
           {/* Profile Image */}
           <div className="avatar">
-            <div className="w-40 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <img
+            <div className="w-25 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+              <Image
+                width={160}
+                height={160}
                 src="/profilePic.jpg"
                 alt="Profile"
                 className="object-cover w-full h-full"
@@ -57,13 +61,13 @@ const Profile = ({ params }: { params: { id: string } }) => {
           </div>
 
           {/* Profile Info */}
-          <h2 className="text-4xl font-bold mt-4">{userData.name}</h2>
+          <h2 className="text-3xl font-bold mt-4">{userData.name}</h2>
           <p className="text-primary text-xl">
             {userData.Permits.is_employee ? "Employee" : "Guest"}
           </p>
 
           {/* Cargabilidad Component */}
-          <div className="mt-6">
+          <div className="mt-4">
             <Cargabilidad userId={userData.user_id} />
           </div>
 
@@ -123,7 +127,8 @@ const Profile = ({ params }: { params: { id: string } }) => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row w-full min-h-screen items-start">
+      <div className="w-full flex flex-col gap-10 overflow-y-auto">
+        <WidgetCertificaciones />
         <WidgetHabilidades />
       </div>
     </div>
