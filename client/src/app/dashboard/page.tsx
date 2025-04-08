@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 
 const DashboardPage = () => {
   // Get the session data
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   return (
     <div>
