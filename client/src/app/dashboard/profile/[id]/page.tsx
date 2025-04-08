@@ -5,7 +5,6 @@ import Cargabilidad from "@/components/Cargabilidad";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import { User } from "@/interfaces/User";
 import { useSession } from "next-auth/react";
-import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 
 const Profile = ({ params }: { params: { id: string } }) => {
   const { id } = params;
