@@ -5,11 +5,11 @@ import Cargabilidad from "@/components/Cargabilidad";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import { User } from "@/interfaces/User";
 import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 
-const Profile = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const Profile = () => {
+  const { id } = useParams();
   console.log("Profile ID:", id);
-  const { data: session, status } = useSession();
 
   const [userData, setUserData] = useState<User | null>(null);
 
