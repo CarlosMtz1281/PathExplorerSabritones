@@ -84,3 +84,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact / Acknowledgments
 - Created by Sabritones.
 
+tmux commands
+start
+tmux send-keys -t %5 'npm run dev' C-m
+tmux send-keys -t %0 'npm run dev' C-m
+tmux send-keys -t %4 'npx prisma studio' C-m
+
+tmux list-panes -F '#{pane_id}' | while read pane; do tmux send-keys -t "$pane" C-c; done

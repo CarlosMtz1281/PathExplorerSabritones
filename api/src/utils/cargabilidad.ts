@@ -9,10 +9,9 @@ async function getCargabilidad(userId: number) {
     FROM "Users" u
     JOIN "Project_User" pu ON u."user_id" = pu."user_id"
     JOIN "Projects" p ON pu."project_id" = p."project_id"
-    WHERE u."user_id" = ${userId}
+    WHERE u."user_id" = ${userId}::integer
     GROUP BY u."user_id", u."hire_date"`;
   const rawPercentage = result[0]?.percentage_in_projects;
   return rawPercentage !== undefined ? Math.round(rawPercentage) : 0;
 }
-// module.exports = getCargabilidad;
 export default getCargabilidad;

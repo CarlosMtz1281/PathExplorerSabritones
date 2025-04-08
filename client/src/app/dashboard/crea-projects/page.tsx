@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+
 
 export default function CreateProyects() {
   // 🔧 Datos harcodeados de ejemplo 
@@ -22,7 +24,8 @@ export default function CreateProyects() {
   //  Estados para mostrar todas las habilidades o certificaciones o nomas 2
   const [expandSkills, setExpandSkills] = useState(false);
   const [expandCerts, setExpandCerts] = useState(false);
-
+  const { data: session, status } = useSession();
+  
   return (
     <div className="flex flex-col h-screen bg-base-200 px-15 py-10">
       {/*  Título de la pantalla */}

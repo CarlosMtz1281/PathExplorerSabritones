@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
+  seed     = "ts-node prisma/seed.ts"
 }
 
 datasource db {
@@ -9,7 +10,7 @@ datasource db {
 }
 
 model Capability {
-  capability_id          Int                      @id
+  capability_id          Int                      @id @default(autoincrement())
   capability_name        String?                  @db.VarChar
   capability_lead_id     Int?
   region_id              Int?
@@ -62,7 +63,7 @@ model Certificate_Users {
 }
 
 model Certificates {
-  certificate_id                Int                             @id
+  certificate_id                Int                             @id @default(autoincrement())
   certificate_name              String?                         @db.VarChar
   certificate_desc              String?
   Certificate_Skills            Certificate_Skills[]
@@ -93,7 +94,7 @@ model Course_Users {
 }
 
 model Courses {
-  course_id      Int             @id
+  course_id      Int             @id @default(autoincrement())
   course_name    String?         @db.VarChar
   course_desc    String?
   estimated_time String?         @db.VarChar
@@ -113,7 +114,7 @@ model Employee_Position {
 }
 
 model Feedback {
-  feedback_id Int       @id
+  feedback_id Int       @id @default(autoincrement())
   project_id  Int?
   user_id     Int?
   desc        String?
@@ -144,7 +145,7 @@ model Goal_Users {
 }
 
 model Goals {
-  goal_id     Int           @id
+  goal_id     Int           @id @default(autoincrement())
   goal_name   String?       @db.VarChar
   goal_desc   String?
   Goal_Skills Goal_Skills[]
@@ -152,14 +153,14 @@ model Goals {
 }
 
 model Meeting {
-  meeting_id   Int            @id
+  meeting_id   Int            @id @default(autoincrement())
   meeting_date DateTime?      @db.Timestamp(6)
   meeting_link String?        @db.VarChar
   Postulations Postulations[]
 }
 
 model Permits {
-  role_id            Int      @id
+  role_id            Int      @id @default(autoincrement())
   is_employee        Boolean?
   is_people_lead     Boolean?
   is_capability_lead Boolean?
@@ -169,7 +170,7 @@ model Permits {
 }
 
 model Postulations {
-  postulation_id      Int                @id
+  postulation_id      Int                @id @default(autoincrement())
   project_position_id Int?
   user_id             Int?
   postulation_date    DateTime?          @db.Timestamp(6)
@@ -198,7 +199,7 @@ model Project_Position_Skills {
 }
 
 model Project_Positions {
-  position_id                   Int                             @id
+  position_id                   Int                             @id @default(autoincrement())
   project_id                    Int?
   position_name                 String?                         @db.VarChar
   position_desc                 String?
@@ -220,7 +221,7 @@ model Project_User {
 }
 
 model Projects {
-  project_id            Int                 @id
+  project_id            Int                 @id @default(autoincrement())
   delivery_lead_user_id Int?
   project_name          String?             @db.VarChar
   company_name          String?             @db.VarChar
@@ -236,7 +237,7 @@ model Projects {
 }
 
 model Region {
-  region_id   Int          @id
+  region_id   Int          @id @default(autoincrement())
   region_name String?      @db.VarChar
   country     String?      @db.VarChar
   timezone    String?      @db.VarChar
@@ -246,7 +247,7 @@ model Region {
 }
 
 model Skills {
-  skill_id                Int                       @id
+  skill_id                Int                       @id @default(autoincrement())
   name                    String?                   @db.VarChar
   technical               Boolean?
   Certificate_Skills      Certificate_Skills[]
@@ -257,7 +258,7 @@ model Skills {
 }
 
 model User_Score {
-  score_id Int    @id
+  score_id Int    @id @default(autoincrement())
   user_id  Int?
   score    Int?
   Users    Users? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_users_user")
@@ -273,7 +274,7 @@ model User_Skills {
 }
 
 model Users {
-  user_id                                                       Int                      @id
+  user_id                                                       Int                      @id @default(autoincrement())
   mail                                                          String?                  @db.VarChar
   password                                                      String?                  @db.VarChar
   name                                                          String?                  @db.VarChar
@@ -303,7 +304,7 @@ model Users {
 }
 
 model Work_Position {
-  position_id       Int                 @id
+  position_id       Int                 @id @default(autoincrement())
   position_name     String?             @db.VarChar
   position_desc     String?
   company           String?             @db.VarChar

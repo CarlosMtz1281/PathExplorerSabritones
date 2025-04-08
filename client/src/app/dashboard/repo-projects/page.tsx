@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { RepoProjectTable } from "@/components/repo-projects/RepoProjectTable";
+import { useSession } from "next-auth/react";
+
 
 type Project = {
   id: number;
@@ -18,6 +20,9 @@ type Project = {
 };
 
 export default function RepoProjects() {
+  const { data: session, status } = useSession();
+
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState(""); //Almacena el texto
 
