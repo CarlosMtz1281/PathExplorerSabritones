@@ -20,6 +20,7 @@ async function updateSession(sessionId: string) {
 }
 
 async function getUserIdFromSession(sessionId: string) {
+  console.log("Fetching user ID from session:", sessionId);
   const session = await prisma.session.findFirst({
     where: {
       session_id: sessionId,
@@ -28,7 +29,7 @@ async function getUserIdFromSession(sessionId: string) {
       user_id: true,
     },
   });
-
+  console.log("Session data:", session);
   return session?.user_id;
 }
 
