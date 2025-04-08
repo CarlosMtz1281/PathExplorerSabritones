@@ -3,7 +3,7 @@ SET search_path TO pathexplorer;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- =======================
 CREATE TABLE "Users" (
-  "user_id" integer PRIMARY KEY,
+  "user_id" SERIAL PRIMARY KEY,
   "mail" varchar,
   "password" varchar,
   "name" varchar,
@@ -14,18 +14,18 @@ CREATE TABLE "Users" (
   "region_id" integer
 );
 CREATE TABLE "Region" (
-  "region_id" integer PRIMARY KEY,
+  "region_id" SERIAL PRIMARY KEY,
   "region_name" varchar,
   "country" varchar,
   "timezone" varchar
 );
 CREATE TABLE "User_Score" (
-  "score_id" integer PRIMARY KEY,
+  "score_id" SERIAL PRIMARY KEY,
   "user_id" integer,
   "score" integer
 );
 CREATE TABLE "Permits" (
-  "role_id" integer PRIMARY KEY,
+  "role_id" SERIAL PRIMARY KEY,
   "is_employee" boolean,
   "is_people_lead" boolean,
   "is_capability_lead" boolean,
@@ -33,7 +33,7 @@ CREATE TABLE "Permits" (
   "is_admin" boolean
 );
 CREATE TABLE "Capability" (
-  "capability_id" integer PRIMARY KEY,
+  "capability_id" SERIAL PRIMARY KEY,
   "capability_name" varchar,
   "capability_lead_id" integer,
   "region_id" integer
@@ -50,7 +50,7 @@ CREATE TABLE "Capability_Employee" (
   PRIMARY KEY ("capability_id", "people_lead_id", "employee_id")
 );
 CREATE TABLE "Skills" (
-  "skill_id" integer PRIMARY KEY,
+  "skill_id" SERIAL PRIMARY KEY,
   "name" varchar,
   "technical" boolean
 );
@@ -60,7 +60,7 @@ CREATE TABLE "User_Skills" (
   PRIMARY KEY ("user_id", "skill_id")
 );
 CREATE TABLE "Projects" (
-  "project_id" integer PRIMARY KEY,
+  "project_id" SERIAL PRIMARY KEY,
   "delivery_lead_user_id" integer,
   "project_name" varchar,
   "company_name" varchar,
@@ -70,7 +70,7 @@ CREATE TABLE "Projects" (
   "region_id" integer
 );
 CREATE TABLE "Project_Positions" (
-  "position_id" integer PRIMARY KEY,
+  "position_id" SERIAL PRIMARY KEY,
   "project_id" integer,
   "position_name" varchar,
   "position_desc" text,
@@ -92,26 +92,26 @@ CREATE TABLE "Project_User" (
   PRIMARY KEY ("user_id", "project_id")
 );
 CREATE TABLE "Postulations" (
-  "postulation_id" integer PRIMARY KEY,
+  "postulation_id" SERIAL PRIMARY KEY,
   "project_position_id" integer,
   "user_id" integer,
   "postulation_date" timestamp,
   "meeting_id" integer
 );
 CREATE TABLE "Meeting" (
-  "meeting_id" integer PRIMARY KEY,
+  "meeting_id" SERIAL PRIMARY KEY,
   "meeting_date" timestamp,
   "meeting_link" varchar
 );
 CREATE TABLE "Feedback" (
-  "feedback_id" integer PRIMARY KEY,
+  "feedback_id" SERIAL PRIMARY KEY,
   "project_id" integer,
   "user_id" integer,
   "desc" text,
   "score" integer
 );
 CREATE TABLE "Certificates" (
-  "certificate_id" integer PRIMARY KEY,
+  "certificate_id" SERIAL PRIMARY KEY,
   "certificate_name" varchar,
   "certificate_desc" text
 );
@@ -130,7 +130,7 @@ CREATE TABLE "Certificate_Skills" (
   PRIMARY KEY ("certificate_id", "skill_id")
 );
 CREATE TABLE "Courses" (
-  "course_id" integer PRIMARY KEY,
+  "course_id" SERIAL PRIMARY KEY,
   "course_name" varchar,
   "course_desc" text,
   "estimated_time" varchar
@@ -150,7 +150,7 @@ CREATE TABLE "Course_Skills" (
   PRIMARY KEY ("course_id", "skill_id")
 );
 CREATE TABLE "Work_Position" (
-  "position_id" integer PRIMARY KEY,
+  "position_id" SERIAL PRIMARY KEY,
   "position_name" varchar,
   "position_desc" text,
   "company" varchar
@@ -163,7 +163,7 @@ CREATE TABLE "Employee_Position" (
   PRIMARY KEY ("position_id", "user_id")
 );
 CREATE TABLE "Goals" (
-  "goal_id" integer PRIMARY KEY,
+  "goal_id" SERIAL PRIMARY KEY,
   "goal_name" varchar,
   "goal_desc" text
 );
@@ -250,147 +250,109 @@ ALTER TABLE "Goal_Users"
 ADD CONSTRAINT fk_goal_users_goal FOREIGN KEY ("goal_id") REFERENCES "Goals"("goal_id"),
   ADD CONSTRAINT fk_goal_users_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id");
 ALTER TABLE "Session"
-  ADD CONSTRAINT fk_session_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE CASCADE;
--- ========================
---   STORED PROCEDURES
--- ========================
-CREATE OR REPLACE PROCEDURE delete_expired_sessions()
-LANGUAGE plpgsql
-AS $$
-BEGIN
-  DELETE FROM "Session"
-  WHERE "expires_at" <= NOW();
-END;
-$$;
--- ========================
+ADD CONSTRAINT fk_session_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE CASCADE;
 --   DUMMY DATA INSERTION
--- ========================
 -- 1) Region
 INSERT INTO "Region" (
-    "region_id",
     "region_name",
     "country",
     "timezone"
   )
-VALUES (1, 'North America', 'USA', 'UTC-5'),
-  (2, 'Europe', 'Germany', 'UTC+1'),
-  (3, 'Asia', 'India', 'UTC+5:30');
+VALUES ('North America', 'USA', 'UTC-5'),
+  ('Europe', 'Germany', 'UTC+1'),
+  ('Asia', 'India', 'UTC+5:30');
 -- 2) Permits
 INSERT INTO "Permits" (
-    "role_id",
     "is_employee",
     "is_people_lead",
     "is_capability_lead",
     "is_delivery_lead",
     "is_admin"
   )
-VALUES (1, TRUE, FALSE, FALSE, FALSE, FALSE),
+VALUES (TRUE, FALSE, FALSE, FALSE, FALSE),
   -- Simple employee
-  (2, TRUE, TRUE, FALSE, FALSE, FALSE),
+  (TRUE, TRUE, FALSE, FALSE, FALSE),
   -- People lead
-  (3, TRUE, FALSE, TRUE, FALSE, FALSE),
+  (TRUE, FALSE, TRUE, FALSE, FALSE),
   -- Capability lead
-  (4, TRUE, FALSE, FALSE, TRUE, FALSE),
+  (TRUE, FALSE, FALSE, TRUE, FALSE),
   -- Delivery lead
-  (5, FALSE, FALSE, FALSE, FALSE, TRUE);
+  (FALSE, FALSE, FALSE, FALSE, TRUE);
 -- Admin
 -- 3) Skills
-INSERT INTO "Skills" ("skill_id", "name", "technical")
-VALUES (1, 'Java', TRUE),
-  (2, 'Project Management', FALSE),
-  (3, 'Python', TRUE),
-  (4, 'Communication', FALSE);
+INSERT INTO "Skills" ("name", "technical")
+VALUES ('Java', TRUE),
+  ('Project Management', FALSE),
+  ('Python', TRUE),
+  ('Communication', FALSE);
 -- 4) Certificates
 INSERT INTO "Certificates" (
-    "certificate_id",
     "certificate_name",
     "certificate_desc"
   )
 VALUES (
-    1,
     'Oracle Java Certification',
     'Certification for Java developers'
   ),
   (
-    2,
     'PMP Certification',
     'Project Management Professional'
   ),
   (
-    3,
     'AWS Certified Solutions Architect',
     'Cloud architecture certification'
   );
 -- 5) Courses
 INSERT INTO "Courses" (
-    "course_id",
     "course_name",
     "course_desc",
     "estimated_time"
   )
 VALUES (
-    1,
     'Java Basics',
     'Introduction to Java programming',
     '10 hours'
   ),
   (
-    2,
     'Advanced Project Management',
     'Deep dive into PM techniques',
     '20 hours'
   ),
-  (
-    3,
-    'AWS Foundations',
-    'Basic AWS usage',
-    '15 hours'
-  );
+  ('AWS Foundations', 'Basic AWS usage', '15 hours');
 -- 6) Work_Position
 INSERT INTO "Work_Position" (
-    "position_id",
     "position_name",
     "position_desc",
     "company"
   )
 VALUES (
-    1,
     'Software Engineer',
     'Responsible for software development',
     'TechCorp'
   ),
   (
-    2,
     'Project Manager',
     'Oversees project execution',
     'BizCorp'
   ),
   (
-    3,
     'DevOps Engineer',
     'Manages CI/CD and infrastructure',
     'CloudCorp'
   );
 -- 7) Goals
-INSERT INTO "Goals" ("goal_id", "goal_name", "goal_desc")
+INSERT INTO "Goals" ("goal_name", "goal_desc")
 VALUES (
-    1,
     'Improve Java Skills',
     'Focus on advanced Java concepts'
   ),
   (
-    2,
     'Develop PM Skills',
     'Learn project management methodologies'
   ),
-  (
-    3,
-    'Get AWS Certified',
-    'Achieve AWS certification'
-  );
+  ('Get AWS Certified', 'Achieve AWS certification');
 -- 8) Users
 INSERT INTO "Users" (
-    "user_id",
     "mail",
     "password",
     "name",
@@ -401,7 +363,6 @@ INSERT INTO "Users" (
     "region_id"
   )
 VALUES (
-    1,
     'john.doe@example.com',
     'password123',
     'John Doe',
@@ -412,7 +373,6 @@ VALUES (
     1
   ),
   (
-    2,
     'jane.smith@example.com',
     'passwordabc',
     'Jane Smith',
@@ -423,7 +383,6 @@ VALUES (
     1
   ),
   (
-    3,
     'alex.miller@example.com',
     'pass123',
     'Alex Miller',
@@ -434,7 +393,6 @@ VALUES (
     2
   ),
   (
-    4,
     'emily.jones@example.com',
     'mypassword',
     'Emily Jones',
@@ -445,7 +403,6 @@ VALUES (
     2
   ),
   (
-    5,
     'admin.user@example.com',
     'adminpass',
     'Admin User',
@@ -456,21 +413,20 @@ VALUES (
     3
   );
 -- 9) User_Score
-INSERT INTO "User_Score" ("score_id", "user_id", "score")
-VALUES (1, 1, 85),
-  (2, 2, 90),
-  (3, 3, 75),
-  (4, 4, 88),
-  (5, 5, 95);
+INSERT INTO "User_Score" ("user_id", "score")
+VALUES (1, 85),
+  (2, 90),
+  (3, 75),
+  (4, 88),
+  (5, 95);
 -- 10) Capability
 INSERT INTO "Capability" (
-    "capability_id",
     "capability_name",
     "capability_lead_id",
     "region_id"
   )
-VALUES (1, 'Software Development', 1, 1),
-  (2, 'Project Management', 2, 1);
+VALUES ('Software Development', 1, 1),
+  ('Project Management', 2, 1);
 -- 11) Capability_People_Lead
 INSERT INTO "Capability_People_Lead" ("capability_id", "capability_pl_id")
 VALUES (1, 2),
@@ -481,9 +437,8 @@ VALUES (1, 2, 1),
   (1, 2, 3),
   (2, 3, 2),
   (2, 3, 4);
--- 13) Projects (delivery_lead_user_id references user with role=4 --> user_id=4)
+-- 13) Projects
 INSERT INTO "Projects" (
-    "project_id",
     "delivery_lead_user_id",
     "project_name",
     "company_name",
@@ -493,7 +448,6 @@ INSERT INTO "Projects" (
     "region_id"
   )
 VALUES (
-    1,
     4,
     'Project Alpha',
     'TechCorp',
@@ -503,7 +457,6 @@ VALUES (
     1
   ),
   (
-    2,
     4,
     'Project Beta',
     'DataCorp',
@@ -513,9 +466,8 @@ VALUES (
     2
   ),
   (
-    3,  
     4,
-    'Project Gamma', 
+    'Project Gamma',
     'CloudCorp',
     'Cloud infrastructure migration',
     '2026-01-01',
@@ -523,7 +475,6 @@ VALUES (
     1
   ),
   (
-    4,
     4,
     'Project Delta',
     'MobileCorp',
@@ -533,7 +484,6 @@ VALUES (
     2
   ),
   (
-    5,
     4,
     'Project Epsilon',
     'AI Innovations',
@@ -543,7 +493,6 @@ VALUES (
     1
   ),
   (
-    6,
     4,
     'Project Zeta',
     'Security Solutions',
@@ -553,20 +502,17 @@ VALUES (
     3
   );
 -- 14) Meeting
-INSERT INTO "Meeting" ("meeting_id", "meeting_date", "meeting_link")
+INSERT INTO "Meeting" ("meeting_date", "meeting_link")
 VALUES (
-    1,
     '2023-03-15 10:00:00',
     'http://meetinglink.com/1'
   ),
   (
-    2,
     '2023-04-20 15:30:00',
     'http://meetinglink.com/2'
   );
 -- 15) Project_Positions
 INSERT INTO "Project_Positions" (
-    "position_id",
     "project_id",
     "position_name",
     "position_desc",
@@ -574,52 +520,45 @@ INSERT INTO "Project_Positions" (
   )
 VALUES (
     1,
-    1,
     'Java Developer',
     'Develops Java code for Project Alpha',
     1
   ),
   (
-    2,
     1,
     'Project Coordinator',
     'Coordinates tasks for Project Alpha',
     2
   ),
   (
-    3,
     2,
     'Python Developer',
     'Works on data analysis with Python for Project Beta',
     3
   ),
   (
-    4,
     3,
     'Cloud Architect',
     'Design AWS infrastructure',
     NULL
   ),
   (
-    5,
     3,
     'DevOps Engineer',
     'Implement CI/CD pipelines',
     3
   ),
   (
-    6,
     4,
     'Flutter Developer',
     'Build cross-platform app',
     NULL
   ),
   (
-    7,
-    5,  
+    5,
     'ML Engineer',
     'Develop machine learning models',
-    NULL 
+    NULL
   );
 -- 16) Project_User
 INSERT INTO "Project_User" ("user_id", "project_id")
@@ -649,27 +588,25 @@ VALUES (1, 1),
 -- Coordinator might require PMP
 -- 19) Postulations
 INSERT INTO "Postulations" (
-    "postulation_id",
     "project_position_id",
     "user_id",
     "postulation_date",
     "meeting_id"
   )
-VALUES (1, 3, 1, '2023-02-20', 1),
+VALUES (3, 1, '2023-02-20', 1),
   -- John applying to the Python Developer role
-  (2, 1, 2, '2023-02-21', 2);
+  (1, 2, '2023-02-21', 2);
 -- Jane applying to the Java Developer role
 -- 20) Feedback
 INSERT INTO "Feedback" (
-    "feedback_id",
     "project_id",
     "user_id",
     "desc",
     "score"
   )
-VALUES (1, 1, 1, 'Great progress so far', 4),
-  (2, 1, 2, 'Needs more coordination', 3),
-  (3, 2, 3, 'Excellent data analysis', 5);
+VALUES (1, 1, 'Great progress so far', 4),
+  (1, 2, 'Needs more coordination', 3),
+  (2, 3, 'Excellent data analysis', 5);
 -- 21) Certificate_Users
 INSERT INTO "Certificate_Users" (
     "certificate_id",
@@ -702,7 +639,7 @@ VALUES (1, 1),
   (2, 2),
   -- PMP Cert -> PM skill
   (3, 3);
--- AWS Cert -> Python skill (just as an example)
+-- AWS Cert -> Python skill (example)
 -- 23) Course_Users
 INSERT INTO "Course_Users" (
     "course_id",
@@ -743,7 +680,7 @@ VALUES (1, 1),
   (2, 2),
   -- Advanced PM -> Project Management skill
   (3, 3);
--- AWS Foundations -> Python skill (example usage)
+-- AWS Foundations -> Python skill (example)
 -- 25) Employee_Position
 INSERT INTO "Employee_Position" (
     "position_id",
@@ -761,7 +698,7 @@ VALUES (1, 1),
   (2, 2),
   -- Develop PM Skills -> PM
   (3, 3);
--- Get AWS Certified -> Python skill (example tie-in)
+-- Get AWS Certified -> Python skill (example)
 -- 27) Goal_Users
 INSERT INTO "Goal_Users" (
     "goal_id",
@@ -785,4 +722,3 @@ VALUES (1, 1),
   -- Emily -> Communication
   (1, 4);
 -- John -> Communication as well
--- End of dummy data script
