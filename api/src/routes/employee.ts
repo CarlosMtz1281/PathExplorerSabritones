@@ -25,7 +25,7 @@ router.get("/user", async (req, res) => {
     const user = await prisma.users.findUnique({
       where: { user_id: userId },
       include: {
-        Region: true,
+        Country: true,
         Permits: true,
       },
     });
