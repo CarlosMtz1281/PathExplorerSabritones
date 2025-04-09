@@ -52,7 +52,7 @@ router.get("/repositories", async (req, res) => {
       },
     }));
 
-    res.json(formattedProjects);
+    res.status(200).json(formattedProjects);
   } catch (error) {
     console.error("Error fetching available projects:", error);
     res.status(500).json({ error: "Internal server error" });

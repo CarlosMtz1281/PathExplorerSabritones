@@ -117,7 +117,7 @@ router.get("/skills", async (req, res) => {
       },
     });
 
-    res.json(skills);
+    res.status(200).json(skills);
   } catch (error) {
     console.error("Error fetching skills:", error);
     res.status(500).json({ error: "Internal server error" });
