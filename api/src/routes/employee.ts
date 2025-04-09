@@ -48,7 +48,11 @@ router.get("/skills", async (req, res) => {
     if (!userId) {
       return res
         .status(400)
-        .json({ error: "User ID is required in the headers." });
+        .json({ error: "Session key is required in the headers." });
+    }
+
+    if (typeof userId !== "number") {
+      return res.status(400).json({ error: "Timeout session" });
     }
 
     const skills = await prisma.user_Skills.findMany({
@@ -70,6 +74,16 @@ router.post("/skills", async (req, res) => {
     const { skills } = req.body;
 
     const userId = await getUserIdFromSession(req.headers["session-key"]);
+
+    if (typeof userId !== "number") {
+      return res.status(400).json({ error: "Timeout session" });
+    }
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "Session key is required in the headers." });
+    }
 
     if (skills.length === 0) {
       return res.status(400).json({ error: "Skills are required." });
