@@ -106,4 +106,22 @@ router.get("/getMe", async (req: Request, res: Response) => {
   }
 });
 
+// Get all existent skills in database
+router.get("/skills", async (req, res) => {
+  try {
+    const skills = await prisma.skills.findMany({
+      select: {
+        skill_id: true,
+        name: true,
+        technical: true,
+      },
+    });
+
+    res.status(200).json(skills);
+  } catch (error) {
+    console.error("Error fetching skills:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
