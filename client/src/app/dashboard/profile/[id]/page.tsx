@@ -2,7 +2,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
-import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
+import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
 import { User } from "@/interfaces/User";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
@@ -42,8 +42,9 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-row h-screen bg-base-200 pl-15 gap-x-15 pr-15 py-20">
-      <div className="card w-full max-w-sm bg-base-100 shadow-xl">
+    <div className="flex flex-col md:flex-row h-screen bg-base-200 px-4 md:px-15 py-4 md:py-20 gap-4">
+      {/* Left Column - Profile Card */}
+      <div className="card w-full md:w-auto md:max-w-sm bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
           {/* Profile Image */}
           <div className="avatar">
@@ -90,7 +91,7 @@ const Profile = () => {
                     <strong>Oficina:</strong>
                   </p>
                   <p className="text-base text-right">
-                    {userData.Region.region_name}
+                    {userData.Country.country_name}
                   </p>
                 </div>
               </div>
@@ -123,8 +124,12 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row w-full min-h-screen items-start">
-        <WidgetHabilidades />
+
+      {/* Right Column - Widget with contained scrolling */}
+      <div className="flex-1 min-h-0 overflow-hidden"> {/* Critical: This contains the scroll */}
+        <div className="h-full overflow-y-auto"> {/* Allows vertical scrolling if needed */}
+          <WidgetTrayectoria />
+        </div>
       </div>
     </div>
   );

@@ -561,7 +561,7 @@ INSERT INTO "Meeting" ("meeting_date", "meeting_link") VALUES
 
 -- 15) Project_Positions - Expanded with more positions
 INSERT INTO "Project_Positions" (
-    "project_id",
+    "project_id", 
     "position_name",
     "position_desc",
     "user_id"
