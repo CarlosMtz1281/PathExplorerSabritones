@@ -8,7 +8,13 @@ import { useSession } from "next-auth/react";
 export default function WidgetCertificaciones() {
     const { data: session } = useSession();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [certificates, setCertificates] = useState<any[]>([]); // State to store certificates
+  interface Certificate {
+    certificate_id: string;
+    certificate_name: string;
+    certificate_date: string;
+  }
+
+  const [certificates, setCertificates] = useState<Certificate[]>([]); // State to store certificates
 
   const toggleAccordion = () => {
     setIsExpanded(!isExpanded);

@@ -532,21 +532,22 @@ INSERT INTO "Projects" (
     "country_id"
 ) VALUES
 -- Active projects
-(5, 'E-Commerce Platform', 'Retail Solutions Inc.', 'Development of a modern e-commerce platform with AI recommendations', '2023-01-15', '2023-12-31', 1),
-(5, 'Banking System Modernization', 'Global Finance Corp', 'Migration of legacy banking systems to microservices architecture', '2023-03-01', '2024-06-30', 3),
-(14, 'Healthcare Analytics', 'MediData Solutions', 'Big data analytics platform for healthcare providers', '2023-02-10', '2023-11-30', 4),
-(13, 'IoT Fleet Management', 'LogiTech', 'IoT solution for real-time fleet tracking and management', '2023-04-01', '2024-03-31', 6),
-(14, 'Mobile Banking App', 'FinTech Innovations', 'Cross-platform mobile application for banking services', '2023-05-15', '2024-02-28', 7),
+(5, 'E-Commerce Platform', 'Retail Solutions Inc.', 'Development of a modern e-commerce platform with AI recommendations', '2025-01-15', '2025-12-31', 1),
+(5, 'Banking System Modernization', 'Global Finance Corp', 'Migration of legacy banking systems to microservices architecture', '2025-03-01', '2026-06-30', 3),
+(14, 'Healthcare Analytics', 'MediData Solutions', 'Big data analytics platform for healthcare providers', '2025-02-10', '2025-11-30', 4),
+(13, 'IoT Fleet Management', 'LogiTech', 'IoT solution for real-time fleet tracking and management', '2025-04-01', '2026-03-31', 6),
+(14, 'Mobile Banking App', 'FinTech Innovations', 'Cross-platform mobile application for banking services', '2025-05-15', '2026-02-28', 7),
 
 -- Upcoming projects
-(5, 'AI Customer Support', 'ServiceFirst', 'AI-powered chatbot for customer support services', '2023-09-01', '2024-05-31', 1),
-(13, 'Blockchain Supply Chain', 'ChainLogistics', 'Blockchain-based supply chain transparency solution', '2023-10-01', '2024-08-31', 6),
-(14, 'AR Retail Experience', 'ShopFuture', 'Augmented reality shopping experience for retail', '2023-11-01', '2024-07-31', 7),
+(5, 'AI Customer Support', 'ServiceFirst', 'AI-powered chatbot for customer support services', '2025-09-01', '2026-05-31', 1),
+(13, 'Blockchain Supply Chain', 'ChainLogistics', 'Blockchain-based supply chain transparency solution', '2025-10-01', '2026-08-31', 6),
+(14, 'AR Retail Experience', 'ShopFuture', 'Augmented reality shopping experience for retail', '2025-11-01', '2026-07-31', 7),
 
 -- Completed projects
-(5, 'Legacy System Migration', 'Enterprise Systems Ltd', 'Migration from mainframe to cloud-based systems', '2022-01-10', '2022-12-15', 3),
-(13, 'Data Warehouse Implementation', 'Analytics Corp', 'Enterprise data warehouse with BI capabilities', '2022-03-01', '2022-11-30', 4),
-(14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2022-05-15', '2023-01-31', 1);
+(5, 'Legacy System Migration', 'Enterprise Systems Ltd', 'Migration from mainframe to cloud-based systems', '2024-01-10', '2024-12-15', 3),
+(13, 'Data Warehouse Implementation', 'Analytics Corp', 'Enterprise data warehouse with BI capabilities', '2024-03-01', '2024-11-30', 4),
+(14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2024-05-15', '2025-01-31', 1);
+
 
 -- 14) Meeting - Expanded with more meetings
 INSERT INTO "Meeting" ("meeting_date", "meeting_link") VALUES
