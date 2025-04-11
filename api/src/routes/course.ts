@@ -48,7 +48,6 @@ router.get("/certificates", async (req, res) => {
       certificate_date: certificate.certificate_date,
       certificate_expiration_date: certificate.certificate_expiration_date,
       certificate_link: certificate.certificate_link,
-      certificate_valid: certificate.certificate_valid,
     }));
 
     res.json(formattedCertificates);

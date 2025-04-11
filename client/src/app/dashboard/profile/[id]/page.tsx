@@ -4,17 +4,16 @@ import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
+import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
 import { User } from "@/interfaces/User";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 
-const Profile = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const Profile = () => {
+  const { id } = useParams();
   console.log("Profile ID:", id);
-  const { data: session, status } = useSession();
 
   const [userData, setUserData] = useState<User | null>(null);
-
   const fetchUserData = async () => {
     try {
       const res = await fetch(
@@ -44,9 +43,10 @@ const Profile = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className="flex flex-row h-screen bg-base-200 pl-15 gap-x-15 pr-15 py-10">
-      <div className="card w-full max-w-sm bg-base-100 shadow-xl">
-        <div className="card-body items-center text-center">
+    <div className="flex flex-col md:flex-row h-[calc(100vh)] bg-base-200 px-4 md:px-15 py-4 gap-4">
+      {/* Left Column - Profile Card (full height) */}
+      <div className="card w-full md:w-auto md:max-w-sm bg-base-100 shadow-xl h-full">
+        <div className="card-body items-center text-center h-full flex flex-col">
           {/* Profile Image */}
           <div className="avatar">
             <div className="w-25 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
@@ -71,8 +71,8 @@ const Profile = ({ params }: { params: { id: string } }) => {
             <Cargabilidad userId={userData.user_id} />
           </div>
 
-          {/* Additional Info */}
-          <div className="mt-6 bg-accent text-base-100 p-4 rounded-lg w-full border border-black">
+          {/* Additional Info - Removed flex-1 and added overflow control */}
+          <div className="mt-6 bg-accent text-base-100 p-4 rounded-lg w-full border border-black max-h-[40%] overflow-y-auto">
             <div className="flex flex-col gap-4">
               <div className="justify-between">
                 <div className="text-left">
@@ -94,7 +94,7 @@ const Profile = ({ params }: { params: { id: string } }) => {
                     <strong>Oficina:</strong>
                   </p>
                   <p className="text-base text-right">
-                    {userData.Region.region_name}
+                    {userData.Country.country_name}
                   </p>
                 </div>
               </div>
@@ -128,11 +128,19 @@ const Profile = ({ params }: { params: { id: string } }) => {
         </div>
       </div>
       <div className="w-full flex flex-col gap-10 overflow-y-auto">
+
+      <div className="w-full flex flex-col gap-10 overflow-y-auto">
         <WidgetCertificaciones />
+        <WidgetTrayectoria />
         <WidgetHabilidades />
+
       </div>
+
+      
     </div>
-  );
+    </div>
+  )
+  ;
 };
 
 export default Profile;

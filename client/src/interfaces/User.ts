@@ -1,7 +1,7 @@
-export interface Region {
-  region_id: number;
-  region_name: string;
-  country: string;
+export interface Country {
+  country_id: number;
+  country_name: string;
+  region: string;
   timezone: string;
 }
 
@@ -24,6 +24,6 @@ export interface User {
   role_id: number;
   in_project: boolean;
   region_id: number;
-  Region: Region;
+  Country: Country;
   Permits: Permits;
 }

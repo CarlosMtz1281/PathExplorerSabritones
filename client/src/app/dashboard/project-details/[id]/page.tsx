@@ -1,9 +1,10 @@
 "use client";
 
-import React, {useState} from "react";
+import { useParams } from "next/navigation";
+import React, { useState } from "react";
 
-const ProjectDetails = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const ProjectDetails = () => {
+  const { id } = useParams();
   const project = {
     name: "Proyecto 1",
     dates: "13 Marzo 2025 - 4 Mayo 2025",
@@ -18,7 +19,9 @@ const ProjectDetails = ({ params }: { params: { id: string } }) => {
     ],
   };
 
-  const [selectedVacancy, setSelectedVacancy] = useState(project.vacancies[0].role);
+  const [selectedVacancy, setSelectedVacancy] = useState(
+    project.vacancies[0].role
+  );
 
   const candidates = [
     {
@@ -146,7 +149,7 @@ const ProjectDetails = ({ params }: { params: { id: string } }) => {
                   <label className="label">
                     <span className="label-text">Seleccionar vacante</span>
                   </label>
-                  <select 
+                  <select
                     className="select select-bordered w-full"
                     value={selectedVacancy}
                     onChange={(e) => setSelectedVacancy(e.target.value)}
@@ -158,15 +161,19 @@ const ProjectDetails = ({ params }: { params: { id: string } }) => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="mt-4">
-                  <h3 className="font-bold mb-2">Detalles de la vacante seleccionada:</h3>
+                  <h3 className="font-bold mb-2">
+                    Detalles de la vacante seleccionada:
+                  </h3>
                   <p className="text-sm text-secondary">
                     <strong>Rol:</strong> {selectedVacancy}
                   </p>
                   <p className="text-sm text-secondary mt-2">
-                    <strong>Disponibles:</strong> {
-                      project.vacancies.find(v => v.role === selectedVacancy)?.count
+                    <strong>Disponibles:</strong>{" "}
+                    {
+                      project.vacancies.find((v) => v.role === selectedVacancy)
+                        ?.count
                     }
                   </p>
                 </div>
