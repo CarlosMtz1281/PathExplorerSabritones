@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import { User } from "@/interfaces/User";
-import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 
 const Profile = () => {

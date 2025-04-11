@@ -66,6 +66,7 @@ model Certificates {
   certificate_id                Int                             @id @default(autoincrement())
   certificate_name              String?                         @db.VarChar
   certificate_desc              String?
+  provider                      String?                         @db.VarChar
   Certificate_Skills            Certificate_Skills[]
   Certificate_Users             Certificate_Users[]
   Project_Position_Certificates Project_Position_Certificates[]
