@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { SkillListProps } from "@/types/Habilities";
+import { SkillListProps, SkillAPI } from "@/types/Habilities";
 import { PiWrenchLight } from "react-icons/pi";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 const Skill = ({ skill }: { skill: string }) => {
   return (
@@ -24,7 +26,7 @@ const SkillList = ({
         <h3 className="text-xl m-0 ml-4">{title}</h3>
       </div>
       <div className={`flex flex-wrap gap-x-7 gap-y-5 ${skillsWidth}`}>
-        {skills.map((skill, index) => (
+        {skills?.map((skill, index) => (
           <Skill key={index} skill={skill} />
         ))}
       </div>
@@ -32,81 +34,126 @@ const SkillList = ({
   );
 };
 
+const fetchAllSkills = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE}/general/skills`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching skills");
+    return [];
+  }
+};
+
+const fetchUserSkills = async (sessionKey: string) => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE}/employee/skills`,
+      {
+        headers: {
+          "session-key": sessionKey,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user skills");
+    return [];
+  }
+};
+
+const postUserSkills = async (sessionKey: string, skills: number[]) => {
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_BASE}/employee/skills`,
+      { skills: skills },
+      {
+        headers: {
+          "session-key": sessionKey,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error posting user skills");
+    return null;
+  }
+};
+
 const WidgetHabilidades = () => {
-  const [technicalSkills, setTechnicalSkills] = useState<string[]>(
-    Array(10).fill("React")
-  );
-  const [softSkills, setSoftSkills] = useState<string[]>(
-    Array(10).fill("React")
-  );
-  const allSkills = [
-    "React",
-    "TypeScript",
-    "JavaScript",
-    "HTML",
-    "CSS",
-    "SQL",
-    "NoSQL",
-    "REST APIs",
-    "GraphQL",
-    "Docker",
-    "Kubernetes",
-    "AWS",
-    "Azure",
-    "GCP",
-    "DevOps",
-    "Agile",
-    "Scrum",
-    "Kanban",
-    "CI/CD",
-    "Git",
-    "Linux",
-    "Microservices",
-    "Cloud Computing",
-    "Data Analysis",
-    "Machine Learning",
-    "Artificial Intelligence",
-    "Data Science",
-    "Cybersecurity",
-    "Node.js",
-    "Python",
-    "Java",
-    "Communication",
-    "Leadership",
-    "Teamwork",
-    "Problem Solving",
-    "Time Management",
-    "Adaptability",
-    "Creativity",
-    "Critical Thinking",
-    "Emotional Intelligence",
-    "Conflict Resolution",
-    "Negotiation",
-    "Decision Making",
-    "Networking Skills for IT Professionals and Developers in order to build a strong professional network and stay updated with industry trends.",
-  ]
-    .filter(
-      (skill) => !technicalSkills.includes(skill) && !softSkills.includes(skill)
-    )
-    .map((skill) => (skill.length > 30 ? skill.slice(0, 30) + "..." : skill));
+  const { data: status } = useSession();
+  const [render, setRender] = useState(false);
+  const [technicalSkills, setTechnicalSkills] = useState<string[]>();
+  const [softSkills, setSoftSkills] = useState<string[]>([]);
+  const [allSkills, setAllSkills] = useState<SkillAPI[]>([]);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      const userSkills = await fetchUserSkills(status?.sessionId || "");
+      setTechnicalSkills(
+        userSkills
+          .filter((skill: SkillAPI) => skill.skill_technical === true)
+          .map((skill: SkillAPI) => skill.skill_name)
+      );
+      setSoftSkills(
+        userSkills
+          .filter((skill: SkillAPI) => skill.skill_technical === false)
+          .map((skill: SkillAPI) => skill.skill_name)
+      );
+    };
+
+    fetchSkills();
+    setRender(true);
+  }, []);
+
+  useEffect(() => {
+    if (render) {
+      const fetchSkills = async () => {
+        const skills = await fetchAllSkills();
+        setAllSkills(
+          skills
+            .filter(
+              (skill: SkillAPI) =>
+                !technicalSkills?.includes(skill.skill_name) &&
+                !softSkills.includes(skill.skill_name)
+            )
+            .map((skill: SkillAPI) =>
+              skill?.skill_name.length > 30
+                ? (skill.skill_name = skill.skill_name.slice(0, 30) + "...")
+                : skill
+            )
+        );
+      };
+      fetchSkills();
+    }
+  }, [technicalSkills]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [openDropdown, setOpenDropdown] = useState(false);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [filteredSkills, setFilteredSkills] = useState<string[]>(
-    allSkills.filter((skill) =>
-      skill.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
+  const [selectedSkills, setSelectedSkills] = useState<SkillAPI[]>([]);
+  const [filteredSkills, setFilteredSkills] = useState<SkillAPI[]>([]);
 
   useEffect(() => {
     setFilteredSkills(
-      allSkills.filter(
-        (skill) =>
-          !selectedSkills.includes(skill) &&
-          skill.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      allSkills
+        .map((skill) => skill)
+        .filter((skill) =>
+          skill.skill_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    );
+  }, [allSkills]);
+
+  useEffect(() => {
+    setFilteredSkills(
+      allSkills
+        .map((skill) => skill)
+        .filter(
+          (skill) =>
+            !selectedSkills.includes(skill) &&
+            skill.skill_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
     );
   }, [selectedSkills, searchQuery]);
 
@@ -117,8 +164,31 @@ const WidgetHabilidades = () => {
     setSelectedSkills([]);
   };
 
+  const handleSubmitSkills = async () => {
+    const skillIds = selectedSkills
+      .map((selected) => {
+        const match = allSkills.find((s) => s === selected);
+        return match?.skill_id;
+      })
+      .filter((id): id is number => id !== undefined);
+    await postUserSkills(status?.sessionId || "", skillIds);
+    setTechnicalSkills((prev) => [
+      ...(prev || []),
+      ...selectedSkills
+        .filter((skill) => skill.skill_technical === true)
+        .map((skill) => skill.skill_name),
+    ]);
+    setSoftSkills((prev) => [
+      ...(prev || []),
+      ...selectedSkills
+        .filter((skill) => skill.skill_technical === false)
+        .map((skill) => skill.skill_name),
+    ]);
+    handleModalToggle();
+  };
+
   return (
-    <div className="card w-full">
+    <div className="card w-full min-h-60">
       <div className="p-6 bg-base-100 rounded-lg border border-base-300 h-full box-border">
         <div className="flex flex-row w-full gap-x-2 mb-8 items-center">
           <PiWrenchLight className="text-3xl" />
@@ -132,7 +202,7 @@ const WidgetHabilidades = () => {
             </div>
           </button>
         </div>
-        <div className="flex flex-col gap-y-14 max-h-64 pb-10 overflow-scroll">
+        <div className="flex flex-col gap-y-14 max-h-80 overflow-scroll pb-6 scroll-pb-10">
           <SkillList
             title="Técnicas"
             skills={technicalSkills}
@@ -188,7 +258,7 @@ const WidgetHabilidades = () => {
                             setSearchQuery("");
                           }}
                         >
-                          {skill}
+                          {skill.skill_name}
                         </button>
                       </li>
                     ))}
@@ -203,7 +273,7 @@ const WidgetHabilidades = () => {
                   key={index}
                   className="flex max-w-6/12 bg-accent/30 p-2 rounded-lg mb-2 truncate items-center gap-2"
                 >
-                  <span className="text-xs">{skill}</span>
+                  <span className="text-xs">{skill.skill_name}</span>
                   <button
                     className="btn btn-circle btn-xs btn-accent text-base-100 text-xs flex text-center items-center justify-center"
                     onClick={() => {
@@ -225,7 +295,15 @@ const WidgetHabilidades = () => {
               >
                 Cancelar
               </button>
-              <button className="btn btn-primary w-32 font-semibold">
+              <button
+                className={`btn btn-primary w-32 font-semibold ${
+                  selectedSkills.length === 0
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"
+                    : "btn-primary"
+                }`}
+                disabled={selectedSkills.length === 0}
+                onClick={handleSubmitSkills}
+              >
                 Agregar
               </button>
             </div>

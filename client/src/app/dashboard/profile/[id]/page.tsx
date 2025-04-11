@@ -2,9 +2,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
-import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
+import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import { User } from "@/interfaces/User";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -128,19 +128,14 @@ const Profile = () => {
         </div>
       </div>
       <div className="w-full flex flex-col gap-10 overflow-y-auto">
-
-      <div className="w-full flex flex-col gap-10 overflow-y-auto">
-        <WidgetCertificaciones />
-        <WidgetTrayectoria />
-        <WidgetHabilidades />
-
+        <div className="w-full flex flex-col gap-10 overflow-y-auto">
+          <WidgetCertificaciones />
+          <WidgetTrayectoria />
+          <WidgetHabilidades />
+        </div>
       </div>
-
-      
     </div>
-    </div>
-  )
-  ;
+  );
 };
 
 export default Profile;

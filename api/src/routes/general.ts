@@ -21,9 +21,9 @@ router.post("/login", async (req, res) => {
   try {
     const { mail, password } = req.body;
     if (!mail || !password) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: "Email and password are required" 
+        error: "Email and password are required",
       });
     }
 
@@ -32,9 +32,9 @@ router.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         success: false,
-        error: "Invalid credentials" 
+        error: "Invalid credentials",
       });
     }
 
@@ -46,9 +46,9 @@ router.post("/login", async (req, res) => {
     `;
 
     if (!passwordMatch[0]?.match) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         success: false,
-        error: "Invalid credentials" 
+        error: "Invalid credentials",
       });
     }
 
@@ -65,16 +65,15 @@ router.post("/login", async (req, res) => {
       sessionId: newSession.session_id,
       userId: user.user_id,
       name: user.name,
-      country_id: user.country_id,  // Changed from region_id to country_id to match your schema
+      country_id: user.country_id, // Changed from region_id to country_id to match your schema
       in_project: user.in_project,
-      role_id: user.role_id,       // Added role_id which might be useful for frontend
+      role_id: user.role_id, // Added role_id which might be useful for frontend
     });
-
   } catch (error) {
     console.error("Login error:", error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      error: "Internal server error" 
+      error: "Internal server error",
     });
   }
 });
@@ -145,7 +144,13 @@ router.get("/skills", async (req, res) => {
       },
     });
 
-    res.status(200).json(skills);
+    const formattedSkills = skills.map((skill) => ({
+      skill_id: skill.skill_id,
+      skill_name: skill.name,
+      skill_technical: skill.technical,
+    }));
+
+    res.status(200).json(formattedSkills);
   } catch (error) {
     console.error("Error fetching skills:", error);
     res.status(500).json({ error: "Internal server error" });

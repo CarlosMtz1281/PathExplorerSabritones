@@ -62,7 +62,13 @@ router.get("/skills", async (req, res) => {
       },
     });
 
-    res.status(200).json(skills);
+    const formattedSkills = skills.map((skill) => ({
+      skill_id: skill.skill_id,
+      skill_name: skill.Skills.name,
+      skill_technical: skill.Skills.technical,
+    }));
+
+    res.status(200).json(formattedSkills);
   } catch (error) {
     console.error("Error fetching user skills:", error);
     res.status(500).json({ error: "Internal server error." });
