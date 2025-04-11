@@ -3,6 +3,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
+import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import { User } from "@/interfaces/User";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
@@ -126,9 +127,16 @@ const Profile = () => {
       </div>
 
       {/* Right Column - Widget with contained scrolling */}
-      <div className="flex-1 min-h-0 overflow-hidden"> {/* Critical: This contains the scroll */}
-        <div className="h-full overflow-y-auto"> {/* Allows vertical scrolling if needed */}
-          <WidgetTrayectoria />
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {/* Critical: This contains the scroll */}
+        <div className="flex flex-col gap-8 h-full overflow-y-auto">
+          {/* Allows vertical scrolling if needed */}
+          <div>
+            <WidgetTrayectoria />
+          </div>
+          <div>
+            <WidgetHabilidades />
+          </div>
         </div>
       </div>
     </div>
