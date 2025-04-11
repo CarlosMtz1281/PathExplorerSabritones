@@ -23,18 +23,20 @@ router.get("/certificates", async (req, res) => {
   console.log("Session key:", sessionKey); // Debugging: Log the session key
   try {
     // Validate session and get user ID
-    const userId = await (sessionKey);
+    
+    const userId = await getUserIdFromSession(sessionKey);
     console.log("User ID from session:", userId);
     if (!userId) {
       return res.status(401).json({ error: "Invalid or expired session" });
     }
 
+    
     // Update session expiration
     await updateSession(sessionKey);
 
     // Fetch certificates for the user
     const certificates = await prisma.certificate_Users.findMany({
-      where: { user_id: userId },
+      where: { user_id: Number(userId) },
       include: {
         Certificates: true, // Join with the Certificates table
       },
