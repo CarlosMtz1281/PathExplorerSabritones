@@ -532,32 +532,32 @@ INSERT INTO "Projects" (
     "country_id"
 ) VALUES
 -- Active projects
-(5, 'E-Commerce Platform', 'Retail Solutions Inc.', 'Development of a modern e-commerce platform with AI recommendations', '2023-01-15', '2023-12-31', 1),
-(5, 'Banking System Modernization', 'Global Finance Corp', 'Migration of legacy banking systems to microservices architecture', '2023-03-01', '2024-06-30', 3),
-(14, 'Healthcare Analytics', 'MediData Solutions', 'Big data analytics platform for healthcare providers', '2023-02-10', '2023-11-30', 4),
-(13, 'IoT Fleet Management', 'LogiTech', 'IoT solution for real-time fleet tracking and management', '2023-04-01', '2024-03-31', 6),
-(14, 'Mobile Banking App', 'FinTech Innovations', 'Cross-platform mobile application for banking services', '2023-05-15', '2024-02-28', 7),
+(5, 'E-Commerce Platform', 'Retail Solutions Inc.', 'Development of a modern e-commerce platform with AI recommendations', '2026-01-15', '2026-12-31', 1),
+(5, 'Banking System Modernization', 'Global Finance Corp', 'Migration of legacy banking systems to microservices architecture', '2026-03-01', '2024-06-30', 3),
+(14, 'Healthcare Analytics', 'MediData Solutions', 'Big data analytics platform for healthcare providers', '2026-02-10', '2026-11-30', 4),
+(13, 'IoT Fleet Management', 'LogiTech', 'IoT solution for real-time fleet tracking and management', '2026-04-01', '2024-03-31', 6),
+(14, 'Mobile Banking App', 'FinTech Innovations', 'Cross-platform mobile application for banking services', '2026-05-15', '2024-02-28', 7),
 
 -- Upcoming projects
-(5, 'AI Customer Support', 'ServiceFirst', 'AI-powered chatbot for customer support services', '2023-09-01', '2024-05-31', 1),
-(13, 'Blockchain Supply Chain', 'ChainLogistics', 'Blockchain-based supply chain transparency solution', '2023-10-01', '2024-08-31', 6),
-(14, 'AR Retail Experience', 'ShopFuture', 'Augmented reality shopping experience for retail', '2023-11-01', '2024-07-31', 7),
+(5, 'AI Customer Support', 'ServiceFirst', 'AI-powered chatbot for customer support services', '2026-09-01', '2024-05-31', 1),
+(13, 'Blockchain Supply Chain', 'ChainLogistics', 'Blockchain-based supply chain transparency solution', '2026-10-01', '2024-08-31', 6),
+(14, 'AR Retail Experience', 'ShopFuture', 'Augmented reality shopping experience for retail', '2026-11-01', '2024-07-31', 7),
 
 -- Completed projects
 (5, 'Legacy System Migration', 'Enterprise Systems Ltd', 'Migration from mainframe to cloud-based systems', '2022-01-10', '2022-12-15', 3),
 (13, 'Data Warehouse Implementation', 'Analytics Corp', 'Enterprise data warehouse with BI capabilities', '2022-03-01', '2022-11-30', 4),
-(14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2022-05-15', '2023-01-31', 1);
+(14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2022-05-15', '2026-01-31', 1);
 
 -- 14) Meeting - Expanded with more meetings
 INSERT INTO "Meeting" ("meeting_date", "meeting_link") VALUES
-('2023-03-15 10:00:00', 'https://meet.example.com/alpha'),
-('2023-04-20 15:30:00', 'https://meet.example.com/beta'),
-('2023-05-10 09:00:00', 'https://meet.example.com/gamma'),
-('2023-06-05 14:00:00', 'https://meet.example.com/delta'),
-('2023-07-12 11:30:00', 'https://meet.example.com/epsilon'),
-('2023-08-08 13:00:00', 'https://meet.example.com/zeta'),
-('2023-09-18 16:00:00', 'https://meet.example.com/eta'),
-('2023-10-23 10:30:00', 'https://meet.example.com/theta');
+('2026-03-15 10:00:00', 'https://meet.example.com/alpha'),
+('2026-04-20 15:30:00', 'https://meet.example.com/beta'),
+('2026-05-10 09:00:00', 'https://meet.example.com/gamma'),
+('2026-06-05 14:00:00', 'https://meet.example.com/delta'),
+('2026-07-12 11:30:00', 'https://meet.example.com/epsilon'),
+('2026-08-08 13:00:00', 'https://meet.example.com/zeta'),
+('2026-09-18 16:00:00', 'https://meet.example.com/eta'),
+('2026-10-23 10:30:00', 'https://meet.example.com/theta');
 
 -- 15) Project_Positions - Expanded with more positions
 INSERT INTO "Project_Positions" (
@@ -725,14 +725,14 @@ INSERT INTO "Postulations" (
     "postulation_date",
     "meeting_id"
 ) VALUES
-(2, 9, '2023-02-15', 1),   -- Thomas Müller applying for Frontend Developer
-(6, 14, '2023-03-10', 2),  -- Olivia Wilson applying for Solution Architect
-(11, 11, '2023-04-05', 3), -- Raj Patel applying for Data Scientist
-(16, 12, '2023-05-12', 4), -- Amit Singh applying for Cloud Developer
-(19, 9, '2023-06-08', 5),  -- Thomas Müller applying for Flutter Developer
-(21, 10, '2023-07-15', 6), -- Claudia Fischer applying for UX Designer
-(3, 13, '2023-01-20', 7),  -- Priya Sharma applying for DevOps Engineer
-(20, 1, '2023-02-28', 8);  -- John Doe applying for Backend Developer
+(2, 9, '2026-02-15', 1),   -- Thomas Müller applying for Frontend Developer
+(6, 14, '2026-03-10', 2),  -- Olivia Wilson applying for Solution Architect
+(11, 11, '2026-04-05', 3), -- Raj Patel applying for Data Scientist
+(16, 12, '2026-05-12', 4), -- Amit Singh applying for Cloud Developer
+(19, 9, '2026-06-08', 5),  -- Thomas Müller applying for Flutter Developer
+(21, 10, '2026-07-15', 6), -- Claudia Fischer applying for UX Designer
+(3, 13, '2026-01-20', 7),  -- Priya Sharma applying for DevOps Engineer
+(20, 1, '2026-02-28', 8);  -- John Doe applying for Backend Developer
 
 -- 20) Feedback - Expanded with more feedback entries
 INSERT INTO "Feedback" (
@@ -767,18 +767,18 @@ INSERT INTO "Certificate_Users" (
 (1, 1, '2021-06-15', '2024-06-15', 'https://certs.example.com/java1', 'completed'),
 (2, 2, '2022-01-20', '2025-01-20', 'https://certs.example.com/pmp1', 'completed'),
 (3, 14, '2022-03-10', '2024-03-10', 'https://certs.example.com/aws1', 'completed'),
-(4, 6, '2021-11-05', '2023-11-05', 'https://certs.example.com/scrum1', 'completed'),
+(4, 6, '2021-11-05', '2026-11-05', 'https://certs.example.com/scrum1', 'completed'),
 (5, 8, '2022-05-12', '2024-05-12', 'https://certs.example.com/azure1', 'completed'),
 (6, 4, '2022-07-18', '2024-07-18', 'https://certs.example.com/data1', 'completed'),
 (7, 13, '2022-09-22', '2025-09-22', 'https://certs.example.com/k8s1', 'completed'),
-(8, 14, '2021-12-10', '2023-12-10', 'https://certs.example.com/togaf1', 'completed'),
+(8, 14, '2021-12-10', '2026-12-10', 'https://certs.example.com/togaf1', 'completed'),
 (9, 3, '2022-02-15', '2024-02-15', 'https://certs.example.com/istqb1', 'completed'),
 (10, 8, '2022-04-30', '2025-04-30', 'https://certs.example.com/cissp1', 'completed'),
 (1, 9, '2022-06-20', '2025-06-20', 'https://certs.example.com/java2', 'completed'),
 (3, 12, '2022-08-05', '2024-08-05', 'https://certs.example.com/aws2', 'completed'),
 (4, 5, '2022-10-12', '2024-10-12', 'https://certs.example.com/scrum2', 'completed'),
-(7, 12, '2023-01-15', '2026-01-15', 'https://certs.example.com/k8s2', 'completed'),
-(10, 14, '2023-02-28', '2026-02-28', 'https://certs.example.com/cissp2', 'completed');
+(7, 12, '2026-01-15', '2026-01-15', 'https://certs.example.com/k8s2', 'completed'),
+(10, 14, '2026-02-28', '2026-02-28', 'https://certs.example.com/cissp2', 'completed');
 
 -- 22) Certificate_Skills - Expanded with more certificate-skill relationships
 INSERT INTO "Certificate_Skills" ("certificate_id", "skill_id") VALUES
@@ -804,22 +804,22 @@ INSERT INTO "Course_Users" (
     "course_link",
     "finished"
 ) VALUES
-(1, 1, '2023-01-10', 100, 'https://learning.example.com/java1', TRUE),
-(2, 1, '2023-02-15', 75, 'https://learning.example.com/advjava1', FALSE),
-(3, 4, '2023-01-20', 100, 'https://learning.example.com/pydata1', TRUE),
-(4, 9, '2023-03-05', 50, 'https://learning.example.com/js1', FALSE),
-(5, 14, '2023-02-10', 100, 'https://learning.example.com/cloud1', TRUE),
-(6, 13, '2023-03-15', 100, 'https://learning.example.com/devops1', TRUE),
-(7, 6, '2023-01-25', 100, 'https://learning.example.com/agile1', TRUE),
-(8, 11, '2023-04-01', 30, 'https://learning.example.com/ml1', FALSE),
-(9, 8, '2023-02-28', 100, 'https://learning.example.com/cyber1', TRUE),
-(10, 2, '2023-03-10', 80, 'https://learning.example.com/comm1', FALSE),
-(11, 5, '2023-04-05', 25, 'https://learning.example.com/lead1', FALSE),
-(12, 12, '2023-03-20', 100, 'https://learning.example.com/docker1', TRUE),
-(1, 3, '2023-04-10', 20, 'https://learning.example.com/java2', FALSE),
-(3, 7, '2023-05-01', 10, 'https://learning.example.com/pydata2', FALSE),
-(5, 10, '2023-04-15', 45, 'https://learning.example.com/cloud2', FALSE),
-(7, 15, '2023-05-05', 90, 'https://learning.example.com/agile2', FALSE);
+(1, 1, '2026-01-10', 100, 'https://learning.example.com/java1', TRUE),
+(2, 1, '2026-02-15', 75, 'https://learning.example.com/advjava1', FALSE),
+(3, 4, '2026-01-20', 100, 'https://learning.example.com/pydata1', TRUE),
+(4, 9, '2026-03-05', 50, 'https://learning.example.com/js1', FALSE),
+(5, 14, '2026-02-10', 100, 'https://learning.example.com/cloud1', TRUE),
+(6, 13, '2026-03-15', 100, 'https://learning.example.com/devops1', TRUE),
+(7, 6, '2026-01-25', 100, 'https://learning.example.com/agile1', TRUE),
+(8, 11, '2026-04-01', 30, 'https://learning.example.com/ml1', FALSE),
+(9, 8, '2026-02-28', 100, 'https://learning.example.com/cyber1', TRUE),
+(10, 2, '2026-03-10', 80, 'https://learning.example.com/comm1', FALSE),
+(11, 5, '2026-04-05', 25, 'https://learning.example.com/lead1', FALSE),
+(12, 12, '2026-03-20', 100, 'https://learning.example.com/docker1', TRUE),
+(1, 3, '2026-04-10', 20, 'https://learning.example.com/java2', FALSE),
+(3, 7, '2026-05-01', 10, 'https://learning.example.com/pydata2', FALSE),
+(5, 10, '2026-04-15', 45, 'https://learning.example.com/cloud2', FALSE),
+(7, 15, '2026-05-05', 90, 'https://learning.example.com/agile2', FALSE);
 
 -- 24) Course_Skills - Expanded with more course-skill relationships
 INSERT INTO "Course_Skills" ("course_id", "skill_id") VALUES
@@ -883,21 +883,21 @@ INSERT INTO "Goal_Users" (
     "finished_date",
     "completed"
 ) VALUES
-(1, 1, '2023-01-10', NULL, FALSE),    -- John: Master Java
-(2, 2, '2023-01-15', NULL, FALSE),    -- Jane: Improve PM
-(3, 14, '2023-02-01', NULL, FALSE),   -- Olivia: AWS Cert
-(4, 5, '2023-02-10', NULL, FALSE),    -- David: Leadership
-(5, 4, '2023-03-05', NULL, FALSE),    -- Emily: Learn ML
-(6, 10, '2023-03-15', NULL, FALSE),   -- Claudia: Public Speaking
-(7, 9, '2023-04-01', NULL, FALSE),    -- Thomas: Full-Stack
-(8, 13, '2023-04-10', NULL, FALSE),   -- Priya: DevOps
-(9, 11, '2023-05-01', NULL, FALSE),   -- Raj: Data Analysis
-(10, 7, '2023-05-15', NULL, FALSE),   -- Michael: Time Mgmt
-(11, 8, '2023-06-01', NULL, FALSE),   -- Anna: Cloud Security
-(12, 12, '2023-06-10', NULL, FALSE),  -- Amit: Kubernetes
-(1, 3, '2023-01-20', NULL, FALSE),    -- Robert: Master Java
-(3, 12, '2023-02-05', NULL, FALSE),   -- Amit: AWS Cert
-(7, 1, '2023-04-05', NULL, FALSE);    -- John: Full-Stack
+(1, 1, '2026-01-10', NULL, FALSE),    -- John: Master Java
+(2, 2, '2026-01-15', NULL, FALSE),    -- Jane: Improve PM
+(3, 14, '2026-02-01', NULL, FALSE),   -- Olivia: AWS Cert
+(4, 5, '2026-02-10', NULL, FALSE),    -- David: Leadership
+(5, 4, '2026-03-05', NULL, FALSE),    -- Emily: Learn ML
+(6, 10, '2026-03-15', NULL, FALSE),   -- Claudia: Public Speaking
+(7, 9, '2026-04-01', NULL, FALSE),    -- Thomas: Full-Stack
+(8, 13, '2026-04-10', NULL, FALSE),   -- Priya: DevOps
+(9, 11, '2026-05-01', NULL, FALSE),   -- Raj: Data Analysis
+(10, 7, '2026-05-15', NULL, FALSE),   -- Michael: Time Mgmt
+(11, 8, '2026-06-01', NULL, FALSE),   -- Anna: Cloud Security
+(12, 12, '2026-06-10', NULL, FALSE),  -- Amit: Kubernetes
+(1, 3, '2026-01-20', NULL, FALSE),    -- Robert: Master Java
+(3, 12, '2026-02-05', NULL, FALSE),   -- Amit: AWS Cert
+(7, 1, '2026-04-05', NULL, FALSE);    -- John: Full-Stack
 
 -- 28) User_Skills - Expanded with more skill assignments
 INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
