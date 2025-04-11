@@ -2,18 +2,18 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
+import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
+import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
 import { User } from "@/interfaces/User";
-import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
-import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 
 const Profile = () => {
   const { id } = useParams();
   console.log("Profile ID:", id);
 
   const [userData, setUserData] = useState<User | null>(null);
-
   const fetchUserData = async () => {
     try {
       const res = await fetch(
@@ -49,8 +49,10 @@ const Profile = () => {
         <div className="card-body items-center text-center h-full flex flex-col">
           {/* Profile Image */}
           <div className="avatar">
-            <div className="w-40 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <img
+            <div className="w-25 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+              <Image
+                width={160}
+                height={160}
                 src="/profilePic.jpg"
                 alt="Profile"
                 className="object-cover w-full h-full"
@@ -59,13 +61,13 @@ const Profile = () => {
           </div>
 
           {/* Profile Info */}
-          <h2 className="text-4xl font-bold mt-4">{userData.name}</h2>
+          <h2 className="text-3xl font-bold mt-4">{userData.name}</h2>
           <p className="text-primary text-xl">
             {userData.Permits.is_employee ? "Employee" : "Guest"}
           </p>
 
           {/* Cargabilidad Component */}
-          <div className="mt-6">
+          <div className="mt-4">
             <Cargabilidad userId={userData.user_id} />
           </div>
 
@@ -125,21 +127,20 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      <div className="w-full flex flex-col gap-10 overflow-y-auto">
 
-      {/* Right Column - Widgets container */}
-      <div className="flex-1 flex flex-col h-full gap-4 overflow-y-auto">
-        {/* First widget (half height) */}
-        <div className="flex-1 min-h-0 bg-base-100 shadow-xl rounded-box overflow-hidden">
-          <WidgetTrayectoria />
-        </div>
-        
-        {/* Second widget (half height) */}
-        <div className="flex-1 min-h-0 bg-base-100 shadow-xl rounded-box overflow-hidden">
-          <WidgetHabilidades />
-        </div>
+      <div className="w-full flex flex-col gap-10 overflow-y-auto">
+        <WidgetCertificaciones />
+        <WidgetTrayectoria />
+        <WidgetHabilidades />
+
       </div>
+
+      
     </div>
-  );
+    </div>
+  )
+  ;
 };
 
 export default Profile;

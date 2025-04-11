@@ -118,7 +118,7 @@ const WidgetHabilidades = () => {
   };
 
   return (
-    <div className="card w-full min-h-40 max-h-64">
+    <div className="card w-full">
       <div className="p-6 bg-base-100 rounded-lg border border-base-300 h-full box-border">
         <div className="flex flex-row w-full gap-x-2 mb-8 items-center">
           <PiWrenchLight className="text-3xl" />
