@@ -157,4 +157,39 @@ router.get("/skills", async (req, res) => {
   }
 });
 
+router.get("/countries", async (req, res) => {
+  try {
+    const countries = await prisma.country.findMany({
+      select: {
+        country_id: true,
+        country_name: true,
+      },
+    });
+
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error("Error fetching countries:", error);
+    res.status(500).json({ error: "Failed to fetch countries" });
+  }
+});
+
+router.get("/certificates", async (req, res) => {
+  try {
+    const certificates = await prisma.certificates.findMany({
+      select: {
+        certificate_id: true,
+        certificate_name: true,
+        certificate_desc: true,
+      },
+    });
+
+    res.status(200).json(certificates);
+  } catch (error) {
+    console.error("Error fetching skills:", error);
+    res.status(500).json({ error: "Failed to fetch skills" });
+  }
+});
+
+
+
 export default router;
