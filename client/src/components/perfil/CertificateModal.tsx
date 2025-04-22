@@ -100,14 +100,12 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
 
             {/* View Certificate Button */}
             <div className="flex mt-15">
-              <a
-                href={certificate.certificate_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary"
+              <button
+              disabled
+              className="btn btn-primary opacity-50 cursor-not-allowed"
               >
-                Ver Certificado
-              </a>
+              Ver Certificado
+              </button>
             </div>
           </div>
         </div>

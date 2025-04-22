@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { FaArrowDown } from "react-icons/fa";
 import { PiCertificate } from "react-icons/pi";
 import { FaArrowUp } from "react-icons/fa";
+import { IoMdAdd } from "react-icons/io";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import CertificateModal from "./CertificateModal";
+import AddCertificateModal from "./AddCertificateModal";
 
 interface Certificate {
   certificate_id: number;
@@ -14,17 +16,18 @@ interface Certificate {
   certificate_date: string;
   certificate_expiration_date: string;
   certificate_link: string;
-  skills: string[]; 
-  provider: string; 
+  skills: string[];
+  provider: string;
 }
 export default function WidgetCertificaciones() {
   const { data: session } = useSession();
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCertificate, setSelectedCertificate] =
-    useState<Certificate | null>(null); // State to store selected certificate
-  const [modalIsOpen, setModalIsOpen] = useState(false); // State to control modal visibility
+    useState<Certificate | null>(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [addModalIsOpen, setAddModalIsOpen] = useState(false);
 
-  const [certificates, setCertificates] = useState<Certificate[]>([]); // State to store certificates
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
 
   const toggleAccordion = () => {
     setIsExpanded(!isExpanded);
@@ -70,10 +73,20 @@ export default function WidgetCertificaciones() {
   return (
     <div className="card bg-base-100 shadow-xl col-span-2">
       <div className="card-body">
-        <h2 className="card-title text-3xl">
-          <PiCertificate />
-          Certificaciones
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="card-title text-3xl">
+            <PiCertificate />
+            Certificaciones
+          </h2>
+          <div>
+            <button
+              className="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"
+              onClick={() => setAddModalIsOpen(true)}
+            >
+              <IoMdAdd className="text-lg md:text-xl" />
+            </button>
+          </div>
+        </div>
 
         {/* Certificaciones Destacadas */}
         <p className="text-secondary text-lg mt-2">
@@ -182,6 +195,10 @@ export default function WidgetCertificaciones() {
             certificate={selectedCertificate}
             onClose={() => setModalIsOpen(false)}
           />
+        )}
+
+        {addModalIsOpen && (
+          <AddCertificateModal onClose={() => setAddModalIsOpen(false)} />
         )}
 
         {/* Toggle Button */}

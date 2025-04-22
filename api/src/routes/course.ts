@@ -69,4 +69,42 @@ router.get("/certificates", async (req, res) => {
   }
 });
 
+router.get("/providers-and-certifications", async (req, res) => {
+  try {
+    // Fetch all unique providers from the Certificates table
+    const providers = await prisma.certificates.findMany({
+      distinct: ["provider"],
+      select: { provider: true },
+    });
+
+    // Fetch all certifications with their corresponding skills and full details
+    const certifications = await prisma.certificates.findMany({
+      include: {
+        Certificate_Skills: {
+          include: {
+            Skills: true, // Join with the Skills table to fetch skill details
+          },
+        },
+      },
+    });
+
+    // Format the certifications to include skills as an array of skill names
+    const formattedCertifications = certifications.map((cert) => ({
+      certificate_id: cert.certificate_id,
+      certificate_name: cert.certificate_name,
+      certificate_desc: cert.certificate_desc,
+      provider: cert.provider,
+      skills: cert.Certificate_Skills.map((skill) => skill.Skills.name), // Extract skill names
+    }));
+
+    res.json({
+      providers: providers.map((provider) => provider.provider),
+      certifications: formattedCertifications,
+    });
+  } catch (error) {
+    console.error("Error fetching providers and certifications:", error);
+    res.status(500).json({ error: "Failed to fetch providers and certifications" });
+  }
+});
+
 export default router;
