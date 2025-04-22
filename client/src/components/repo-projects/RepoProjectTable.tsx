@@ -10,7 +10,7 @@ type Project = {
   details?: {
     capability: string;
     company?: string;
-    region: string;
+    country: string;
   };
 };
 
@@ -104,7 +104,7 @@ export const RepoProjectTable = ({
                           </div>
                           <div>
                             <strong>Region</strong>
-                            <p>{project.details.region}</p>
+                            <p>{project.details.country}</p>
                           </div>
                         </div>
                         <div className="details-button-container">
