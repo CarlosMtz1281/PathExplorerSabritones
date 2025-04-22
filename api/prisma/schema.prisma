@@ -13,9 +13,9 @@ model Capability {
   capability_id          Int                      @id @default(autoincrement())
   capability_name        String?                  @db.VarChar
   capability_lead_id     Int?
-  region_id              Int?
+  country_id             Int?
   Users                  Users?                   @relation(fields: [capability_lead_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_lead")
-  Region                 Region?                  @relation(fields: [region_id], references: [region_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_region")
+  Country                Country?                 @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_region")
   Capability_Employee    Capability_Employee[]
   Capability_People_Lead Capability_People_Lead[]
 }
@@ -55,7 +55,7 @@ model Certificate_Users {
   certificate_date            DateTime?    @db.Timestamp(6)
   certificate_expiration_date DateTime?    @db.Timestamp(6)
   certificate_link            String?      @db.VarChar
-  certificate_valid           Boolean?
+  status                      String?      @db.VarChar
   Certificates                Certificates @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_users_certificate")
   Users                       Users        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_users_user")
 
@@ -229,22 +229,19 @@ model Projects {
   project_desc          String?
   start_date            DateTime?           @db.Timestamp(6)
   end_date              DateTime?           @db.Timestamp(6)
-  region_id             Int?
+  country_id            Int?
   Feedback              Feedback[]
   Project_Positions     Project_Positions[]
   Project_User          Project_User[]
   Users                 Users?              @relation(fields: [delivery_lead_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_lead")
-  Region                Region?             @relation(fields: [region_id], references: [region_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_region")
+  Country               Country?            @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_region")
 }
 
-model Region {
-  region_id   Int          @id @default(autoincrement())
-  region_name String?      @db.VarChar
-  country     String?      @db.VarChar
-  timezone    String?      @db.VarChar
-  Capability  Capability[]
-  Projects    Projects[]
-  Users       Users[]
+model Session {
+  session_id String   @id @default(dbgenerated("encode(gen_random_bytes(32), 'base64'::text)")) @db.VarChar
+  user_id    Int
+  expires_at DateTime @default(dbgenerated("(now() + '7 days'::interval)")) @db.Timestamp(6)
+  Users      Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_session_user")
 }
 
 model Skills {
@@ -283,7 +280,7 @@ model Users {
   hire_date                                                     DateTime?                @db.Timestamp(6)
   role_id                                                       Int?
   in_project                                                    Boolean?
-  region_id                                                     Int?
+  country_id                                                    Int?
   Capability                                                    Capability[]
   Capability_Employee_Capability_Employee_people_lead_idToUsers Capability_Employee[]    @relation("Capability_Employee_people_lead_idToUsers")
   Capability_Employee_Capability_Employee_employee_idToUsers    Capability_Employee[]    @relation("Capability_Employee_employee_idToUsers")
@@ -300,7 +297,7 @@ model Users {
   Session                                                       Session[]
   User_Score                                                    User_Score[]
   User_Skills                                                   User_Skills[]
-  Region                                                        Region?                  @relation(fields: [region_id], references: [region_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_region")
+  Country                                                       Country?                 @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_region")
   Permits                                                       Permits?                 @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
 }
 
@@ -312,9 +309,12 @@ model Work_Position {
   Employee_Position Employee_Position[]
 }
 
-model Session {
-  session_id String   @id @default(dbgenerated("encode(gen_random_bytes(32), 'base64'::text)")) @db.VarChar
-  user_id    Int
-  expires_at DateTime @default(dbgenerated("(now() + '7 days'::interval)")) @db.Timestamp(6)
-  Users      Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_session_user")
+model Country {
+  country_id   Int          @id @default(autoincrement())
+  country_name String?      @db.VarChar
+  region_name  String?      @db.VarChar
+  timezone     String?      @db.VarChar
+  Capability   Capability[]
+  Projects     Projects[]
+  Users        Users[]
 }

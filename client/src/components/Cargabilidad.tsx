@@ -25,9 +25,9 @@ const Cargabilidad = ({ userId }: { userId: number }) => {
     <div>
       <div className="card w-80 bg-base-100 shadow-sm p-3">
         <div className="flex justify-between items-center w-full">
-          <h2 className="text-3xl font-bold">Cargabilidad</h2>
+          <h2 className="text-2xl font-bold">Cargabilidad</h2>
           <div
-            className="radial-progress"
+            className="radial-progress text-primary border-primary"
             style={{ "--value": percentage ?? 0 } as React.CSSProperties}
             aria-valuenow={percentage ?? 0}
             role="progressbar"
