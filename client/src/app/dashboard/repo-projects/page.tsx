@@ -15,7 +15,7 @@ type Project = {
   details?: {
     capability: string;
     company?: string;
-    region: string;
+    country: string;
   };
 };
 
@@ -33,7 +33,7 @@ export default function RepoProjects() {
       project.name.toLowerCase().includes(term) ||
       project.details?.capability.toLowerCase().includes(term) ||
       project.details?.company?.toLowerCase().includes(term) ||
-      project.details?.region.toLowerCase().includes(term)
+      project.details?.country.toLowerCase().includes(term)
     );
   });
 
@@ -50,6 +50,7 @@ export default function RepoProjects() {
 
   useEffect(() => {
     fetchProjects();
+    console.log("aaaaaaaaaaa")
   }, []);
 
   return (
