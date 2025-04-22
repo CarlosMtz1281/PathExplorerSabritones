@@ -111,4 +111,66 @@ router.post("/skills", async (req, res) => {
   }
 });
 
+router.patch("/checkstaff", async (req, res) => {
+  try {
+    const sessionKey = req.headers["session-key"];
+    const userId = await getUserIdFromSession(sessionKey);
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "User ID is required in the headers." });
+    }
+
+    if (userId === "timeout") {
+      return res.status(400).json({ error: "Timeout session" });
+    }
+
+    const staff = await prisma.employee_Position.findMany({
+      where: { user_id: userId },
+      select: {
+        end_date: true,
+      },
+    });
+
+    if (!staff) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const isStaff = staff.map((date) => {
+      if (!date.end_date) {
+        return false;
+      }
+      const endDate = new Date(date.end_date);
+      const today = new Date();
+      return endDate <= today;
+    });
+
+    const isStaffMember = isStaff.some((isStaff) => isStaff === true);
+
+    if (isStaffMember) {
+      await prisma.users.update({
+        where: { user_id: userId },
+        data: {
+          in_project: false,
+        },
+      });
+    } else {
+      await prisma.users.update({
+        where: { user_id: userId },
+        data: {
+          in_project: true,
+        },
+      });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Validation of staff member done successfully" });
+  } catch (err) {
+    console.error("Error fetching user data:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 export default router;
