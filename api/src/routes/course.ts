@@ -23,22 +23,28 @@ router.get("/certificates", async (req, res) => {
   console.log("Session key:", sessionKey); // Debugging: Log the session key
   try {
     // Validate session and get user ID
-    
     const userId = await getUserIdFromSession(sessionKey);
     console.log("User ID from session:", userId);
     if (!userId) {
       return res.status(401).json({ error: "Invalid or expired session" });
     }
 
-    
     // Update session expiration
     await updateSession(sessionKey);
 
-    // Fetch certificates for the user
+    // Fetch certificates for the user, including associated skills
     const certificates = await prisma.certificate_Users.findMany({
       where: { user_id: Number(userId) },
       include: {
-        Certificates: true, // Join with the Certificates table
+        Certificates: {
+          include: {
+            Certificate_Skills: {
+              include: {
+                Skills: true, // Join with the Skills table
+              },
+            },
+          },
+        },
       },
     });
 
@@ -50,6 +56,10 @@ router.get("/certificates", async (req, res) => {
       certificate_date: certificate.certificate_date,
       certificate_expiration_date: certificate.certificate_expiration_date,
       certificate_link: certificate.certificate_link,
+      provider: certificate.Certificates.provider, // Fetch the provider
+      skills: certificate.Certificates.Certificate_Skills.map(
+      (skill) => skill.Skills.name
+      ), // Extract skill names
     }));
 
     res.json(formattedCertificates);
