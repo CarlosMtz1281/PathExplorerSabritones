@@ -173,4 +173,65 @@ router.patch("/checkstaff", async (req, res) => {
   }
 });
 
+// Usar esto con un CRON JOB y agregar ADMIN KEY header
+router.patch("/checkstaffall", async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const positions = await prisma.employee_Position.findMany({
+      select: {
+        user_id: true,
+        end_date: true,
+      },
+    });
+
+    const usersToUpdate = positions.map((position) => {
+      if (!position.end_date) {
+        return { user_id: position.user_id, in_project: true };
+      }
+      const endDate = new Date(position.end_date);
+      return {
+        user_id: position.user_id,
+        in_project: endDate > today,
+      };
+    });
+
+    const usersToUpdateFilteredFalse = usersToUpdate.filter(
+      (user) => user.in_project === false
+    );
+
+    const usersToUpdateFilteredTrue = usersToUpdate.filter(
+      (user) => user.in_project === true
+    );
+
+    const updateResultFalse = await prisma.users.updateMany({
+      where: {
+        user_id: { in: usersToUpdateFilteredFalse.map((user) => user.user_id) },
+      },
+      data: {
+        in_project: false,
+      },
+    });
+
+    const updateResultTrue = await prisma.users.updateMany({
+      where: {
+        user_id: { in: usersToUpdateFilteredTrue.map((user) => user.user_id) },
+      },
+      data: {
+        in_project: true,
+      },
+    });
+
+    res.status(200).json({
+      message: `Successfully updated ${
+        updateResultFalse.count + updateResultTrue.count
+      } users.`,
+    });
+  } catch (err) {
+    console.error("Error updating staff statuses:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 export default router;
