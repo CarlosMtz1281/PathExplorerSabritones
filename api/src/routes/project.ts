@@ -60,6 +60,49 @@ router.get("/repositories", async (req, res) => {
   }
 });
 
+router.get("/getProjectById/:projectId", async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.projectId);
+
+    if (isNaN(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    const project = await prisma.projects.findUnique({
+      where: {
+        project_id: projectId,
+      },
+      include: {
+        Project_Positions: true,
+        Country: true,
+        Users: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const formattedProject = {
+      id: project.project_id,
+      name: project.project_name,
+      start_date: project.start_date.toLocaleDateString("es-ES"),
+      end_date: project.end_date.toLocaleDateString("es-ES"),
+      vacants: project.Project_Positions.length,
+      details: {
+        company: project.company_name,
+        country: project.Country?.country_name || "No country",
+        capability: project.Users.name,
+      },
+      positions: project.Project_Positions,
+    };
+
+    res.status(200).json(formattedProject);
+  } catch (error) {
+    console.error("Error fetching project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 router.post("/create", async (req, res) => {
   const {
     project_name,
@@ -74,6 +117,7 @@ router.post("/create", async (req, res) => {
   console.log("Session ID:", sessionId);
 
   if (!sessionId) {
+    console.log("Session ID not provided");
     return res.status(401).json({ error: "Session ID required" });
   }
 
@@ -82,6 +126,7 @@ router.post("/create", async (req, res) => {
     console.log("User ID from session:", delivery_lead_user_id);
 
     if (!delivery_lead_user_id) {
+      console.log("Invalid session");
       return res.status(401).json({ error: "Invalid session" });
     }
 
@@ -91,6 +136,7 @@ router.post("/create", async (req, res) => {
     });
 
     if (!user) {
+      console.log("User not found");
       return res.status(404).json({ error: "User not found" });
     }
 

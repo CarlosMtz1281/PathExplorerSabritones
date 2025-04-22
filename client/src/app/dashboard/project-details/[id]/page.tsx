@@ -3,27 +3,27 @@
 import { useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
-// Define types based on the API response structure
+// Updated interface to match your actual data structure
 interface ProjectPosition {
   position_id: number;
-  position_name: string;
   project_id: number;
-  count: number;
+  position_name: string;
+  position_desc: string;
   user_id: number | null;
-  Users: any | null;
-  Project_Position_Skills: Array<{
+  // These fields might be missing in your actual data
+  Project_Position_Skills?: Array<{
     Skills: {
       skill_id: number;
       skill_name: string;
     };
   }>;
-  Project_Position_Certificates: Array<{
+  Project_Position_Certificates?: Array<{
     Certificates: {
       certificate_id: number;
       certificate_name: string;
     };
   }>;
-  Postulations: Array<{
+  Postulations?: Array<{
     postulation_id: number;
     user_id: number;
     Users: {
@@ -38,23 +38,17 @@ interface ProjectPosition {
 interface Project {
   id: number;
   name: string;
-  description: string;
-  company: string;
+  description?: string;
   start_date: string;
   end_date: string | null;
-  region: {
-    region_id: number;
-    region_name: string;
+  vacants: number;
+  details: {
+    company: string;
     country: string;
-    timezone: string;
-  };
-  delivery_lead: {
-    user_id: number;
-    name: string;
-    mail: string;
+    capability: string;
   };
   positions: ProjectPosition[];
-  team_members: Array<{
+  team_members?: Array<{
     user_id: number;
     project_id: number;
     Users: {
@@ -63,7 +57,7 @@ interface Project {
       mail: string;
     };
   }>;
-  feedback: Array<any>;
+  feedback?: Array<any>;
 }
 
 const ProjectDetails = () => {
@@ -78,7 +72,7 @@ const ProjectDetails = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/project/repositories/${id}`
+          `${process.env.NEXT_PUBLIC_API_BASE}/project/getProjectById/${id}`
         );
 
         if (!response.ok) {
@@ -88,9 +82,12 @@ const ProjectDetails = () => {
         const data = await response.json();
         setProject(data);
 
-        // Set initial selected vacancy if positions exist
-        if (data.positions && data.positions.length > 0) {
-          setSelectedVacancy(data.positions[0].position_id);
+        // Set initial selected vacancy if vacant positions exist
+        const vacantPositions = data.positions.filter(
+          (p) => p.user_id === null
+        );
+        if (vacantPositions.length > 0) {
+          setSelectedVacancy(vacantPositions[0].position_id);
         }
       } catch (err) {
         setError(
@@ -120,27 +117,10 @@ const ProjectDetails = () => {
     return `${months} ${months === 1 ? "mes" : "meses"}`;
   };
 
-  // Get candidates for selected position
-  const getCandidatesForPosition = () => {
-    if (!project || !selectedVacancy) return [];
-
-    const position = project.positions.find(
-      (p) => p.position_id === selectedVacancy
-    );
-    return position
-      ? position.Postulations.map((p) => ({
-          id: p.Users.user_id,
-          name: p.Users.name,
-          email: p.Users.mail,
-          meeting: p.Meeting,
-          // Calculate compatibility based on skills and certificates (placeholder)
-          compatibility: Math.floor(Math.random() * 40) + 60, // Placeholder: random 60-100%
-          certifications:
-            position.Project_Position_Certificates.length > 0
-              ? "Tiene certificaciones requeridas"
-              : "Sin certificaciones requeridas",
-        }))
-      : [];
+  // Get vacant positions
+  const getVacantPositions = () => {
+    if (!project) return [];
+    return project.positions.filter((p) => p.user_id === null);
   };
 
   if (loading) {
@@ -174,11 +154,14 @@ const ProjectDetails = () => {
     );
   }
 
-  const candidates = getCandidatesForPosition();
+  const vacantPositions = getVacantPositions();
   const selectedPosition = project.positions.find(
     (p) => p.position_id === selectedVacancy
   );
   const duration = calculateDuration(project.start_date, project.end_date);
+
+  // Get filled positions (team members)
+  const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
   return (
     <div className="min-h-screen bg-base-200 p-10">
@@ -201,18 +184,19 @@ const ProjectDetails = () => {
                   <span className="link link-primary">{duration}</span>
                 </p>
                 <p className="text-sm text-secondary mb-2">
-                  <strong>Delivery Lead:</strong> {project.delivery_lead.name}
+                  <strong>Delivery Lead:</strong> {project.details.capability}
                 </p>
                 <p className="text-sm text-secondary mb-2">
-                  <strong>Empresa:</strong> {project.company}
+                  <strong>Empresa:</strong> {project.details.company}
                 </p>
                 <p className="text-sm text-secondary mb-2">
-                  <strong>Región:</strong> {project.region.region_name},{" "}
-                  {project.region.country}
+                  <strong>País:</strong> {project.details.country}
                 </p>
-                <p className="text-sm text-secondary">
-                  <strong>Descripción:</strong> {project.description}
-                </p>
+                {project.description && (
+                  <p className="text-sm text-secondary">
+                    <strong>Descripción:</strong> {project.description}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -221,81 +205,116 @@ const ProjectDetails = () => {
           <div className="bg-base-100 rounded-lg shadow-md border border-base-300">
             <div className="card">
               <div className="card-title bg-primary text-primary-content p-4 rounded-t-lg">
-                <h2 className="text-2xl font-bold">Vacantes</h2>
+                <h2 className="text-2xl font-bold">
+                  Vacantes ({vacantPositions.length})
+                </h2>
               </div>
               <div className="card-body p-6">
-                <div className="form-control w-full mb-4">
-                  <label className="label">
-                    <span className="label-text">Seleccionar vacante</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={selectedVacancy || ""}
-                    onChange={(e) => setSelectedVacancy(Number(e.target.value))}
-                  >
-                    {project.positions.map((position) => (
-                      <option
-                        key={position.position_id}
-                        value={position.position_id}
+                {vacantPositions.length > 0 ? (
+                  <>
+                    <div className="form-control w-full mb-4">
+                      <label className="label">
+                        <span className="label-text">Seleccionar vacante</span>
+                      </label>
+                      <select
+                        className="select select-bordered w-full"
+                        value={selectedVacancy || ""}
+                        onChange={(e) =>
+                          setSelectedVacancy(Number(e.target.value))
+                        }
                       >
-                        {position.position_name} ({position.count})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {selectedPosition && (
-                  <div className="mt-4 space-y-4">
-                    <div>
-                      <h3 className="font-bold mb-2">
-                        Detalles de la vacante:
-                      </h3>
-                      <p className="text-sm text-secondary">
-                        <strong>Rol:</strong> {selectedPosition.position_name}
-                      </p>
-                      <p className="text-sm text-secondary mt-2">
-                        <strong>Disponibles:</strong> {selectedPosition.count}
-                      </p>
+                        {vacantPositions.map((position) => (
+                          <option
+                            key={position.position_id}
+                            value={position.position_id}
+                          >
+                            {position.position_name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    {selectedPosition.Project_Position_Skills.length > 0 && (
-                      <div>
-                        <h3 className="font-bold mb-2">Skills requeridos:</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedPosition.Project_Position_Skills.map(
-                            (pps) => (
-                              <div
-                                key={pps.Skills.skill_id}
-                                className="badge badge-outline"
-                              >
-                                {pps.Skills.skill_name}
-                              </div>
-                            )
-                          )}
+                    {selectedPosition && (
+                      <div className="mt-4 space-y-4">
+                        <div>
+                          <h3 className="font-bold mb-2">
+                            Detalles de la vacante:
+                          </h3>
+                          <p className="text-sm text-secondary">
+                            <strong>Rol:</strong>{" "}
+                            {selectedPosition.position_name}
+                          </p>
+                          <p className="text-sm text-secondary mt-2">
+                            <strong>Descripción:</strong>{" "}
+                            {selectedPosition.position_desc}
+                          </p>
                         </div>
-                      </div>
-                    )}
 
-                    {selectedPosition.Project_Position_Certificates.length >
-                      0 && (
-                      <div>
-                        <h3 className="font-bold mb-2">
-                          Certificaciones requeridas:
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedPosition.Project_Position_Certificates.map(
-                            (ppc) => (
-                              <div
-                                key={ppc.Certificates.certificate_id}
-                                className="badge badge-outline badge-secondary"
-                              >
-                                {ppc.Certificates.certificate_name}
+                        {selectedPosition.Project_Position_Skills &&
+                          selectedPosition.Project_Position_Skills.length >
+                            0 && (
+                            <div>
+                              <h3 className="font-bold mb-2">
+                                Skills requeridos:
+                              </h3>
+                              <div className="flex flex-wrap gap-2">
+                                {selectedPosition.Project_Position_Skills.map(
+                                  (pps) => (
+                                    <div
+                                      key={pps.Skills.skill_id}
+                                      className="badge badge-outline"
+                                    >
+                                      {pps.Skills.skill_name}
+                                    </div>
+                                  )
+                                )}
                               </div>
-                            )
+                            </div>
                           )}
-                        </div>
+
+                        {selectedPosition.Project_Position_Certificates &&
+                          selectedPosition.Project_Position_Certificates
+                            .length > 0 && (
+                            <div>
+                              <h3 className="font-bold mb-2">
+                                Certificaciones requeridas:
+                              </h3>
+                              <div className="flex flex-wrap gap-2">
+                                {selectedPosition.Project_Position_Certificates.map(
+                                  (ppc) => (
+                                    <div
+                                      key={ppc.Certificates.certificate_id}
+                                      className="badge badge-outline badge-secondary"
+                                    >
+                                      {ppc.Certificates.certificate_name}
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
                       </div>
                     )}
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-40">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-base-300"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <p className="text-base-300 mt-4">
+                      No hay vacantes disponibles
+                    </p>
                   </div>
                 )}
               </div>
@@ -303,46 +322,29 @@ const ProjectDetails = () => {
           </div>
         </div>
 
-        {/* Candidates */}
+        {/* Team Members/Filled Positions */}
         <div className="col-span-2 bg-base-100 p-6 rounded-lg shadow-md border border-base-300 max-h-[80vh]">
           <h2 className="text-2xl font-bold text-primary mb-4">
-            Candidatos ({candidates.length})
+            Equipo Actual ({filledPositions.length})
           </h2>
 
-          {candidates.length > 0 ? (
+          {filledPositions.length > 0 ? (
             <div className="space-y-4 overflow-y-auto max-h-[calc(80vh-5rem)]">
-              {candidates.map((candidate) => (
+              {filledPositions.map((position) => (
                 <div
-                  key={candidate.id}
+                  key={position.position_id}
                   className="flex items-center justify-between bg-base-200 p-4 rounded-lg shadow-sm border border-base-300"
                 >
                   <div>
                     <h3 className="text-lg font-semibold text-primary">
-                      {candidate.name}
+                      {position.position_name}
                     </h3>
-                    <p className="text-sm text-secondary">{candidate.email}</p>
-                    <p className="text-sm text-success">
-                      {candidate.certifications}
+                    <p className="text-sm text-secondary">
+                      {position.position_desc}
                     </p>
-                    {candidate.meeting && (
-                      <p className="text-sm text-info">
-                        Reunión programada:{" "}
-                        {new Date(
-                          candidate.meeting.meeting_date
-                        ).toLocaleDateString()}
-                      </p>
-                    )}
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <p className="text-sm text-secondary">Compatibilidad</p>
-                      <p className="text-2xl font-bold text-success">
-                        {candidate.compatibility}%
-                      </p>
-                    </div>
-                    <button className="btn btn-primary">
-                      {candidate.meeting ? "Ver detalles" : "Programar reunión"}
-                    </button>
+                  <div className="badge badge-success p-3">
+                    Posición ocupada
                   </div>
                 </div>
               ))}
@@ -360,11 +362,11 @@ const ProjectDetails = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                 />
               </svg>
               <p className="text-base-300 mt-4">
-                No hay candidatos para esta posición
+                No hay miembros asignados al equipo
               </p>
             </div>
           )}
