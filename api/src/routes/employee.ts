@@ -111,4 +111,85 @@ router.post("/skills", async (req, res) => {
   }
 });
 
+// File: src/routes/user.ts or wherever your user routes are defined
+
+router.get("/getCapabilityTeamMembers/:userId", async (req, res) => {
+  const userId = parseInt(req.params.userId);
+
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid project ID" });
+  }
+  try {
+    // Get the user's capability information
+    const user = await prisma.users.findUnique({
+      where: { user_id: userId },
+      include: {
+        Capability_Employee_Capability_Employee_employee_idToUsers: {
+          include: {
+            Capability: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Extract capability ID from user data
+    let capabilityId = null;
+
+    if (
+      user.Capability_Employee_Capability_Employee_employee_idToUsers.length > 0
+    ) {
+      capabilityId =
+        user.Capability_Employee_Capability_Employee_employee_idToUsers[0]
+          .capability_id;
+    }
+
+    if (!capabilityId) {
+      return res.status(200).json([]); // User doesn't belong to any capability
+    }
+
+    // Get all team members in this capability
+    const capabilityMembers = await prisma.capability_Employee.findMany({
+      where: { capability_id: capabilityId },
+      include: {
+        Users_Capability_Employee_employee_idToUsers: {
+          select: {
+            user_id: true,
+            name: true,
+            mail: true,
+            Employee_Position: {
+              include: {
+                Work_Position: true,
+              },
+              orderBy: {
+                start_date: "desc",
+              },
+              take: 1, // Get only the most recent position
+            },
+          },
+        },
+      },
+    });
+
+    // Format the response
+    const teamMembers = capabilityMembers.map((member) => ({
+      user_id: member.Users_Capability_Employee_employee_idToUsers.user_id,
+      name:
+        member.Users_Capability_Employee_employee_idToUsers.name || "Unknown",
+      mail: member.Users_Capability_Employee_employee_idToUsers.mail || "",
+      position:
+        member.Users_Capability_Employee_employee_idToUsers.Employee_Position[0]
+          ?.Work_Position?.position_name || null,
+    }));
+
+    res.status(200).json(teamMembers);
+  } catch (error) {
+    console.error("Error fetching capability team members:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

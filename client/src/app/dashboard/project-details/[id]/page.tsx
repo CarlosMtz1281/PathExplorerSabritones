@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 
 // Updated interface to match your actual data structure
@@ -10,7 +11,6 @@ interface ProjectPosition {
   position_name: string;
   position_desc: string;
   user_id: number | null;
-  // These fields might be missing in your actual data
   Project_Position_Skills?: Array<{
     Skills: {
       skill_id: number;
@@ -33,6 +33,13 @@ interface ProjectPosition {
     };
     Meeting: any | null;
   }>;
+}
+
+interface TeamMember {
+  user_id: number;
+  name: string;
+  mail: string;
+  position?: string;
 }
 
 interface Project {
@@ -62,10 +69,15 @@ interface Project {
 
 const ProjectDetails = () => {
   const { id } = useParams();
+  const { data: session } = useSession();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVacancy, setSelectedVacancy] = useState<number | null>(null);
+  const [capabilityTeamMembers, setCapabilityTeamMembers] = useState<
+    TeamMember[]
+  >([]);
+  const [loadingTeam, setLoadingTeam] = useState(true);
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -103,6 +115,39 @@ const ProjectDetails = () => {
       fetchProjectDetails();
     }
   }, [id]);
+
+  // Fetch capability team members based on current user's session
+  useEffect(() => {
+    const fetchCapabilityTeamMembers = async () => {
+      if (!session || !session.user) return;
+
+      try {
+        setLoadingTeam(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/employee/getCapabilityTeamMembers/${session.user.id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error fetching capability team: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setCapabilityTeamMembers(data);
+      } catch (err) {
+        console.error("Error fetching capability team members:", err);
+        // We don't set an error state here to avoid blocking the whole component
+      } finally {
+        setLoadingTeam(false);
+      }
+    };
+
+    fetchCapabilityTeamMembers();
+  }, [session]);
 
   // Calculate project duration in months
   const calculateDuration = (startDate: string, endDate: string | null) => {
@@ -322,54 +367,114 @@ const ProjectDetails = () => {
           </div>
         </div>
 
-        {/* Team Members/Filled Positions */}
-        <div className="col-span-2 bg-base-100 p-6 rounded-lg shadow-md border border-base-300 max-h-[80vh]">
-          <h2 className="text-2xl font-bold text-primary mb-4">
-            Equipo Actual ({filledPositions.length})
-          </h2>
+        {/* Team Members/Capability Members */}
+        <div className="col-span-2">
+          <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 mb-8">
+            <h2 className="text-2xl font-bold text-primary mb-4">
+              Equipo Actual ({filledPositions.length})
+            </h2>
 
-          {filledPositions.length > 0 ? (
-            <div className="space-y-4 overflow-y-auto max-h-[calc(80vh-5rem)]">
-              {filledPositions.map((position) => (
-                <div
-                  key={position.position_id}
-                  className="flex items-center justify-between bg-base-200 p-4 rounded-lg shadow-sm border border-base-300"
+            {filledPositions.length > 0 ? (
+              <div className="space-y-4 overflow-y-auto max-h-[calc(40vh-5rem)]">
+                {filledPositions.map((position) => (
+                  <div
+                    key={position.position_id}
+                    className="flex items-center justify-between bg-base-200 p-4 rounded-lg shadow-sm border border-base-300"
+                  >
+                    <div>
+                      <h3 className="text-lg font-semibold text-primary">
+                        {position.position_name}
+                      </h3>
+                      <p className="text-sm text-secondary">
+                        {position.position_desc}
+                      </p>
+                    </div>
+                    <div className="badge badge-success p-3">
+                      Posición ocupada
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-40">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 text-base-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  <div>
-                    <h3 className="text-lg font-semibold text-primary">
-                      {position.position_name}
-                    </h3>
-                    <p className="text-sm text-secondary">
-                      {position.position_desc}
-                    </p>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                <p className="text-base-300 mt-4">
+                  No hay miembros asignados al equipo
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Capability Team Members */}
+          <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300">
+            <h2 className="text-2xl font-bold text-primary mb-4">
+              Miembros de tu Capability{" "}
+              {loadingTeam ? "" : `(${capabilityTeamMembers.length})`}
+            </h2>
+
+            {loadingTeam ? (
+              <div className="flex justify-center items-center h-40">
+                <span className="loading loading-spinner loading-md text-primary"></span>
+              </div>
+            ) : capabilityTeamMembers.length > 0 ? (
+              <div className="space-y-4 overflow-y-auto max-h-[calc(40vh-5rem)]">
+                {capabilityTeamMembers.map((member) => (
+                  <div
+                    key={member.user_id}
+                    className="flex items-center justify-between bg-base-200 p-4 rounded-lg shadow-sm border border-base-300"
+                  >
+                    <div>
+                      <h3 className="text-lg font-semibold text-primary">
+                        {member.name}
+                      </h3>
+                      <p className="text-sm text-secondary">{member.mail}</p>
+                      {member.position && (
+                        <p className="text-xs text-secondary mt-1">
+                          {member.position}
+                        </p>
+                      )}
+                    </div>
+                    <button className="btn btn-outline btn-primary btn-sm">
+                      Postular
+                    </button>
                   </div>
-                  <div className="badge badge-success p-3">
-                    Posición ocupada
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-64">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 text-base-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <p className="text-base-300 mt-4">
-                No hay miembros asignados al equipo
-              </p>
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-40">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 text-base-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                <p className="text-base-300 mt-4">
+                  No se encontraron miembros en tu capability
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
