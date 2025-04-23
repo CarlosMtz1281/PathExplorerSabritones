@@ -955,3 +955,81 @@ INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
 
 -- Global Admin
 (18, 1), (18, 2), (18, 10), (18, 23), (18, 29), (18, 34);
+
+
+
+
+
+-- John Doe new jobs and projects
+
+-- Add Accenture work position for John Doe
+INSERT INTO "Work_Position" (
+    "position_name",
+    "position_desc",
+    "company"
+) VALUES
+('Senior Software Engineer', 'Leads development of enterprise applications', 'Accenture');
+
+-- Get the position_id of the newly created Accenture position
+-- (Assuming this is position_id 13 since you had 12 positions previously)
+-- In a real application, you'd want to get this ID programmatically
+
+-- Add John Doe's employment at Accenture (after his current position)
+INSERT INTO "Employee_Position" (
+    "position_id",
+    "user_id",
+    "start_date",
+    "end_date"
+) VALUES
+(13, 1, '2024-01-01', NULL);  -- Current position at Accenture
+
+-- Update John Doe's previous position end date
+UPDATE "Employee_Position" 
+SET "end_date" = '2023-12-31'
+WHERE "user_id" = 1 AND "position_id" = 1;
+
+-- Add two projects during John's time at Accenture
+INSERT INTO "Projects" (
+    "delivery_lead_user_id",
+    "project_name",
+    "company_name",
+    "project_desc",
+    "start_date",
+    "end_date",
+    "country_id"
+) VALUES
+-- Project during Accenture employment
+(5, 'Financial Analytics Platform', 'Accenture', 'Development of analytics platform for financial services', '2024-02-01', '2024-08-31', 1),
+(5, 'Client Portal Modernization', 'Accenture', 'Modernization of legacy client portal system', '2024-05-01', '2024-11-30', 1);
+
+-- Get the project_ids of the newly created projects
+-- (Assuming these are project_ids 14 and 15)
+
+-- Add positions for these projects
+INSERT INTO "Project_Positions" (
+    "project_id", 
+    "position_name",
+    "position_desc",
+    "user_id"
+) VALUES
+(12, 'Tech Lead', 'Technical leadership for analytics platform development', 1),
+(13, 'Senior Developer', 'Lead developer for portal modernization', 1);
+
+-- Add John to the projects
+INSERT INTO "Project_User" ("user_id", "project_id") VALUES
+(1, 12), (1, 13);
+
+-- Add required skills for these positions
+INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
+(23, 1), (23, 8), (23, 20),  -- Tech Lead needs Java, Spring Boot, Architecture
+(24, 1), (24, 4), (24, 5);    -- Senior Dev needs Java, JavaScript, React
+
+-- Add feedback for John's work on these projects
+INSERT INTO "Feedback" (
+    "project_id",
+    "user_id",
+    "desc",
+    "score"
+) VALUES
+(12, 1, 'Excellent technical leadership and architecture design', 5),
+(13, 1, 'Delivered high-quality code ahead of schedule', 5);
