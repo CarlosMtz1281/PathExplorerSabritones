@@ -73,9 +73,46 @@ router.get("/getProjectById/:projectId", async (req, res) => {
         project_id: projectId,
       },
       include: {
-        Project_Positions: true,
+        Project_Positions: {
+          include: {
+            Project_Position_Skills: {
+              include: {
+                Skills: true,
+              },
+            },
+            Project_Position_Certificates: {
+              include: {
+                Certificates: true,
+              },
+            },
+            Users: true,
+            Postulations: {
+              include: {
+                Users: {
+                  select: {
+                    user_id: true,
+                    name: true,
+                    mail: true,
+                  },
+                },
+                Meeting: true,
+              },
+            },
+          },
+        },
         Country: true,
         Users: true,
+        Project_User: {
+          include: {
+            Users: {
+              select: {
+                user_id: true,
+                name: true,
+                mail: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -83,18 +120,39 @@ router.get("/getProjectById/:projectId", async (req, res) => {
       return res.status(404).json({ error: "Project not found" });
     }
 
+    // Format dates and structure project data
     const formattedProject = {
       id: project.project_id,
       name: project.project_name,
-      start_date: project.start_date.toLocaleDateString("es-ES"),
-      end_date: project.end_date.toLocaleDateString("es-ES"),
-      vacants: project.Project_Positions.length,
+      description: project.project_desc,
+      start_date: project.start_date
+        ? project.start_date.toLocaleDateString("es-ES")
+        : null,
+      end_date: project.end_date
+        ? project.end_date.toLocaleDateString("es-ES")
+        : null,
+      vacants: project.Project_Positions.filter((pos) => pos.user_id === null)
+        .length,
       details: {
         company: project.company_name,
         country: project.Country?.country_name || "No country",
-        capability: project.Users.name,
+        capability: project.Users?.name || "No capability",
       },
-      positions: project.Project_Positions,
+      positions: project.Project_Positions.map((position) => ({
+        position_id: position.position_id,
+        project_id: position.project_id,
+        position_name: position.position_name,
+        position_desc: position.position_desc,
+        user_id: position.user_id,
+        Project_Position_Skills: position.Project_Position_Skills,
+        Project_Position_Certificates: position.Project_Position_Certificates,
+        Postulations: position.Postulations,
+      })),
+      team_members: project.Project_User.map((member) => ({
+        user_id: member.user_id,
+        project_id: member.project_id,
+        Users: member.Users,
+      })),
     };
 
     res.status(200).json(formattedProject);

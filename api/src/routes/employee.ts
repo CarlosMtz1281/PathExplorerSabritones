@@ -75,6 +75,30 @@ router.get("/skills", async (req, res) => {
   }
 });
 
+router.get("/getsSkillsId/:userId", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+
+    const skills = await prisma.user_Skills.findMany({
+      where: { user_id: userId },
+      include: {
+        Skills: true,
+      },
+    });
+
+    const formattedSkills = skills.map((skill) => ({
+      skill_id: skill.skill_id,
+      skill_name: skill.Skills.name,
+      skill_technical: skill.Skills.technical,
+    }));
+
+    res.status(200).json(formattedSkills);
+  } catch (error) {
+    console.error("Error fetching user skills:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 router.post("/skills", async (req, res) => {
   try {
     const { skills } = req.body;

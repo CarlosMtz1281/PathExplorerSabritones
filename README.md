@@ -86,8 +86,30 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 tmux commands
 start
-tmux send-keys -t %5 'npm run dev' C-m
-tmux send-keys -t %0 'npm run dev' C-m
-tmux send-keys -t %4 'npx prisma studio' C-m
+tmux send-keys -t $SESSION_NAME:0.4 'cd bd/postgres-docker && docker compose down -v && docker compose up' C-m
+
+# Pane 3: Wait for DB, then run API commands
+tmux send-keys -t $SESSION_NAME:0.3 '
+ cd api &&
+ echo "Waiting for PostgreSQL port to open..." &&
+ while ! nc -z localhost 5433; do sleep 1; done &&
+ echo "Waiting for database to be ready (prisma pull retry)..." &&
+ until npx prisma db pull; do echo "Retrying..."; sleep 3; done &&
+ npx prisma generate &&
+ npm run dev
+ ' C-m
+
+# Pane 0: Start client
+tmux send-keys -t $SESSION_NAME:0.0 'cd client && npm run dev' C-m
+
+# Pane 2: Wait for API, then launch Prisma Studio
+tmux send-keys -t $SESSION_NAME:0.2 '
+ cd api &&
+ echo "Waiting for API on port 3003..." &&
+ while ! nc -z localhost 3003; do sleep 1; done &&
+ echo "API is up. Starting Prisma Studio..." &&
+ npx prisma studio
+ ' C-m
+
 
 tmux list-panes -F '#{pane_id}' | while read pane; do tmux send-keys -t "$pane" C-c; done

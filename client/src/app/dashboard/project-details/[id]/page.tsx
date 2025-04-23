@@ -3,26 +3,43 @@
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-// Updated interface to match your actual data structure
+// Updated interfaces with more precise types
+interface Skill {
+  skill_id: number;
+  name: string;
+  technical: boolean;
+  skill_name?: string; // For compatibility with different API responses
+}
+
+interface Certificate {
+  certificate_id: number;
+  certificate_name: string;
+  certificate_desc?: string;
+  provider?: string;
+}
+
+interface ProjectPositionSkill {
+  position_id: number;
+  skill_id: number;
+  Skills: Skill;
+}
+
+interface ProjectPositionCertificate {
+  position_id: number;
+  certificate_id: number;
+  Certificates: Certificate;
+}
+
 interface ProjectPosition {
   position_id: number;
   project_id: number;
   position_name: string;
   position_desc: string;
   user_id: number | null;
-  Project_Position_Skills?: Array<{
-    Skills: {
-      skill_id: number;
-      skill_name: string;
-    };
-  }>;
-  Project_Position_Certificates?: Array<{
-    Certificates: {
-      certificate_id: number;
-      certificate_name: string;
-    };
-  }>;
+  Project_Position_Skills: ProjectPositionSkill[];
+  Project_Position_Certificates: ProjectPositionCertificate[];
   Postulations?: Array<{
     postulation_id: number;
     user_id: number;
@@ -40,6 +57,9 @@ interface TeamMember {
   name: string;
   mail: string;
   position?: string;
+  matchedSkills?: Skill[];
+  matchedCertificates?: Certificate[];
+  totalMatches?: number;
 }
 
 interface Project {
@@ -74,11 +94,18 @@ const ProjectDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVacancy, setSelectedVacancy] = useState<number | null>(null);
+  const [candidates, setCandidates] = useState<TeamMember[]>([]);
   const [capabilityTeamMembers, setCapabilityTeamMembers] = useState<
     TeamMember[]
   >([]);
   const [loadingTeam, setLoadingTeam] = useState(true);
+  const [loadingSkills, setLoadingSkills] = useState(false);
+  const [positionSkills, setPositionSkills] = useState<Skill[]>([]);
+  const [positionCertificates, setPositionCertificates] = useState<
+    Certificate[]
+  >([]);
 
+  // Fetch project details
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
@@ -92,6 +119,7 @@ const ProjectDetails = () => {
         }
 
         const data = await response.json();
+        console.log("Project data:", data);
         setProject(data);
 
         // Set initial selected vacancy if vacant positions exist
@@ -140,7 +168,6 @@ const ProjectDetails = () => {
         setCapabilityTeamMembers(data);
       } catch (err) {
         console.error("Error fetching capability team members:", err);
-        // We don't set an error state here to avoid blocking the whole component
       } finally {
         setLoadingTeam(false);
       }
@@ -148,6 +175,220 @@ const ProjectDetails = () => {
 
     fetchCapabilityTeamMembers();
   }, [session]);
+
+  // Fetch position skills and certificates when selected vacancy changes
+  useEffect(() => {
+    const fetchPositionRequirements = async () => {
+      if (!selectedVacancy || !project) return;
+
+      setLoadingSkills(true);
+
+      try {
+        // Find the selected position from the project data
+        const position = project.positions.find(
+          (p) => p.position_id === selectedVacancy
+        );
+
+        if (!position) {
+          console.error("Selected position not found");
+          return;
+        }
+
+        // Fetch position skills if not already included in the project data
+        if (
+          !position.Project_Position_Skills ||
+          position.Project_Position_Skills.length === 0
+        ) {
+          const skillsResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE}/project/getPositionSkills/${selectedVacancy}`
+          );
+
+          if (skillsResponse.ok) {
+            const skillsData = await skillsResponse.json();
+            setPositionSkills(skillsData);
+
+            // Update the position in the project object
+            const updatedPositions = project.positions.map((p) => {
+              if (p.position_id === selectedVacancy) {
+                return {
+                  ...p,
+                  Project_Position_Skills: skillsData.map((skill: Skill) => ({
+                    position_id: selectedVacancy,
+                    skill_id: skill.skill_id,
+                    Skills: skill,
+                  })),
+                };
+              }
+              return p;
+            });
+
+            setProject({ ...project, positions: updatedPositions });
+          }
+        } else {
+          // Use the skills already in the position data
+          setPositionSkills(
+            position.Project_Position_Skills.map((pps) => pps.Skills)
+          );
+        }
+
+        // Fetch position certificates if not already included
+        if (
+          !position.Project_Position_Certificates ||
+          position.Project_Position_Certificates.length === 0
+        ) {
+          const certsResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE}/project/getPositionCertificates/${selectedVacancy}`
+          );
+
+          if (certsResponse.ok) {
+            const certsData = await certsResponse.json();
+            setPositionCertificates(certsData);
+
+            // Update the position in the project object
+            const updatedPositions = project.positions.map((p) => {
+              if (p.position_id === selectedVacancy) {
+                return {
+                  ...p,
+                  Project_Position_Certificates: certsData.map(
+                    (cert: Certificate) => ({
+                      position_id: selectedVacancy,
+                      certificate_id: cert.certificate_id,
+                      Certificates: cert,
+                    })
+                  ),
+                };
+              }
+              return p;
+            });
+
+            setProject({ ...project, positions: updatedPositions });
+          }
+        } else {
+          // Use the certificates already in the position data
+          setPositionCertificates(
+            position.Project_Position_Certificates.map(
+              (ppc) => ppc.Certificates
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching position requirements:", error);
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+
+    fetchPositionRequirements();
+  }, [selectedVacancy, project]);
+
+  // Fetch candidates and match their skills and certificates
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      if (!project || !selectedVacancy || !capabilityTeamMembers.length) return;
+
+      try {
+        const selectedPosition = project.positions.find(
+          (p) => p.position_id === selectedVacancy
+        );
+
+        if (!selectedPosition) return;
+
+        // Use the skills and certificates we already have or fetch them if needed
+        let requiredSkills: string[] = [];
+        let requiredCertificates: string[] = [];
+
+        if (
+          selectedPosition.Project_Position_Skills &&
+          selectedPosition.Project_Position_Skills.length > 0
+        ) {
+          requiredSkills = selectedPosition.Project_Position_Skills.map(
+            (pps) => pps.Skills.skill_name || pps.Skills.name
+          );
+        } else if (positionSkills.length > 0) {
+          requiredSkills = positionSkills.map(
+            (skill) => skill.skill_name || skill.name
+          );
+        }
+
+        if (
+          selectedPosition.Project_Position_Certificates &&
+          selectedPosition.Project_Position_Certificates.length > 0
+        ) {
+          requiredCertificates =
+            selectedPosition.Project_Position_Certificates.map(
+              (ppc) => ppc.Certificates.certificate_name
+            );
+        } else if (positionCertificates.length > 0) {
+          requiredCertificates = positionCertificates.map(
+            (cert) => cert.certificate_name
+          );
+        }
+
+        console.log("Required skills:", requiredSkills);
+        console.log("Required certificates:", requiredCertificates);
+
+        const candidateData = await Promise.all(
+          capabilityTeamMembers.map(async (member) => {
+            try {
+              const [skillsResponse, certificatesResponse] = await Promise.all([
+                fetch(
+                  `${process.env.NEXT_PUBLIC_API_BASE}/getsSkillsId/${member.user_id}`
+                ),
+                fetch(
+                  `${process.env.NEXT_PUBLIC_API_BASE}/getCertificatesByUserId/${member.user_id}`
+                ),
+              ]);
+
+              const skills = await skillsResponse.json();
+              const certificates = await certificatesResponse.json();
+
+              // Match skills and certificates
+              const matchedSkills = skills.filter((skill: any) =>
+                requiredSkills.includes(skill.skill_name || skill.name)
+              );
+              const matchedCertificates = certificates.filter((cert: any) =>
+                requiredCertificates.includes(cert.certificate_name)
+              );
+
+              return {
+                ...member,
+                matchedSkills,
+                matchedCertificates,
+                totalMatches: matchedSkills.length + matchedCertificates.length,
+              };
+            } catch (error) {
+              console.error(
+                `Error fetching data for member ${member.user_id}:`,
+                error
+              );
+              return {
+                ...member,
+                matchedSkills: [],
+                matchedCertificates: [],
+                totalMatches: 0,
+              };
+            }
+          })
+        );
+
+        // Sort candidates by total matches in descending order
+        candidateData.sort(
+          (a, b) => (b.totalMatches || 0) - (a.totalMatches || 0)
+        );
+        setCandidates(candidateData);
+      } catch (error) {
+        console.error("Error fetching candidates:", error);
+      }
+    };
+
+    fetchCandidates();
+  }, [
+    project,
+    selectedVacancy,
+    capabilityTeamMembers,
+    positionSkills,
+    positionCertificates,
+  ]);
 
   // Calculate project duration in months
   const calculateDuration = (startDate: string, endDate: string | null) => {
@@ -295,49 +536,60 @@ const ProjectDetails = () => {
                           </p>
                         </div>
 
-                        {selectedPosition.Project_Position_Skills &&
-                          selectedPosition.Project_Position_Skills.length >
-                            0 && (
-                            <div>
-                              <h3 className="font-bold mb-2">
-                                Skills requeridos:
-                              </h3>
-                              <div className="flex flex-wrap gap-2">
-                                {selectedPosition.Project_Position_Skills.map(
-                                  (pps) => (
-                                    <div
-                                      key={pps.Skills.skill_id}
-                                      className="badge badge-outline"
-                                    >
-                                      {pps.Skills.skill_name}
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          )}
+                        {loadingSkills ? (
+                          <div className="flex justify-center py-4">
+                            <span className="loading loading-spinner loading-md"></span>
+                          </div>
+                        ) : (
+                          <>
+                            {/* Skills Section */}
+                            {selectedPosition.Project_Position_Skills &&
+                              selectedPosition.Project_Position_Skills.length >
+                                0 && (
+                                <div>
+                                  <h3 className="font-bold mb-2">
+                                    Skills requeridos:
+                                  </h3>
+                                  <div className="flex flex-wrap gap-2">
+                                    {selectedPosition.Project_Position_Skills.map(
+                                      (pps) => (
+                                        <div
+                                          key={pps.Skills.skill_id}
+                                          className="badge badge-outline"
+                                        >
+                                          {pps.Skills.skill_name ||
+                                            pps.Skills.name}
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              )}
 
-                        {selectedPosition.Project_Position_Certificates &&
-                          selectedPosition.Project_Position_Certificates
-                            .length > 0 && (
-                            <div>
-                              <h3 className="font-bold mb-2">
-                                Certificaciones requeridas:
-                              </h3>
-                              <div className="flex flex-wrap gap-2">
-                                {selectedPosition.Project_Position_Certificates.map(
-                                  (ppc) => (
-                                    <div
-                                      key={ppc.Certificates.certificate_id}
-                                      className="badge badge-outline badge-secondary"
-                                    >
-                                      {ppc.Certificates.certificate_name}
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          )}
+                            {/* Certificates Section */}
+                            {selectedPosition.Project_Position_Certificates &&
+                              selectedPosition.Project_Position_Certificates
+                                .length > 0 && (
+                                <div>
+                                  <h3 className="font-bold mb-2">
+                                    Certificaciones requeridas:
+                                  </h3>
+                                  <div className="flex flex-wrap gap-2">
+                                    {selectedPosition.Project_Position_Certificates.map(
+                                      (ppc) => (
+                                        <div
+                                          key={ppc.Certificates.certificate_id}
+                                          className="badge badge-outline badge-secondary"
+                                        >
+                                          {ppc.Certificates.certificate_name}
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                          </>
+                        )}
                       </div>
                     )}
                   </>
@@ -367,8 +619,9 @@ const ProjectDetails = () => {
           </div>
         </div>
 
-        {/* Team Members/Capability Members */}
+        {/* Team Members and Candidates Section */}
         <div className="col-span-2">
+          {/* Current Team Section */}
           <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 mb-8">
             <h2 className="text-2xl font-bold text-primary mb-4">
               Equipo Actual ({filledPositions.length})
@@ -418,43 +671,121 @@ const ProjectDetails = () => {
             )}
           </div>
 
-          {/* Capability Team Members */}
+          {/* Candidates Section */}
           <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300">
             <h2 className="text-2xl font-bold text-primary mb-4">
-              Miembros de tu Capability{" "}
-              {loadingTeam ? "" : `(${capabilityTeamMembers.length})`}
+              Candidatos Disponibles ({candidates.length})
             </h2>
 
             {loadingTeam ? (
-              <div className="flex justify-center items-center h-40">
-                <span className="loading loading-spinner loading-md text-primary"></span>
+              <div className="flex justify-center py-8">
+                <span className="loading loading-spinner loading-lg"></span>
               </div>
-            ) : capabilityTeamMembers.length > 0 ? (
-              <div className="space-y-4 overflow-y-auto max-h-[calc(40vh-5rem)]">
-                {capabilityTeamMembers.map((member) => (
+            ) : candidates.length > 0 ? (
+              <div className="space-y-4 overflow-y-auto max-h-[calc(80vh-5rem)]">
+                {candidates.map((candidate) => (
                   <div
-                    key={member.user_id}
-                    className="flex items-center justify-between bg-base-200 p-4 rounded-lg shadow-sm border border-base-300"
+                    key={candidate.user_id}
+                    className="collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border border-base-300"
                   >
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary">
-                        {member.name}
-                      </h3>
-                      <p className="text-sm text-secondary">{member.mail}</p>
-                      {member.position && (
-                        <p className="text-xs text-secondary mt-1">
-                          {member.position}
-                        </p>
-                      )}
+                    {/* Collapse Title */}
+                    <input type="checkbox" />
+                    <div className="collapse-title text-lg font-semibold text-primary flex justify-between items-center">
+                      <span>{candidate.name}</span>
+                      <span className="badge badge-primary">
+                        {candidate.totalMatches} coincidencias
+                      </span>
                     </div>
-                    <button className="btn btn-outline btn-primary btn-sm">
-                      Postular
-                    </button>
+
+                    {/* Collapse Content */}
+                    <div className="collapse-content">
+                      <p className="text-sm text-secondary mb-4">
+                        {candidate.mail}
+                      </p>
+
+                      {/* Required Skills */}
+                      {selectedPosition?.Project_Position_Skills &&
+                        selectedPosition.Project_Position_Skills.length > 0 && (
+                          <div className="mb-4">
+                            <h3 className="font-bold mb-2">
+                              Skills requeridos:
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedPosition.Project_Position_Skills.map(
+                                (requiredSkill) => {
+                                  const skillName =
+                                    requiredSkill.Skills.skill_name ||
+                                    requiredSkill.Skills.name;
+                                  const hasSkill =
+                                    candidate.matchedSkills?.some(
+                                      (skill: Skill) =>
+                                        (skill.skill_name || skill.name) ===
+                                        skillName
+                                    );
+                                  return (
+                                    <div
+                                      key={requiredSkill.Skills.skill_id}
+                                      className={`badge ${
+                                        hasSkill
+                                          ? "badge-success"
+                                          : "badge-error"
+                                      }`}
+                                    >
+                                      {skillName}
+                                    </div>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Required Certificates */}
+                      {selectedPosition?.Project_Position_Certificates &&
+                        selectedPosition.Project_Position_Certificates.length >
+                          0 && (
+                          <div>
+                            <h3 className="font-bold mb-2">
+                              Certificaciones requeridas:
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedPosition.Project_Position_Certificates.map(
+                                (requiredCert) => {
+                                  const hasCertificate =
+                                    candidate.matchedCertificates?.some(
+                                      (cert: Certificate) =>
+                                        cert.certificate_name ===
+                                        requiredCert.Certificates
+                                          .certificate_name
+                                    );
+                                  return (
+                                    <div
+                                      key={
+                                        requiredCert.Certificates.certificate_id
+                                      }
+                                      className={`badge ${
+                                        hasCertificate
+                                          ? "badge-success"
+                                          : "badge-error"
+                                      }`}
+                                    >
+                                      {
+                                        requiredCert.Certificates
+                                          .certificate_name
+                                      }
+                                    </div>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+                        )}
+                    </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-40">
+            ) : selectedVacancy ? (
+              <div className="flex flex-col items-center justify-center h-64">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-16 w-16 text-base-300"
@@ -470,7 +801,27 @@ const ProjectDetails = () => {
                   />
                 </svg>
                 <p className="text-base-300 mt-4">
-                  No se encontraron miembros en tu capability
+                  No hay candidatos disponibles para esta posición
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 text-base-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-base-300 mt-4">
+                  Seleccione una vacante para ver candidatos compatibles
                 </p>
               </div>
             )}
