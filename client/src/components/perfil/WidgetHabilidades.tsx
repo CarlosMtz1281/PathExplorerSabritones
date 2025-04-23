@@ -188,21 +188,23 @@ const WidgetHabilidades = () => {
   };
 
   return (
-    <div className="card w-full min-h-60">
-      <div className="p-6 bg-base-100 rounded-lg border border-base-300 h-full box-border">
-        <div className="flex flex-row w-full gap-x-2 mb-8 items-center">
-          <PiWrenchLight className="text-3xl" />
-          <h2 className="text-3xl font-bold">Habilidades</h2>
+    <div className="card w-full h-full border border-base-300 bg-base-100">
+      <div className="card body p-3 md:p-4">
+        <div className="flex flex-row w-full gap-x-2 mb-4 items-center">
+          <h2 className="card-title text-3xl">
+            <PiWrenchLight />
+            Habilidades
+          </h2>
           <button
-            className="btn btn-circle btn-accent btn-md ml-auto text-base-100"
+            className="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"
             onClick={handleModalToggle}
           >
             <div className="flex items-center justify-center w-full h-full">
-              <IoMdAdd className="text-2xl" />
+              <IoMdAdd className="text-lg md:text-xl" />
             </div>
           </button>
         </div>
-        <div className="flex flex-col gap-y-14 max-h-80 overflow-scroll pb-6 scroll-pb-10">
+        <div className="flex flex-col gap-y-14 max-h-80 overflow-scroll pt-3 pb-6 scroll-pb-10">
           <SkillList
             title="Técnicas"
             skills={technicalSkills}
