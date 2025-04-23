@@ -1,3 +1,4 @@
+// File: employee.ts
 import express from "express";
 import dotenv from "dotenv";
 import prisma from "../db/prisma";
@@ -110,5 +111,88 @@ router.post("/skills", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
+// In your employee.ts route
+// In your employee.ts route
+router.get("/experience", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    
+    // Fetch jobs with their work positions
+    const workPositions = await prisma.employee_Position.findMany({
+      where: { user_id: Number(userId) },
+      include: { 
+        Work_Position: true,
+      },
+      orderBy: { start_date: "asc" },
+    });
+
+    // Fetch projects with all necessary relations
+    const userProjects = await prisma.project_User.findMany({
+      where: { user_id: Number(userId) },
+      include: {
+        Projects: {
+          include: {
+            Country: true,
+            Users: true, // Delivery lead
+            Project_Positions: {
+              where: { user_id: Number(userId) },
+              include: {
+                Project_Position_Skills: {
+                  include: {
+                    Skills: true,
+                  },
+                },
+              },
+            },
+            Feedback: {
+              where: { user_id: Number(userId) },
+            },
+          },
+        },
+      },
+    });
+
+    // Format dates consistently
+    const formatDate = (date: Date | null) => 
+      date ? new Date(date).toLocaleDateString("es-ES") : "Current";
+
+    const jobs = workPositions.map(pos => ({
+      company: pos.Work_Position.company || "Unknown",
+      position: pos.Work_Position.position_name || "Unknown",
+      startDate: formatDate(pos.start_date),
+      endDate: formatDate(pos.end_date),
+      rawStart: pos.start_date,
+      rawEnd: pos.end_date
+    }));
+
+    const projects = userProjects.map(proj => {
+      const position = proj.Projects.Project_Positions[0]; // Get John's position in this project
+      const feedback = proj.Projects.Feedback[0]; // Get feedback for John in this project
+      
+      return {
+        projectName: proj.Projects.project_name || "Unknown",
+        company: proj.Projects.company_name || "Unknown",
+        positionName: position?.position_name || "No position assigned",
+        projectDescription: proj.Projects.project_desc || "No description",
+        startDate: formatDate(proj.Projects.start_date),
+        endDate: formatDate(proj.Projects.end_date),
+        feedbackDesc: feedback?.desc || "No feedback",
+        feedbackScore: feedback?.score || null,
+        deliveryLeadName: proj.Projects.Users?.name || "Unknown Lead",
+        skills: position?.Project_Position_Skills.map(s => s.Skills.name) || [],
+        rawStart: proj.Projects.start_date,
+        rawEnd: proj.Projects.end_date
+      };
+    });
+
+    res.status(200).json({ jobs, projects });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 export default router;
