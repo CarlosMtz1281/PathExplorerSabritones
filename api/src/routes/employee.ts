@@ -126,9 +126,12 @@ router.patch("/checkstaff", async (req, res) => {
       return res.status(400).json({ error: "Timeout session" });
     }
 
+    const today = new Date();
+
     const staff = await prisma.employee_Position.findMany({
       where: { user_id: userId },
       select: {
+        user_id: true,
         end_date: true,
       },
     });
@@ -137,18 +140,17 @@ router.patch("/checkstaff", async (req, res) => {
       return res.status(404).json({ error: "User not found." });
     }
 
-    const isStaff = staff.map((date) => {
-      if (!date.end_date) {
-        return false;
+    const statuses = staff.map((position) => {
+      if (!position.end_date) {
+        return true;
       }
-      const endDate = new Date(date.end_date);
-      const today = new Date();
-      return endDate <= today;
+      const endDate = new Date(position.end_date);
+      return endDate > today;
     });
 
-    const isStaffMember = isStaff.some((isStaff) => isStaff === true);
+    const isStaff = !statuses.some((status) => status === true);
 
-    if (isStaffMember) {
+    if (isStaff) {
       await prisma.users.update({
         where: { user_id: userId },
         data: {
@@ -186,47 +188,41 @@ router.patch("/checkstaffall", async (req, res) => {
       },
     });
 
-    const usersToUpdate = positions.map((position) => {
-      if (!position.end_date) {
-        return { user_id: position.user_id, in_project: true };
-      }
-      const endDate = new Date(position.end_date);
-      return {
-        user_id: position.user_id,
-        in_project: endDate > today,
-      };
+    const userStatusMap = new Map<number, boolean>();
+
+    positions.forEach((position) => {
+      const currentStatus = userStatusMap.get(position.user_id);
+      if (currentStatus === true) return; // Already has a true status, keep it
+
+      const endDate = position.end_date ? new Date(position.end_date) : null;
+      const isValid = !endDate || endDate > today;
+
+      userStatusMap.set(position.user_id, isValid);
     });
 
-    const usersToUpdateFilteredFalse = usersToUpdate.filter(
-      (user) => user.in_project === false
-    );
+    const allUsers = Array.from(userStatusMap, ([user_id, in_project]) => ({
+      user_id,
+      in_project,
+    }));
 
-    const usersToUpdateFilteredTrue = usersToUpdate.filter(
-      (user) => user.in_project === true
-    );
+    const usersInProjects = allUsers.filter((u) => u.in_project);
+    const usersNotInProjects = allUsers.filter((u) => !u.in_project);
 
-    const updateResultFalse = await prisma.users.updateMany({
-      where: {
-        user_id: { in: usersToUpdateFilteredFalse.map((user) => user.user_id) },
-      },
-      data: {
-        in_project: false,
-      },
+    console.log("Users in projects:", usersInProjects);
+    console.log("Users not in projects:", usersNotInProjects);
+
+    const updateInProject = await prisma.users.updateMany({
+      where: { user_id: { in: usersInProjects.map((u) => u.user_id) } },
+      data: { in_project: true },
     });
 
-    const updateResultTrue = await prisma.users.updateMany({
-      where: {
-        user_id: { in: usersToUpdateFilteredTrue.map((user) => user.user_id) },
-      },
-      data: {
-        in_project: true,
-      },
+    const updateNotInProject = await prisma.users.updateMany({
+      where: { user_id: { in: usersNotInProjects.map((u) => u.user_id) } },
+      data: { in_project: false },
     });
 
     res.status(200).json({
-      message: `Successfully updated ${
-        updateResultFalse.count + updateResultTrue.count
-      } users.`,
+      message: `Updated ${updateInProject.count} in projects, ${updateNotInProject.count} out of projects`,
     });
   } catch (err) {
     console.error("Error updating staff statuses:", err);
