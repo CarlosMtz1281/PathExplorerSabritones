@@ -28,10 +28,6 @@ export default function RepoProjects() {
   const [searchTerm, setSearchTerm] = useState(""); //Almacena el texto
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  useEffect(() => {
-    console.log(sortOrder);
-  }, [sortOrder]);
-
   const filteredProjects = projects
     .filter((project) => {
       //Fitra los resultados
