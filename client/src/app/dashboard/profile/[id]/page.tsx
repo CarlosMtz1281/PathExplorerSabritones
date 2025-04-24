@@ -129,7 +129,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <div className="w-full flex flex-col gap-10 pr-5 overflow-y-auto">
+            <div className="w-full flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] overflow-y-auto">
         <WidgetCertificaciones />
         <WidgetTrayectoria />
         <WidgetHabilidades />
