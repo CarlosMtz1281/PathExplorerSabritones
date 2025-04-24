@@ -3,20 +3,24 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react"; // 👈 Importar sesión
+import { useEffect } from "react";
+
+
 
 
 export default function CreateProyects() {
   const { data: session } = useSession(); // 👈 Obtener la sesión actual
 
 
-  const [puestos, setPuestos] = useState([
-    {
-      nombre: "Senior Frontend Engineer",
-      cantidad: 3,
-      habilidades: ["React", "Angular", "C++", "Agile"],
-      certificaciones: ["CS50", "AWS", "Azure"],
-    },
-  ]);
+  type Puesto = {
+    nombre: string;
+    cantidad: number;
+    habilidades: (string | number)[];
+    certificaciones: (string | number)[];
+  };
+  
+  const [puestos, setPuestos] = useState<Puesto[]>([]);
+  
 
 
   const [expandSkills, setExpandSkills] = useState(false);
@@ -36,8 +40,83 @@ export default function CreateProyects() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [countryId, setCountryId] = useState("");
-  
+  const [paises, setPaises] = useState<{ country_id: number; country_name: string }[]>([]);
+  const [skills, setSkills] = useState<{ skill_id: number; skill_name: string }[]>([]);
+  const [habilidadesList, setHabilidadesList] = useState< { skill_id: number; skill_name: string; skill_technical: boolean }[]>([]);
+  const [certificadosList, setCertificadosList] = useState<
+  { certificate_id: number; certificate_name: string; certificate_desc: string }[]
+>([]);
 
+  useEffect(() => {
+    console.log("🚀 useEffect montado - intentando obtener países");
+  
+    const fetchPaises = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/countries`);
+        if (!res.ok) throw new Error(`Error al obtener países: ${res.status}`);
+        
+        const data = await res.json();
+        console.log("🌍 Países recibidos:", data);
+        setPaises(data);
+      } catch (error) {
+        console.error("❌ Error al cargar países:", error);
+      }
+    };
+  
+    fetchPaises();
+  }, []);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/general/skills`
+        );
+        if (!res.ok) throw new Error(`Error al obtener habilidades: ${res.status}`);
+        const data = await res.json();
+        console.log("🛠️ Habilidades recibidas:", data);
+        setHabilidadesList(data);
+      } catch (error) {
+        console.error("❌ Error al cargar habilidades:", error);
+      }
+    };
+    fetchSkills();
+  }, []);
+
+  useEffect(() => {
+    console.log("📚 useEffect montado - intentando obtener skills");
+  
+    const fetchSkills = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/skills`);
+        if (!res.ok) throw new Error(`Error al obtener skills: ${res.status}`);
+        
+        const data = await res.json();
+        console.log("✅ Skills recibidas:", data);
+        setSkills(data);
+      } catch (error) {
+        console.error("❌ Error al cargar skills:", error);
+      }
+    };
+  
+    fetchSkills();
+  }, []);
+
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/certificates`);
+        if (!res.ok) throw new Error(`Error al obtener certificados: ${res.status}`);
+        const data = await res.json();
+        console.log("📜 Certificados recibidos:", data);
+        setCertificadosList(data);
+      } catch (error) {
+        console.error("❌ Error al cargar certificados:", error);
+      }
+    };
+    fetchCertificates();
+  }, []);
+  
   const agregarNuevoPuesto = () => {
     const nuevo = {
       nombre: nuevoNombre,
@@ -185,7 +264,9 @@ export default function CreateProyects() {
               className="input input-bordered w-full mt-2 px-6 p-5"
             />
           </div>
+          {/* Región */}
           <div className="flex-1">
+            
             <label className="text-xl font-semibold">País</label>
             <select
               value={countryId}
@@ -193,18 +274,15 @@ export default function CreateProyects() {
               className="select select-bordered w-full mt-2 px-6 p-5"
             >
               <option value="">Selecciona un país</option>
-              <option value="1">United States</option>
-              <option value="2">Canada</option>
-              <option value="3">United Kingdom</option>
-              <option value="4">Germany</option>
-              <option value="5">France</option>
-              <option value="6">India</option>
-              <option value="7">Australia</option>
-              <option value="8">Japan</option>
-              <option value="9">Brazil</option>
-              <option value="10">South Africa</option>
+              {paises.map((pais) => (
+                <option key={pais.country_id} value={pais.country_id}>
+                  {pais.country_name}
+                </option>
+              ))}
             </select>
+            
           </div>
+
 
 
         </div>
@@ -212,12 +290,15 @@ export default function CreateProyects() {
 
         {/* Fechas */}
         <div className="flex gap-6">
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="input input-bordered w-full mt-2 px-6 p-5"
-        />
+          <div className="flex-1">
+            <label className="text-xl font-semibold">Fecha de Inicio</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="input input-bordered w-full mt-2 px-6 p-5"
+            />
+          </div>
           <div className="flex-1">
             <label className="text-xl font-semibold">Fecha de Finalización</label>
             <input
@@ -228,6 +309,7 @@ export default function CreateProyects() {
             />
           </div>
         </div>
+
 
 
         {/* Descripción */}
@@ -284,37 +366,58 @@ export default function CreateProyects() {
               />
 
 
-              <h3 className="font-bold text-lg">Habilidades (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={nuevasHabilidades}
-                onChange={(e) => setNuevasHabilidades(e.target.value)}
-              />
+              <h3 className="font-bold text-lg">Habilidades</h3>
+                <select
+                  value={nuevasHabilidades}
+                  onChange={(e) => setNuevasHabilidades(e.target.value)}
+                  className="select select-bordered w-full mt-2 px-6 p-5"
+                >
+                  <option value="">Selecciona una habilidad</option>
+                  {habilidadesList.map((h) => (
+                    <option key={h.skill_id} value={h.skill_id}>
+                      {h.skill_name}
+                    </option>
+                  ))}
+                </select>
 
 
-              <h3 className="font-bold text-lg">Certificaciones (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={nuevasCertificaciones}
-                onChange={(e) => setNuevasCertificaciones(e.target.value)}
-              />
 
+                <h3 className="font-bold text-lg">Certificaciones</h3>
+                <select
+                  value={nuevasCertificaciones}
+                  onChange={(e) => setNuevasCertificaciones(e.target.value)}
+                  className="select select-bordered w-full mt-2 px-6 p-5"
+                >
+                  <option value="">Selecciona una certificación</option>
+                  {certificadosList.map((cert) => (
+                    <option key={cert.certificate_id} value={cert.certificate_id}>
+                      {cert.certificate_name}
+                    </option>
+                  ))}
+                </select>
 
-              <div className="modal-action">
-                <form method="dialog" className="flex gap-4">
-                  <button className="btn btn-outline">Cancelar</button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={agregarNuevoPuesto}
-                  >
-                    Agregar
-                  </button>
-                </form>
+              
+              <div className="flex gap-4">
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() =>
+                  (document.getElementById("modalEditarPuesto") as HTMLDialogElement)?.close()
+                }
+              >
+                Cancelar
+              </button>
+
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={agregarNuevoPuesto}
+                >
+                  Agregar
+                </button>
               </div>
             </div>
+
           </dialog>
          
           <dialog id="modalEditarPuesto" className="modal">
@@ -326,6 +429,7 @@ export default function CreateProyects() {
                 value={editNombre}
                 onChange={(e) => setEditNombre(e.target.value)}
               />
+
               <h3 className="font-bold text-lg">Cantidad</h3>
               <input
                 type="number"
@@ -334,30 +438,63 @@ export default function CreateProyects() {
                 onChange={(e) => setEditCantidad(parseInt(e.target.value))}
                 min={1}
               />
-              <h3 className="font-bold text-lg">Habilidades (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
+
+              <h3 className="font-bold text-lg">Habilidades</h3>
+              <select
                 value={editHabilidades}
                 onChange={(e) => setEditHabilidades(e.target.value)}
-              />
-              <h3 className="font-bold text-lg">Certificaciones (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
+                className="select select-bordered w-full mt-2 px-6 p-5"
+              >
+                <option value="">Selecciona una habilidad</option>
+                {habilidadesList.map((h) => (
+                  <option key={h.skill_id} value={h.skill_id}>
+                    {h.skill_name}
+                  </option>
+                ))}
+              </select>
+
+              <h3 className="font-bold text-lg">Certificaciones</h3>
+              <select
                 value={editCertificaciones}
                 onChange={(e) => setEditCertificaciones(e.target.value)}
-              />
+                className="select select-bordered w-full mt-2 px-6 p-5"
+              >
+                <option value="">Selecciona una certificación</option>
+                {certificadosList.map((c) => (
+                  <option key={c.certificate_id} value={c.certificate_id}>
+                    {c.certificate_name}
+                  </option>
+                ))}
+              </select>
+
               <div className="modal-action">
-                <form method="dialog" className="flex gap-4">
-                  <button className="btn btn-outline">Cancelar</button>
-                  <button type="button" className="btn btn-primary" onClick={handleActualizarPuesto}>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      const modal = document.getElementById("modalEditarPuesto") as HTMLDialogElement;
+                      if (modal && typeof modal.close === "function") {
+                        modal.close();
+                      }
+                    }}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleActualizarPuesto}
+                  >
                     Actualizar
                   </button>
-                </form>
+                </div>
               </div>
             </div>
           </dialog>
+
+         
 
 
 
@@ -390,9 +527,15 @@ export default function CreateProyects() {
                     {/* Habilidades */}
                     <td>
                       <div className="flex flex-wrap gap-2">
-                        {visibleSkills.map((s, i) => (
-                          <div key={i} className="badge badge-secondary">{s}</div>
-                        ))}
+                      {visibleSkills.map((id, i) => {
+                        const nombre = habilidadesList.find((h) => h.skill_id === Number(id))?.skill_name || `ID ${id}`;
+                        return (
+                          <div key={i} className="badge badge-secondary">
+                            {nombre}
+                          </div>
+                        );
+                      })}
+
                         {!expandSkills && hiddenSkills > 0 && (
                           <div
                             className="badge badge-outline cursor-pointer"
@@ -416,9 +559,14 @@ export default function CreateProyects() {
                     {/* Certificaciones */}
                     <td>
                       <div className="flex flex-wrap gap-2">
-                        {visibleCerts.map((c, i) => (
-                          <div key={i} className="badge badge-accent">{c}</div>
-                        ))}
+                      {visibleCerts.map((id, i) => {
+                        const nombre = certificadosList.find((c) => c.certificate_id === Number(id))?.certificate_name || `ID ${id}`;
+                        return (
+                          <div key={i} className="badge badge-accent">
+                            {nombre}
+                          </div>
+                        );
+                      })}
                         {!expandCerts && hiddenCerts > 0 && (
                           <div
                             className="badge badge-outline cursor-pointer"
@@ -456,18 +604,18 @@ export default function CreateProyects() {
                   </tr>
                 );
               })}
-                      </tbody>
+            </tbody>
         </table>
       </div>
 
 
-      {/* ✅ BOTÓN DENTRO DEL FORM */}
+      {/* BOTÓN DENTRO DEL FORM */}
       <div className="flex justify-end mt-4">
         <button type="submit" className="btn btn-primary px-10 text-lg font-semibold">
           Crear proyecto
         </button>
       </div>
-    </form> {/* ← aquí cierra bien el form */}
+    </form> {/* cierra bien el form */}
 
 
   </div>
