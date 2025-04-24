@@ -449,6 +449,14 @@ const ProjectDetails = () => {
   // Get filled positions (team members)
   const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
+  function onClick(event: MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    throw new Error("Function not implemented.");
+  }
+
+  function handlePostular(user_id: number): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="min-h-screen bg-base-200 p-10">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -706,37 +714,46 @@ const ProjectDetails = () => {
                       {/* Required Skills */}
                       {selectedPosition?.Project_Position_Skills &&
                         selectedPosition.Project_Position_Skills.length > 0 && (
-                          <div className="mb-4">
-                            <h3 className="font-bold mb-2">
-                              Skills requeridos:
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                              {selectedPosition.Project_Position_Skills.map(
-                                (requiredSkill) => {
-                                  const skillName =
-                                    requiredSkill.Skills.skill_name ||
-                                    requiredSkill.Skills.name;
-                                  const hasSkill =
-                                    candidate.matchedSkills?.some(
-                                      (skill: Skill) =>
-                                        (skill.skill_name || skill.name) ===
-                                        skillName
+                          <div className="flex justify-between">
+                            <div className="mb-4">
+                              <h3 className="font-bold mb-2">
+                                Skills requeridos:
+                              </h3>
+                              <div className="flex flex-wrap gap-2">
+                                {selectedPosition.Project_Position_Skills.map(
+                                  (requiredSkill) => {
+                                    const skillName =
+                                      requiredSkill.Skills.skill_name ||
+                                      requiredSkill.Skills.name;
+                                    const hasSkill =
+                                      candidate.matchedSkills?.some(
+                                        (skill: Skill) =>
+                                          (skill.skill_name || skill.name) ===
+                                          skillName
+                                      );
+                                    return (
+                                      <div
+                                        key={requiredSkill.Skills.skill_id}
+                                        className={`badge ${
+                                          hasSkill
+                                            ? "badge-success"
+                                            : "badge-error"
+                                        }`}
+                                      >
+                                        {skillName}
+                                      </div>
                                     );
-                                  return (
-                                    <div
-                                      key={requiredSkill.Skills.skill_id}
-                                      className={`badge ${
-                                        hasSkill
-                                          ? "badge-success"
-                                          : "badge-error"
-                                      }`}
-                                    >
-                                      {skillName}
-                                    </div>
-                                  );
-                                }
-                              )}
+                                  }
+                                )}
+                              </div>
                             </div>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => handlePostular(candidate.user_id)}
+                              disabled
+                            >
+                              Postular
+                            </button>
                           </div>
                         )}
 
