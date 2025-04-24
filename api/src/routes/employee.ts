@@ -112,6 +112,54 @@ router.post("/skills", async (req, res) => {
   }
 });
 
+router.post("/create", async (req, res) => {
+  const { name, mail, password, birthday, role_id, country_id, experience } =
+    req.body;
+
+  if (!name || !mail || !password || !birthday || !country_id) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    const user = await prisma.users.create({
+      data: {
+        name,
+        mail,
+        password,
+        birthday: new Date(birthday),
+        hire_date: new Date(),
+        country_id: parseInt(country_id),
+        role_id: role_id ? parseInt(role_id) : undefined,
+        in_project: false,
+      },
+    });
+
+    for (const exp of experience || []) {
+      const position = await prisma.work_Position.create({
+        data: {
+          position_name: exp.position_name,
+          position_desc: exp.position_desc,
+          company: exp.company,
+        },
+      });
+
+      await prisma.employee_Position.create({
+        data: {
+          user_id: user.user_id,
+          position_id: position.position_id,
+          start_date: new Date(exp.start_date),
+          end_date: new Date(exp.end_date),
+        },
+      });
+    }
+
+    res.status(201).json({ message: "User created", user_id: user.user_id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 router.patch("/checkstaff", async (req, res) => {
   try {
     const sessionKey = req.headers["session-key"];
