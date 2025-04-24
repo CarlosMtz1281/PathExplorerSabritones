@@ -11,6 +11,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaSignOutAlt,
+  FaGgCircle,
 } from "react-icons/fa";
 
 export default function Navbar() {
@@ -68,28 +69,29 @@ export default function Navbar() {
             )}
           </a>
         </li>
-        <li className="w-full">
+          <li className="w-full mt-2">
           <a
             href="/dashboard/crea-projects"
-            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+            className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaClipboardList className="w-5 h-5" />
             {!isCollapsed && (
-              <h3 className="text-2xl font-semibold">Crear Proyectos</h3>
+              <h3 className="text-xl font-semibold leading-tight">Crear Proyectos</h3>
             )}
           </a>
         </li>
-        <li className="w-full">
+        <li className="w-full mt-2">
           <a
-            href="/dashboard/settings"
-            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+            href="/dashboard/create-users"
+            className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
-            <FaCog className="w-5 h-5" />
+            <FaGgCircle className="w-5 h-5" />
             {!isCollapsed && (
-              <h3 className="text-2xl font-semibold">DL Proyectos</h3>
+              <h3 className="text-xl font-semibold">Crear Proyectos</h3>
             )}
           </a>
         </li>
+        
       </ul>
 
       {/* Logout Button */}

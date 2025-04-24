@@ -198,7 +198,12 @@ export default function WidgetCertificaciones() {
         )}
 
         {addModalIsOpen && (
-          <AddCertificateModal onClose={() => setAddModalIsOpen(false)} />
+          <AddCertificateModal
+            onClose={() => {
+              setAddModalIsOpen(false);
+              fetchCertificates(); // Refresh the data of certifications
+            }}
+          />
         )}
 
         {/* Toggle Button */}
