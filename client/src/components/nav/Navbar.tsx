@@ -24,8 +24,7 @@ export default function Navbar() {
     });
   };
   const { data: session, status } = useSession();
-  console.log("Session Status:", session);
-  console.log("Session:", session);
+
 
   return (
     <div

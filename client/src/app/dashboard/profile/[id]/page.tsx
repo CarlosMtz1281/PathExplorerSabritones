@@ -43,7 +43,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh)] bg-base-200 px-4 md:px-15 py-4 gap-4">
+    <div className="flex flex-col md:flex-row h-[calc(100vh)] bg-base-200 px-4 md:px-8 py-8 gap-8">
       {/* Left Column - Profile Card (full height) */}
       <div className="card w-full md:w-auto md:max-w-sm bg-base-100 shadow-xl h-full">
         <div className="card-body items-center text-center h-full flex flex-col">
@@ -127,12 +127,10 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <div className="w-full flex flex-col gap-10 overflow-y-auto">
-        <div className="w-full flex flex-col gap-10 overflow-y-auto">
-          <WidgetCertificaciones />
-          <WidgetTrayectoria />
-          <WidgetHabilidades />
-        </div>
+      <div className="w-full flex flex-col gap-10 pr-5 overflow-y-auto">
+        <WidgetCertificaciones />
+        <WidgetTrayectoria />
+        <WidgetHabilidades />
       </div>
     </div>
   );
