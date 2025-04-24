@@ -15,7 +15,7 @@ export default function SplitPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/dashboard");
+      router.push(`/dashboard/profile/${session?.user.id}`);
     }
   }, [status, router]);
 
