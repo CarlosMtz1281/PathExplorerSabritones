@@ -41,7 +41,7 @@ export default function AltaEmpleado() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await fetch('/general/countries');
+        const res = await fetch(process.env.NEXT_PUBLIC_API_BASE + '/general/countries');
         const data = await res.json();
         setCountries(data);
       } catch (error) {
@@ -57,7 +57,7 @@ export default function AltaEmpleado() {
     e.preventDefault();
 
     try {
-      const res = await fetch("/employee/create", {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_BASE + "/employee/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -107,7 +107,6 @@ export default function AltaEmpleado() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center relative">
-      <div className="absolute inset-0 z-0 bg-cover bg-center" />
 
       <div className="relative z-10 bg-white p-10 rounded-xl shadow-xl w-full max-w-4xl grid grid-cols-2 gap-8">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -129,7 +128,7 @@ export default function AltaEmpleado() {
             value={form.mail}
             onChange={(e) => setForm({ ...form, mail: e.target.value })}
           />
-          <label className="text-sm">Fecha de cumpleaños</label>
+          <label className="text-sm">Fecha de Nacimiento</label>
           <input
             type="date"
             className="input input-bordered w-full"

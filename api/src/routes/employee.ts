@@ -117,13 +117,12 @@ router.post('/create', async (req, res) => {
     mail,
     password,
     birthday,
-    hire_date,
     role_id,
     country_id,
     experience,
   } = req.body;
 
-  if (!name || !mail || !password || !birthday || !hire_date || !country_id) {
+  if (!name || !mail || !password || !birthday || !country_id) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -134,7 +133,7 @@ router.post('/create', async (req, res) => {
         mail,
         password,
         birthday: new Date(birthday),
-        hire_date: new Date(hire_date),
+        hire_date: new Date(),
         country_id: parseInt(country_id),
         role_id: role_id ? parseInt(role_id) : undefined,
         in_project: false,
