@@ -107,4 +107,45 @@ router.get("/providers-and-certifications", async (req, res) => {
   }
 });
 
+router.post("/add-certificate", async (req, res) => {
+  const sessionKey = req.headers["session-key"];
+  const { certificate_id, certificate_date, certificate_expiration_date, certificate_link, certificate_status } = req.body;
+
+  if (!sessionKey) {
+    return res.status(400).json({ error: "Session key is required in headers" });
+  }
+
+  if (!certificate_id || !certificate_date || !certificate_status) {
+    return res.status(400).json({ error: "Certificate ID, date, and status are required" });
+  }
+
+  try {
+    // Validate session and get user ID
+    const userId = await getUserIdFromSession(sessionKey);
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    // Update session expiration
+    await updateSession(sessionKey);
+
+    // Add the certificate for the user
+    const newCertificate = await prisma.certificate_Users.create({
+      data: {
+        user_id: Number(userId),
+        certificate_id: Number(certificate_id),
+        status: certificate_status,
+        certificate_date: new Date(certificate_date),
+        certificate_expiration_date: certificate_expiration_date ? new Date(certificate_expiration_date) : null,
+        certificate_link: certificate_link || null,
+      },
+    });
+
+    res.status(201).json({ message: "Certificate added successfully", certificate: newCertificate });
+  } catch (error) {
+    console.error("Error adding certificate:", error);
+    res.status(500).json({ error: "Failed to add certificate" });
+  }
+});
+
 export default router;

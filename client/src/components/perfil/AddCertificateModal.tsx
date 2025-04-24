@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 interface AddCertificateModalProps {
   onClose: () => void; // Function to close the modal
@@ -17,6 +19,9 @@ interface certificates {
 const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
   onClose,
 }) => {
+    const { data: session } = useSession();
+
+
   const [formData, setFormData] = useState({
     company: "",
     certificate_name: "",
@@ -52,38 +57,52 @@ const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+e.preventDefault();
 
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("company", formData.company);
-      formDataToSend.append("certificate_name", formData.certificate_name);
-      formDataToSend.append("status", formData.status);
-      formDataToSend.append("issue_date", formData.issue_date);
-      formDataToSend.append("expiration_date", formData.expiration_date);
-      formDataToSend.append("link", formData.link);
-      formDataToSend.append("skills", JSON.stringify(formData.skills));
-      if (formData.pdf) {
-        formDataToSend.append("pdf", formData.pdf);
-      }
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE}/certificates`,
-        formDataToSend,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      console.log("Certificate added successfully:", response.data);
-      onClose(); // Close the modal after successful submission
-    } catch (error) {
-      console.error("Error adding certificate:", error);
+try {
+    if (!session || !session.user) {
+        console.error("Session is missing or invalid");
+        return;
     }
-  };
+
+    const sessionKey = session.sessionId; // Retrieve session key from session hook
+    if (!sessionKey) {
+        console.error("Session key is missing");
+        return;
+    }
+
+    const payload = {
+        certificate_id: certifications.find(
+            (cert) => cert.certificate_name === formData.certificate_name
+        )?.certificate_id,
+        certificate_date: formData.issue_date,
+        certificate_expiration_date: formData.expiration_date || null,
+        certificate_link: formData.link || null,
+        certificate_status: formData.status,
+    };
+
+    if (!payload.certificate_id || !payload.certificate_date || !payload.certificate_status) {
+        console.error("Certificate ID, date, and status are required");
+        return;
+    }
+
+    const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE}/course/add-certificate`,
+        payload,
+        {
+            headers: {
+                "session-key": sessionKey,
+            },
+        }
+    );
+
+    console.log("Certificate added successfully:", response.data);
+    onClose(); // Close the modal after successful submission
+} catch (error) {
+    console.error("Error adding certificate:", error);
+}
+};
 
   const companyLogo = formData.company
     ? `/companies/${formData.company.toLowerCase()}.svg`
@@ -244,7 +263,9 @@ const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
             <div className="w-1/4 ml-4">
               {/* Company Logo */}
               <div className="flex justify-center">
-                <img
+                <Image
+                width={100}
+                height={100}
                   src={companyLogo}
                   alt="Company Logo"
                   className="w-24 h-24 object-contain"
