@@ -43,28 +43,30 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh)] bg-base-200 px-4 md:px-8 py-8 gap-8">
+    <div className="flex flex-col md:flex-row h-[calc(100vh)] bg-base-200 px-4 md:px-8 py-8 gap-8 justify-center items-center">
       {/* Left Column - Profile Card (full height) */}
       <div className="card w-full md:w-auto md:max-w-sm bg-base-100 shadow-xl h-full">
         <div className="card-body items-center text-center h-full flex flex-col">
           {/* Profile Image */}
-          <div className="avatar">
-            <div className="w-25 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <Image
-                width={160}
-                height={160}
-                src="/profilePic.jpg"
-                alt="Profile"
-                className="object-cover w-full h-full"
-              />
+          <div className="mt-15">
+            <div className="avatar">
+              <div className="w-25 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                <Image
+                  width={160}
+                  height={160}
+                  src="/profilePic.jpg"
+                  alt="Profile"
+                  className="object-cover w-full h-full"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Profile Info */}
-          <h2 className="text-3xl font-bold mt-4">{userData.name}</h2>
-          <p className="text-primary text-xl">
-            {userData.Permits.is_employee ? "Employee" : "Guest"}
-          </p>
+            {/* Profile Info */}
+            <h2 className="text-3xl font-bold mt-4">{userData.name}</h2>
+            <p className="text-primary text-xl">
+              {userData.Permits.is_employee ? "Employee" : "Guest"}
+            </p>
+          </div>
 
           {/* Cargabilidad Component */}
           <div className="mt-4">
