@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
 export default function AltaEmpleado() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -16,9 +18,26 @@ export default function AltaEmpleado() {
     birthday: "",
     area: "",
     password: "",
-    role_id: "",
     country_id: "",
   });
+
+  const [rolesSelected, setRolesSelected] = useState({
+    is_employee: false,
+    is_people_lead: false,
+    is_capability_lead: false,
+    is_delivery_lead: false,
+    is_admin: false,
+  });
+
+  const validCombinations = [
+    { is_employee: true, is_people_lead: false, is_capability_lead: false, is_delivery_lead: false, is_admin: false },
+    { is_employee: true, is_people_lead: true, is_capability_lead: false, is_delivery_lead: false, is_admin: false },
+    { is_employee: true, is_people_lead: false, is_capability_lead: true, is_delivery_lead: false, is_admin: false },
+    { is_employee: true, is_people_lead: false, is_capability_lead: false, is_delivery_lead: true, is_admin: false },
+    { is_employee: false, is_people_lead: false, is_capability_lead: false, is_delivery_lead: false, is_admin: true },
+    { is_employee: true, is_people_lead: true, is_capability_lead: false, is_delivery_lead: true, is_admin: false },
+    { is_employee: true, is_people_lead: true, is_capability_lead: true, is_delivery_lead: false, is_admin: false },
+  ];
 
   const [experienceForm, setExperienceForm] = useState({
     company: "",
@@ -41,32 +60,54 @@ export default function AltaEmpleado() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await fetch(process.env.NEXT_PUBLIC_API_BASE + '/general/countries');
+        const res = await fetch(
+          process.env.NEXT_PUBLIC_API_BASE + "/general/countries"
+        );
         const data = await res.json();
         setCountries(data);
       } catch (error) {
-        console.error('Error fetching countries:', error);
+        console.error("Error fetching countries:", error);
       }
     };
-  
+
     fetchCountries();
   }, []);
 
-  // Send user and experience data
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const isValidRoleCombo = validCombinations.some((combo) =>
+      Object.entries(combo).every(
+        ([k, v]) => rolesSelected[k as keyof typeof combo] === v
+      )
+    );
+
+    if (!isValidRoleCombo) {
+      alert(
+        "❌ Combinación de roles no permitida.\n\nCombinaciones válidas:\n- Empleado\n- People Lead\n- Admin\n- Capability Lead\n- Delivery Lead\n- Combinaciones específicas como People + Delivery o People + Capability"
+      );
+      return;
+    }
+
+    if (!passwordRegex.test(form.password)) {
+      alert("La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula, un número y un símbolo.");
+      return;
+    }
+
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_BASE + "/employee/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          country_id: parseInt(form.country_id),
-          hire_date: new Date(),
-          experience: experienceList,
-        }),
-      });
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_API_BASE + "/employee/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...form,
+            country_id: parseInt(form.country_id),
+            experience: experienceList,
+            ...rolesSelected,
+          }),
+        }
+      );
 
       const result = await res.json();
       if (res.ok) {
@@ -107,7 +148,6 @@ export default function AltaEmpleado() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center relative">
-
       <div className="relative z-10 bg-white p-10 rounded-xl shadow-xl w-full max-w-4xl grid grid-cols-2 gap-8">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold text-center col-span-2">
@@ -143,7 +183,7 @@ export default function AltaEmpleado() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
-          {/* Dropdown menu with all regions */}
+          {/* Dropdown for region */}
           <select
             className="select select-bordered"
             value={form.country_id}
@@ -157,12 +197,53 @@ export default function AltaEmpleado() {
             ))}
           </select>
 
+          {/* Checkbox-based role selector */}
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { key: "is_employee", label: "Empleado" },
+              { key: "is_people_lead", label: "People Lead" },
+              { key: "is_capability_lead", label: "Capability Lead" },
+              { key: "is_delivery_lead", label: "Delivery Lead" },
+            ].map(({ key, label }) => (
+              <label key={key} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary"
+                  checked={rolesSelected[key as keyof typeof rolesSelected]}
+                  onChange={() =>
+                    setRolesSelected((prev) => ({
+                      ...prev,
+                      [key]: !prev[key as keyof typeof rolesSelected],
+                    }))
+                  }
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+
+            <label className="col-span-2 flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                checked={rolesSelected.is_admin}
+                onChange={() =>
+                  setRolesSelected((prev) => ({
+                    ...prev,
+                    is_admin: !prev.is_admin,
+                  }))
+                }
+              />
+              <span>Admin</span>
+            </label>
+          </div>
+
           {/* Submit button */}
           <button type="submit" className="btn btn-primary mt-4">
             Confirmar
           </button>
         </form>
 
+        {/* Experience Section */}
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold text-lg">Agregar experiencia</h3>
@@ -204,6 +285,7 @@ export default function AltaEmpleado() {
         </div>
       </div>
 
+      {/* Modal for experience entry */}
       {isModalOpen && (
         <>
           <input type="checkbox" className="modal-toggle" checked readOnly />
