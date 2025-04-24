@@ -218,23 +218,64 @@ router.get("/getCapabilityTeamMembers/:userId", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  const { name, mail, password, birthday, role_id, country_id, experience } =
-    req.body;
+  const {
+    name,
+    mail,
+    password,
+    birthday,
+    country_id,
+    experience,
+    is_employee,
+    is_people_lead,
+    is_capability_lead,
+    is_delivery_lead,
+    is_admin
+  } = req.body;
 
   if (!name || !mail || !password || !birthday || !country_id) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
+    const encodedPassword = Buffer.from(password).toString("base64");
+
+    // 🔍 Find or create a Permits entry that matches the flags
+    const existingPermits = await prisma.permits.findFirst({
+      where: {
+        is_employee,
+        is_people_lead,
+        is_capability_lead,
+        is_delivery_lead,
+        is_admin,
+      },
+    });
+
+    let role_id: number;
+
+    if (existingPermits) {
+      role_id = existingPermits.role_id;
+    } else {
+      const newPermits = await prisma.permits.create({
+        data: {
+          is_employee,
+          is_people_lead,
+          is_capability_lead,
+          is_delivery_lead,
+          is_admin,
+        },
+      });
+      role_id = newPermits.role_id;
+    }
+
     const user = await prisma.users.create({
       data: {
         name,
         mail,
-        password,
+        password: encodedPassword,
         birthday: new Date(birthday),
         hire_date: new Date(),
         country_id: parseInt(country_id),
-        role_id: role_id ? parseInt(role_id) : undefined,
+        role_id,
         in_project: false,
       },
     });
