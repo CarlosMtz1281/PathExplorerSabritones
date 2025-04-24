@@ -672,7 +672,7 @@ const ProjectDetails = () => {
           </div>
 
           {/* Candidates Section */}
-          <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300">
+          <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 overflow-y-auto max-h-[calc(55vh-5rem)]">
             <h2 className="text-2xl font-bold text-primary mb-4">
               Candidatos Disponibles ({candidates.length})
             </h2>
