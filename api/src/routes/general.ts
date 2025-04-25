@@ -190,6 +190,32 @@ router.get("/certificates", async (req, res) => {
   }
 });
 
+router.get("/roles", async (req, res) => {
+  try {
+    const roles = await prisma.permits.findMany();
+
+    const readableRoles = roles.map(role => {
+      const labels = [];
+
+      if (role.is_admin) labels.push("Admin");
+      if (role.is_delivery_lead) labels.push("Delivery Lead");
+      if (role.is_capability_lead) labels.push("Capability Lead");
+      if (role.is_people_lead) labels.push("People Lead");
+      if (role.is_employee) labels.push("Empleado");
+
+      return {
+        role_id: role.role_id,
+        role_name: labels.join(", ") || "Sin rol definido",
+      };
+    });
+
+    res.status(200).json(readableRoles);
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    res.status(500).json({ error: "Failed to fetch roles" });
+  }
+});
+
 
 
 export default router;

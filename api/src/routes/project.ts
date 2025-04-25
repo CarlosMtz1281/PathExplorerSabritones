@@ -35,7 +35,7 @@ router.get("/repositories", async (req, res) => {
             user_id: null,
           },
         },
-        Country: true,  // Changed from Region
+        Country: true, // Changed from Region
         Users: true,
       },
     });
@@ -60,12 +60,122 @@ router.get("/repositories", async (req, res) => {
   }
 });
 
+router.get("/getProjectById/:projectId", async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.projectId);
+
+    if (isNaN(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    const project = await prisma.projects.findUnique({
+      where: {
+        project_id: projectId,
+      },
+      include: {
+        Project_Positions: {
+          include: {
+            Project_Position_Skills: {
+              include: {
+                Skills: true,
+              },
+            },
+            Project_Position_Certificates: {
+              include: {
+                Certificates: true,
+              },
+            },
+            Users: true,
+            Postulations: {
+              include: {
+                Users: {
+                  select: {
+                    user_id: true,
+                    name: true,
+                    mail: true,
+                  },
+                },
+                Meeting: true,
+              },
+            },
+          },
+        },
+        Country: true,
+        Users: true,
+        Project_User: {
+          include: {
+            Users: {
+              select: {
+                user_id: true,
+                name: true,
+                mail: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Format dates and structure project data
+    const formattedProject = {
+      id: project.project_id,
+      name: project.project_name,
+      description: project.project_desc,
+      start_date: project.start_date
+        ? project.start_date.toLocaleDateString("es-ES")
+        : null,
+      end_date: project.end_date
+        ? project.end_date.toLocaleDateString("es-ES")
+        : null,
+      vacants: project.Project_Positions.filter((pos) => pos.user_id === null)
+        .length,
+      details: {
+        company: project.company_name,
+        country: project.Country?.country_name || "No country",
+        capability: project.Users?.name || "No capability",
+      },
+      positions: project.Project_Positions.map((position) => ({
+        position_id: position.position_id,
+        project_id: position.project_id,
+        position_name: position.position_name,
+        position_desc: position.position_desc,
+        user_id: position.user_id,
+        Project_Position_Skills: position.Project_Position_Skills,
+        Project_Position_Certificates: position.Project_Position_Certificates,
+        Postulations: position.Postulations,
+      })),
+      team_members: project.Project_User.map((member) => ({
+        user_id: member.user_id,
+        project_id: member.project_id,
+        Users: member.Users,
+      })),
+    };
+
+    res.status(200).json(formattedProject);
+  } catch (error) {
+    console.error("Error fetching project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 router.post("/create", async (req, res) => {
-  const { project_name, company_name, desc, start_date, end_date, country_id, positions } = req.body;
+  const {
+    project_name,
+    company_name,
+    desc,
+    start_date,
+    end_date,
+    country_id,
+    positions,
+  } = req.body;
   const sessionId = req.headers.authorization;
   console.log("Session ID:", sessionId);
 
   if (!sessionId) {
+    console.log("Session ID not provided");
     return res.status(401).json({ error: "Session ID required" });
   }
 
@@ -74,6 +184,7 @@ router.post("/create", async (req, res) => {
     console.log("User ID from session:", delivery_lead_user_id);
 
     if (!delivery_lead_user_id) {
+      console.log("Invalid session");
       return res.status(401).json({ error: "Invalid session" });
     }
 
@@ -83,9 +194,9 @@ router.post("/create", async (req, res) => {
     });
 
     if (!user) {
+      console.log("User not found");
       return res.status(404).json({ error: "User not found" });
     }
-
 
     const project = await prisma.projects.create({
       data: {
