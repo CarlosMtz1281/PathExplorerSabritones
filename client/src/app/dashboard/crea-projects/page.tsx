@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react"; 
 import { useEffect } from "react";
+import { FaCalendarAlt } from "react-icons/fa";
 
 
 
@@ -312,21 +313,31 @@ export default function CreateProyects() {
         <div className="flex gap-6">
           <div className="flex-1">
             <label className="text-xl font-semibold">Fecha de Inicio</label>
+            <div className="relative">
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="input input-bordered w-full mt-2 px-6 p-5"
+              className="input input-bordered w-full mt-2 pl-6 pr-10 py-5"
             />
+            <div className="absolute right-3 top-7/12 -translate-y-1/2 pointer-events-none">
+              <FaCalendarAlt className="text-gray-400 text-xl" />
+            </div>
+          </div>
           </div>
           <div className="flex-1">
             <label className="text-xl font-semibold">Fecha de Finalización</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="input input-bordered w-full mt-2 px-6 p-5"
-            />
+            <div className="relative">
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="input input-bordered w-full mt-2 px-6 p-5"
+              />
+              <div className="absolute right-3 top-7/12 -translate-y-1/2 pointer-events-none">
+                <FaCalendarAlt className="text-gray-400 text-xl" />
+              </div>
+            </div>
           </div>
         </div>
 
