@@ -2,67 +2,166 @@
 
 
 import { useState } from "react";
-import { useSession } from "next-auth/react"; // 👈 Importar sesión
+import { useSession } from "next-auth/react"; 
+import { useEffect } from "react";
+
+
 
 
 export default function CreateProyects() {
-  const { data: session } = useSession(); // 👈 Obtener la sesión actual
+  const { data: session } = useSession(); //Obtener la sesión actual
 
 
-  const [puestos, setPuestos] = useState([
-    {
-      nombre: "Senior Frontend Engineer",
-      cantidad: 3,
-      habilidades: ["React", "Angular", "C++", "Agile"],
-      certificaciones: ["CS50", "AWS", "Azure"],
-    },
-  ]);
-
-
+  type Puesto = {
+    nombre: string;
+    cantidad: number;
+    habilidades: (string | number)[];
+    certificaciones: (string | number)[];
+  };
+  
+  
+  const [puestos, setPuestos] = useState<Puesto[]>([]);
   const [expandSkills, setExpandSkills] = useState(false);
   const [expandCerts, setExpandCerts] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
-  const [nuevasHabilidades, setNuevasHabilidades] = useState("");
-  const [nuevasCertificaciones, setNuevasCertificaciones] = useState("");
+  const [nuevasHabilidades, setNuevasHabilidades] = useState<(string | number)[]>([]);
+  const [nuevasCertificaciones, setNuevasCertificaciones] = useState<(string | number)[]>([]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editNombre, setEditNombre] = useState("");
   const [editCantidad, setEditCantidad] = useState(1);
-  const [editHabilidades, setEditHabilidades] = useState("");
-  const [editCertificaciones, setEditCertificaciones] = useState("");
+  const [editHabilidades, setEditHabilidades] = useState<(string | number)[]>([]);
+  const [editCertificaciones, setEditCertificaciones] = useState<(string | number)[]>([]);
   const [projectName, setProjectName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [countryId, setCountryId] = useState("");
+  const [paises, setPaises] = useState<{ country_id: number; country_name: string }[]>([]);
+  const [skills, setSkills] = useState<{ skill_id: number; skill_name: string }[]>([]);
+  const [habilidadesList, setHabilidadesList] = useState< { skill_id: number; skill_name: string; skill_technical: boolean }[]>([]);
+  const [certificadosList, setCertificadosList] = useState<
+  { certificate_id: number; certificate_name: string; certificate_desc: string }[]
+>([]);
   
+  useEffect(() => {
+    
+  
+    const fetchPaises = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/countries`);
+        if (!res.ok) throw new Error(`Error al obtener países: ${res.status}`);
+        
+        const data = await res.json();
+        setPaises(data);
+      } catch (error) {
+        console.error("❌ Error al cargar países:", error);
+      }
+    };
+  
+    fetchPaises();
+  }, []);
 
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/general/skills`
+        );
+        if (!res.ok) throw new Error(`Error al obtener habilidades: ${res.status}`);
+        const data = await res.json();
+
+        setHabilidadesList(data);
+      } catch (error) {
+        console.error("❌ Error al cargar habilidades:", error);
+      }
+    };
+    fetchSkills();
+  }, []);
+
+  useEffect(() => {
+
+  
+    const fetchSkills = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/skills`);
+        if (!res.ok) throw new Error(`Error al obtener skills: ${res.status}`);
+        
+        const data = await res.json();
+
+        setSkills(data);
+      } catch (error) {
+        console.error("❌ Error al cargar skills:", error);
+      }
+    };
+  
+    fetchSkills();
+  }, []);
+
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/certificates`);
+        if (!res.ok) throw new Error(`Error al obtener certificados: ${res.status}`);
+        const data = await res.json();
+
+        setCertificadosList(data);
+      } catch (error) {
+        console.error("❌ Error al cargar certificados:", error);
+      }
+    };
+    fetchCertificates();
+  }, []);
+  
   const agregarNuevoPuesto = () => {
     const nuevo = {
       nombre: nuevoNombre,
       cantidad: nuevaCantidad,
-      habilidades: nuevasHabilidades.split(",").map((h) => h.trim()),
-      certificaciones: nuevasCertificaciones.split(",").map((c) => c.trim()),
+      habilidades: nuevasHabilidades,
+      certificaciones: nuevasCertificaciones,
     };
     setPuestos([...puestos, nuevo]);
     setNuevoNombre("");
     setNuevaCantidad(1);
-    setNuevasHabilidades("");
-    setNuevasCertificaciones("");
+    setNuevasHabilidades([]);
+    setNuevasCertificaciones([]);
     (document.getElementById("modalAgregarPuesto") as HTMLDialogElement)?.close();
   };
 
+  const abrirModalAgregar = () => {
+    setNuevoNombre("");
+    setNuevaCantidad(1);
+    setNuevasHabilidades([]);
+    setNuevasCertificaciones([]);
+    const modal = document.getElementById("modalAgregarPuesto") as HTMLDialogElement;
+    if (modal && typeof modal.showModal === "function") {
+      modal.showModal();
+    }
+  };
 
+  const eliminarPuesto = (index: number) => {
+    const confirmacion = confirm("¿Estás seguro de que deseas eliminar este puesto?");
+    if (!confirmacion) return;
+    const actualizados = [...puestos];
+    actualizados.splice(index, 1);
+    setPuestos(actualizados);
+  };
+  
   const abrirModalEditar = (index: number) => {
     const p = puestos[index];
     setEditIndex(index);
     setEditNombre(p.nombre);
     setEditCantidad(p.cantidad);
-    setEditHabilidades(p.habilidades.join(", "));
-    setEditCertificaciones(p.certificaciones.join(", "));
-    (document.getElementById("modalEditarPuesto") as HTMLDialogElement)?.showModal();
+    setEditHabilidades(p.habilidades); 
+    setEditCertificaciones(p.certificaciones); 
+  
+    const modal = document.getElementById("modalEditarPuesto") as HTMLDialogElement;
+    if (modal && typeof modal.showModal === "function") {
+      modal.showModal();
+    }
   };
+  
 
 
   const handleActualizarPuesto = () => {
@@ -72,8 +171,8 @@ export default function CreateProyects() {
     const actualizado = {
       nombre: editNombre,
       cantidad: editCantidad,
-      habilidades: editHabilidades.split(",").map((h) => h.trim()),
-      certificaciones: editCertificaciones.split(",").map((c) => c.trim()),
+      habilidades: editHabilidades,
+      certificaciones: editCertificaciones,
     };
 
 
@@ -98,7 +197,7 @@ export default function CreateProyects() {
       const proyecto = {
         project_name: projectName,
         company_name: companyName,
-        country_id: Number(countryId), // ✅ ahora bien nombrado
+        country_id: Number(countryId), 
         desc: description,
         start_date: startDate,
         end_date: endDate,
@@ -117,7 +216,7 @@ export default function CreateProyects() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: session.sessionId, // O "" si aún no tienes sesión
+          authorization: session.sessionId, 
         },
         body: JSON.stringify(proyecto),
       });
@@ -173,7 +272,7 @@ export default function CreateProyects() {
         </div>
 
 
-        {/* Empresa y Región */}
+        {/* Empresa */}
         <div className="flex gap-6">
           <div className="flex-1">
             <label className="text-xl font-semibold">Empresa</label>
@@ -185,7 +284,9 @@ export default function CreateProyects() {
               className="input input-bordered w-full mt-2 px-6 p-5"
             />
           </div>
+          {/* Región */}
           <div className="flex-1">
+            
             <label className="text-xl font-semibold">País</label>
             <select
               value={countryId}
@@ -193,18 +294,15 @@ export default function CreateProyects() {
               className="select select-bordered w-full mt-2 px-6 p-5"
             >
               <option value="">Selecciona un país</option>
-              <option value="1">United States</option>
-              <option value="2">Canada</option>
-              <option value="3">United Kingdom</option>
-              <option value="4">Germany</option>
-              <option value="5">France</option>
-              <option value="6">India</option>
-              <option value="7">Australia</option>
-              <option value="8">Japan</option>
-              <option value="9">Brazil</option>
-              <option value="10">South Africa</option>
+              {paises.map((pais) => (
+                <option key={pais.country_id} value={pais.country_id}>
+                  {pais.country_name}
+                </option>
+              ))}
             </select>
+            
           </div>
+
 
 
         </div>
@@ -212,12 +310,15 @@ export default function CreateProyects() {
 
         {/* Fechas */}
         <div className="flex gap-6">
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="input input-bordered w-full mt-2 px-6 p-5"
-        />
+          <div className="flex-1">
+            <label className="text-xl font-semibold">Fecha de Inicio</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="input input-bordered w-full mt-2 px-6 p-5"
+            />
+          </div>
           <div className="flex-1">
             <label className="text-xl font-semibold">Fecha de Finalización</label>
             <input
@@ -228,6 +329,7 @@ export default function CreateProyects() {
             />
           </div>
         </div>
+
 
 
         {/* Descripción */}
@@ -251,12 +353,11 @@ export default function CreateProyects() {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() =>
-                (document.getElementById("modalAgregarPuesto") as HTMLDialogElement)?.showModal()
-              }
+              onClick={abrirModalAgregar}
             >
               Agregar Puesto
             </button>
+
           </div>
 
 
@@ -284,83 +385,226 @@ export default function CreateProyects() {
               />
 
 
-              <h3 className="font-bold text-lg">Habilidades (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={nuevasHabilidades}
-                onChange={(e) => setNuevasHabilidades(e.target.value)}
-              />
+              <h3 className="font-bold text-lg">Habilidades</h3>
+              <select
+                className="select select-bordered w-full"
+                onChange={(e) => {
+                  const selected = e.target.value;
+                  if (selected && !nuevasHabilidades.includes(selected)) {
+                    setNuevasHabilidades([...nuevasHabilidades, selected]);
+                  }
+                }}
+              >
+                <option value="">Selecciona una habilidad</option>
+                {habilidadesList.map((h) => (
+                  <option key={h.skill_id} value={h.skill_id}>
+                    {h.skill_name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Badges de habilidades seleccionadas */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {nuevasHabilidades.map((id, i) => {
+                  const nombre = habilidadesList.find((h) => h.skill_id === Number(id))?.skill_name || `ID ${id}`;
+                  return (
+                    <div key={i} className="badge badge-secondary cursor-pointer" onClick={() =>
+                      setNuevasHabilidades(nuevasHabilidades.filter((h) => h !== id))
+                    }>
+                      {nombre} ✕
+                    </div>
+                  );
+                })}
+              </div>
 
 
-              <h3 className="font-bold text-lg">Certificaciones (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={nuevasCertificaciones}
-                onChange={(e) => setNuevasCertificaciones(e.target.value)}
-              />
 
 
-              <div className="modal-action">
-                <form method="dialog" className="flex gap-4">
-                  <button className="btn btn-outline">Cancelar</button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={agregarNuevoPuesto}
-                  >
-                    Agregar
-                  </button>
-                </form>
+              <h3 className="font-bold text-lg">Certificaciones</h3>
+              <select
+                className="select select-bordered w-full"
+                onChange={(e) => {
+                  const selected = e.target.value;
+                  if (selected && !nuevasCertificaciones.includes(selected)) {
+                    setNuevasCertificaciones([...nuevasCertificaciones, selected]);
+                  }
+                }}
+              >
+                <option value="">Selecciona una certificación</option>
+                {certificadosList.map((c) => (
+                  <option key={c.certificate_id} value={c.certificate_id}>
+                    {c.certificate_name}
+                  </option>
+                ))}
+              </select>
+
+                  {/* Badges de certificaciones seleccionadas */}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {nuevasCertificaciones.map((id, i) => {
+                      const nombre = certificadosList.find((c) => c.certificate_id === Number(id))?.certificate_name || `ID ${id}`;
+                      return (
+                        <div
+                          key={i}
+                          className="badge badge-accent cursor-pointer"
+                          onClick={() =>
+                            setNuevasCertificaciones(nuevasCertificaciones.filter((c) => c !== id))
+                          }
+                        >
+                          {nombre} ✕
+                        </div>
+                      );
+                    })}
+                  </div>
+
+
+              
+              <div className="flex gap-4">
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() =>
+                  (document.getElementById("modalAgregarPuesto") as HTMLDialogElement)?.close()
+                }
+              >
+                Cancelar
+              </button>
+
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={agregarNuevoPuesto}
+                >
+                  Agregar
+                </button>
               </div>
             </div>
+
           </dialog>
          
           <dialog id="modalEditarPuesto" className="modal">
-            <div className="modal-box space-y-4">
-              <h3 className="font-bold text-lg">Editar Puesto</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={editNombre}
-                onChange={(e) => setEditNombre(e.target.value)}
-              />
-              <h3 className="font-bold text-lg">Cantidad</h3>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={editCantidad}
-                onChange={(e) => setEditCantidad(parseInt(e.target.value))}
-                min={1}
-              />
-              <h3 className="font-bold text-lg">Habilidades (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={editHabilidades}
-                onChange={(e) => setEditHabilidades(e.target.value)}
-              />
-              <h3 className="font-bold text-lg">Certificaciones (separadas por coma)</h3>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={editCertificaciones}
-                onChange={(e) => setEditCertificaciones(e.target.value)}
-              />
-              <div className="modal-action">
-                <form method="dialog" className="flex gap-4">
-                  <button className="btn btn-outline">Cancelar</button>
-                  <button type="button" className="btn btn-primary" onClick={handleActualizarPuesto}>
-                    Actualizar
-                  </button>
-                </form>
-              </div>
-            </div>
-          </dialog>
+  <div className="modal-box space-y-4">
+    <h3 className="font-bold text-lg">Editar Puesto</h3>
 
+    <input
+      type="text"
+      className="input input-bordered w-full"
+      value={editNombre}
+      onChange={(e) => setEditNombre(e.target.value)}
+    />
 
+    <h3 className="font-bold text-lg">Cantidad</h3>
+    <input
+      type="number"
+      className="input input-bordered w-full"
+      value={editCantidad}
+      onChange={(e) => setEditCantidad(parseInt(e.target.value))}
+      min={1}
+    />
 
+    <h3 className="font-bold text-lg">Habilidades</h3>
+    <select
+      className="select select-bordered w-full"
+      onChange={(e) => {
+        const selected = e.target.value;
+        if (selected && !editHabilidades.includes(selected)) {
+          setEditHabilidades([...editHabilidades, selected]);
+        }
+      }}
+    >
+      <option value="">Selecciona una habilidad</option>
+      {habilidadesList.map((h) => (
+        <option key={h.skill_id} value={h.skill_id}>
+          {h.skill_name}
+        </option>
+      ))}
+    </select>
+
+    <div className="flex flex-wrap gap-2 mt-2">
+      {editHabilidades.map((id, i) => {
+        const nombre =
+          habilidadesList.find((h) => h.skill_id === Number(id))?.skill_name ||
+          `ID ${id}`;
+        return (
+          <div
+            key={i}
+            className="badge badge-secondary cursor-pointer"
+            onClick={() =>
+              setEditHabilidades(editHabilidades.filter((h) => h !== id))
+            }
+          >
+            {nombre} ✕
+          </div>
+        );
+      })}
+    </div>
+
+    <h3 className="font-bold text-lg">Certificaciones</h3>
+    <select
+      className="select select-bordered w-full"
+      onChange={(e) => {
+        const selected = e.target.value;
+        if (selected && !editCertificaciones.includes(selected)) {
+          setEditCertificaciones([...editCertificaciones, selected]);
+        }
+      }}
+    >
+      <option value="">Selecciona una certificación</option>
+      {certificadosList.map((c) => (
+        <option key={c.certificate_id} value={c.certificate_id}>
+          {c.certificate_name}
+        </option>
+      ))}
+    </select>
+
+    <div className="flex flex-wrap gap-2 mt-2">
+      {editCertificaciones.map((id, i) => {
+        const nombre =
+          certificadosList.find((c) => c.certificate_id === Number(id))
+            ?.certificate_name || `ID ${id}`;
+        return (
+          <div
+            key={i}
+            className="badge badge-accent cursor-pointer"
+            onClick={() =>
+              setEditCertificaciones(
+                editCertificaciones.filter((c) => c !== id)
+              )
+            }
+          >
+            {nombre} ✕
+          </div>
+        );
+      })}
+    </div>
+
+    <div className="modal-action">
+      <div className="flex gap-4">
+        <button
+          type="button"
+          className="btn btn-outline"
+          onClick={() => {
+            const modal = document.getElementById(
+              "modalEditarPuesto"
+            ) as HTMLDialogElement;
+            if (modal && typeof modal.close === "function") {
+              modal.close();
+            }
+          }}
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleActualizarPuesto}
+        >
+          Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
 
           {/* Tabla */}
           <table className="table w-full border border-base-300">
@@ -371,6 +615,8 @@ export default function CreateProyects() {
                 <th>Certificaciones</th>
                 <th>Cantidad</th>
                 <th>Editar</th>
+                <th>Eliminar</th>
+
               </tr>
             </thead>
             <tbody>
@@ -390,9 +636,15 @@ export default function CreateProyects() {
                     {/* Habilidades */}
                     <td>
                       <div className="flex flex-wrap gap-2">
-                        {visibleSkills.map((s, i) => (
-                          <div key={i} className="badge badge-secondary">{s}</div>
-                        ))}
+                      {visibleSkills.map((id, i) => {
+                        const nombre = habilidadesList.find((h) => h.skill_id === Number(id))?.skill_name || `ID ${id}`;
+                        return (
+                          <div key={i} className="badge badge-secondary">
+                            {nombre}
+                          </div>
+                        );
+                      })}
+
                         {!expandSkills && hiddenSkills > 0 && (
                           <div
                             className="badge badge-outline cursor-pointer"
@@ -416,9 +668,14 @@ export default function CreateProyects() {
                     {/* Certificaciones */}
                     <td>
                       <div className="flex flex-wrap gap-2">
-                        {visibleCerts.map((c, i) => (
-                          <div key={i} className="badge badge-accent">{c}</div>
-                        ))}
+                      {visibleCerts.map((id, i) => {
+                        const nombre = certificadosList.find((c) => c.certificate_id === Number(id))?.certificate_name || `ID ${id}`;
+                        return (
+                          <div key={i} className="badge badge-accent">
+                            {nombre}
+                          </div>
+                        );
+                      })}
                         {!expandCerts && hiddenCerts > 0 && (
                           <div
                             className="badge badge-outline cursor-pointer"
@@ -453,21 +710,33 @@ export default function CreateProyects() {
                       ✏️
                     </button>
                     </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline btn-circle text-error"
+                        onClick={() => eliminarPuesto(idx)}
+                        title="Eliminar"
+                      >
+                        🗑️
+                      </button>
+                    </td>
+
                   </tr>
                 );
               })}
-                      </tbody>
+            </tbody>
         </table>
       </div>
 
 
-      {/* ✅ BOTÓN DENTRO DEL FORM */}
+      {/* BOTON DENTRO DEL FORM */}
       <div className="flex justify-end mt-4">
         <button type="submit" className="btn btn-primary px-10 text-lg font-semibold">
           Crear proyecto
         </button>
       </div>
-    </form> {/* ← aquí cierra bien el form */}
+    </form> {/* cierra bien el form */}
 
 
   </div>
