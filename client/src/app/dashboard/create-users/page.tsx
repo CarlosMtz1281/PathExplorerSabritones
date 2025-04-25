@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FaCalendarAlt } from "react-icons/fa";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
@@ -169,12 +170,17 @@ export default function AltaEmpleado() {
             onChange={(e) => setForm({ ...form, mail: e.target.value })}
           />
           <label className="text-sm">Fecha de Nacimiento</label>
-          <input
-            type="date"
-            className="input input-bordered w-full"
-            value={form.birthday}
-            onChange={(e) => setForm({ ...form, birthday: e.target.value })}
-          />
+          <div className="relative">
+            <input
+              type="date"
+              className="input input-bordered w-full"
+              value={form.birthday}
+              onChange={(e) => setForm({ ...form, birthday: e.target.value })}
+            />
+            <div className="absolute right-3 top-6/12 -translate-y-1/2 pointer-events-none">
+              <FaCalendarAlt className="text-gray-400 text-xl" />
+            </div>
+          </div>
           <input
             type="password"
             placeholder="Contraseña"
