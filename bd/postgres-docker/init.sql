@@ -1067,3 +1067,68 @@ INSERT INTO "Feedback" (
 ) VALUES
 (12, 1, 'Excellent technical leadership and architecture design', 5),
 (13, 1, 'Delivered high-quality code ahead of schedule', 5);
+
+
+
+
+
+
+
+
+
+
+INSERT INTO "Project_Positions" (
+    "project_id", 
+    "position_name",
+    "position_desc",
+    "user_id"
+) VALUES
+-- Proyecto 14 (NextGen E-Commerce)
+(14, 'Lead Java Developer', 'Lead backend development with Spring Boot', NULL),
+(14, 'Senior Frontend Developer', 'Build React-based user interfaces', NULL),
+(14, 'DevOps Engineer', 'Setup CI/CD pipelines and cloud infrastructure', NULL),
+(14, 'QA Automation Engineer', 'Implement automated testing framework', NULL),
+
+-- Proyecto 15 (Digital Banking)
+(15, 'Java Microservices Architect', 'Design banking microservices architecture', NULL),
+(15, 'Angular Developer', 'Develop banking portal frontend', NULL),
+(15, 'Database Specialist', 'Optimize and secure financial databases', NULL),
+
+-- Proyecto 16 (ERP)
+(16, 'Full Stack Java Developer', 'Develop ERP modules end-to-end', NULL),
+(16, 'UI/UX Designer', 'Design intuitive ERP interfaces', NULL),
+(16, 'Scrum Master', 'Facilitate Agile development process', NULL);
+
+-- Asumiendo que estas posiciones obtienen los IDs 25 al 33
+
+-- 3. Agregar habilidades requeridas para estas posiciones (enfocadas en Java/Spring/React)
+INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
+-- Lead Java Developer
+(25, 1), (25, 8), (25, 20),
+
+-- Senior Frontend Developer
+(26, 4), (26, 5), (26, 6),
+
+-- DevOps Engineer
+(27, 9), (27, 10), (27, 17),
+
+-- QA Automation Engineer
+(28, 13), (28, 16), (28, 25),
+
+-- Java Microservices Architect
+(29, 1), (29, 8), (29, 19),
+
+-- Angular Developer
+(30, 4), (30, 6), (30, 20),
+
+-- Database Specialist
+(31, 13), (31, 14), (31, 25),
+
+-- Full Stack Java Developer
+(32, 1), (32, 4), (32, 8),
+
+-- UI/UX Designer
+(33, 5), (33, 30), (33, 33),
+
+-- Scrum Master
+(34, 27), (34, 28), (34, 23);
