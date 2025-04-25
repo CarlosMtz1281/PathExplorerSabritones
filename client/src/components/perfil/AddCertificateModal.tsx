@@ -262,15 +262,17 @@ try {
 
             <div className="w-1/4 ml-4">
               {/* Company Logo */}
-              <div className="flex justify-center">
-                <Image
-                width={100}
-                height={100}
+                {formData.company && (
+                <div className="flex justify-center">
+                  <Image
+                  width={100}
+                  height={100}
                   src={companyLogo}
                   alt="Company Logo"
                   className="w-24 h-24 object-contain"
-                />
-              </div>
+                  />
+                </div>
+                )}
 
               {/* Skills */}
               <div className="mt-5">
