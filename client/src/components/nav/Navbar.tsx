@@ -12,7 +12,13 @@ import {
   FaChevronRight,
   FaSignOutAlt,
   FaGgCircle,
+  FaAddressCard,
+  FaDochub,
+  FaProcedures,
+  FaRProject,
+  FaSuitcase,
 } from "react-icons/fa";
+import { FaUpwork } from "react-icons/fa6";
 
 export default function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -24,7 +30,6 @@ export default function Navbar() {
     });
   };
   const { data: session, status } = useSession();
-
 
   return (
     <div
@@ -63,20 +68,22 @@ export default function Navbar() {
             href="/dashboard/repo-projects"
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
-            <FaClipboardList className="w-5 h-5" />
+            <FaSuitcase className="w-5 h-5" />
             {!isCollapsed && (
               <h3 className="text-2xl font-semibold">CL Proyectos</h3>
             )}
           </a>
         </li>
-          <li className="w-full mt-2">
+        <li className="w-full mt-2">
           <a
             href="/dashboard/crea-projects"
             className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaClipboardList className="w-5 h-5" />
             {!isCollapsed && (
-              <h3 className="text-xl font-semibold leading-tight">Crear Proyectos</h3>
+              <h3 className="text-xl font-semibold leading-tight">
+                Crear Proyectos
+              </h3>
             )}
           </a>
         </li>
@@ -91,7 +98,6 @@ export default function Navbar() {
             )}
           </a>
         </li>
-        
       </ul>
 
       {/* Logout Button */}
