@@ -164,30 +164,8 @@ export default function WidgetCertificaciones() {
           <p className="text-secondary text-lg mt-2">
             Certificaciones Recomendada
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            {certificates.slice(4).map((certificate) => (
-              <div
-                key={certificate.certificate_id}
-                onClick={() => {
-                  setSelectedCertificate(certificate);
-                  setModalIsOpen(true);
-                }}
-                className="card bg-base-200 p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
-              >
-                <p className="font-bold">{certificate.certificate_name}</p>
-                <p className="text-sm text-secondary">
-                  Completado:{" "}
-                  {new Date(certificate.certificate_date).toLocaleDateString(
-                    "es-MX",
-                    {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }
-                  )}
-                </p>
-              </div>
-            ))}
+          <div className="flex justify-center items-center h-32 bg-base-200 border border-primary rounded-lg mt-4">
+            <h2 className="text-xl color-base-200">Proximamente</h2>
           </div>
         </div>
         {modalIsOpen && selectedCertificate && (

@@ -48,13 +48,13 @@ const Profile = () => {
       <div className="card w-full md:w-auto md:max-w-sm bg-base-100 shadow-xl h-full">
         <div className="card-body items-center text-center h-full flex flex-col">
           {/* Profile Image */}
-          <div className="mt-15">
+          <div className="mt-10">
             <div className="avatar">
-              <div className="w-25 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+              <div className="w-40 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                 <Image
                   width={160}
                   height={160}
-                  src="/profilePic.jpg"
+                  src="/profilePhoto.jpg"
                   alt="Profile"
                   className="object-cover w-full h-full"
                 />
