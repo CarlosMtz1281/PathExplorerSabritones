@@ -1,37 +1,31 @@
 "use client";
 
-
 import { useState } from "react";
 import { useSession } from "next-auth/react"; 
 import { useEffect } from "react";
 
-
-
-
 export default function CreateProyects() {
   const { data: session } = useSession(); //Obtener la sesión actual
-
 
   type Puesto = {
     nombre: string;
     cantidad: number;
-    habilidades: (string | number)[];
-    certificaciones: (string | number)[];
+    habilidades: number[];
+    certificaciones: number[];
   };
-  
   
   const [puestos, setPuestos] = useState<Puesto[]>([]);
   const [expandSkills, setExpandSkills] = useState(false);
   const [expandCerts, setExpandCerts] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
-  const [nuevasHabilidades, setNuevasHabilidades] = useState<(string | number)[]>([]);
-  const [nuevasCertificaciones, setNuevasCertificaciones] = useState<(string | number)[]>([]);
+  const [nuevasHabilidades, setNuevasHabilidades] = useState<number[]>([]);
+  const [nuevasCertificaciones, setNuevasCertificaciones] = useState<number[]>([]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editNombre, setEditNombre] = useState("");
   const [editCantidad, setEditCantidad] = useState(1);
-  const [editHabilidades, setEditHabilidades] = useState<(string | number)[]>([]);
-  const [editCertificaciones, setEditCertificaciones] = useState<(string | number)[]>([]);
+  const [editHabilidades, setEditHabilidades] = useState<number[]>([]);
+  const [editCertificaciones, setEditCertificaciones] = useState<number[]>([]);
   const [projectName, setProjectName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [description, setDescription] = useState("");
@@ -40,14 +34,12 @@ export default function CreateProyects() {
   const [countryId, setCountryId] = useState("");
   const [paises, setPaises] = useState<{ country_id: number; country_name: string }[]>([]);
   const [skills, setSkills] = useState<{ skill_id: number; skill_name: string }[]>([]);
-  const [habilidadesList, setHabilidadesList] = useState< { skill_id: number; skill_name: string; skill_technical: boolean }[]>([]);
+  const [habilidadesList, setHabilidadesList] = useState<{ skill_id: number; skill_name: string; skill_technical: boolean }[]>([]);
   const [certificadosList, setCertificadosList] = useState<
-  { certificate_id: number; certificate_name: string; certificate_desc: string }[]
->([]);
+    { certificate_id: number; certificate_name: string; certificate_desc: string }[]
+  >([]);
   
   useEffect(() => {
-    
-  
     const fetchPaises = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/countries`);
@@ -81,8 +73,6 @@ export default function CreateProyects() {
   }, []);
 
   useEffect(() => {
-
-  
     const fetchSkills = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/skills`);
@@ -161,12 +151,9 @@ export default function CreateProyects() {
       modal.showModal();
     }
   };
-  
-
 
   const handleActualizarPuesto = () => {
     if (editIndex === null) return;
-
 
     const actualizado = {
       nombre: editNombre,
@@ -175,17 +162,14 @@ export default function CreateProyects() {
       certificaciones: editCertificaciones,
     };
 
-
     const actualizados = [...puestos];
     actualizados[editIndex] = actualizado;
     setPuestos(actualizados);
     (document.getElementById("modalEditarPuesto") as HTMLDialogElement)?.close();
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
 
     if (!session?.sessionId) {
       console.error("❌ No hay sessionId, el usuario no está autenticado.");
@@ -193,24 +177,21 @@ export default function CreateProyects() {
       return;
     }
 
-
-      const proyecto = {
-        project_name: projectName,
-        company_name: companyName,
-        country_id: Number(countryId), 
-        desc: description,
-        start_date: startDate,
-        end_date: endDate,
-        positions: puestos.map((p) => ({
-          name: p.nombre,
-          desc: "sin desc",
-          skills: [],
-          certifications: [],
-        })),
-      };
+    const proyecto = {
+      project_name: projectName,
+      company_name: companyName,
+      country_id: Number(countryId), 
+      desc: description,
+      start_date: startDate,
+      end_date: endDate,
+      positions: puestos.map((p) => ({
+        name: p.nombre,
+        desc: "sin desc",
+        skills: p.habilidades,
+        certifications: p.certificaciones,
+      })),
+    };
     
-
-
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/project/create`, {
         method: "POST",
@@ -221,8 +202,6 @@ export default function CreateProyects() {
         body: JSON.stringify(proyecto),
       });
      
-
-
       if (!res.ok) throw new Error("Error al crear proyecto");
       alert("✅ Proyecto creado con éxito");
     } catch (err) {
@@ -241,11 +220,8 @@ export default function CreateProyects() {
     
     //Regresar a arriba
     window.scrollTo({ top: 0, behavior: "smooth" });
-
   };
 
-
- 
   return (
     <div className="flex flex-col h-screen bg-base-200 px-15 py-10">
       {/*  Título de la pantalla */}
@@ -253,12 +229,11 @@ export default function CreateProyects() {
         <p>Crear proyecto</p>
       </div>
 
-
       {/* Contenedor scrollable del formulario */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto bg-base-100 p-8 rounded-md border border-base-300 space-y-6"
-        >
+      <form
+        onSubmit={handleSubmit}
+        className="flex-1 overflow-y-auto bg-base-100 p-8 rounded-md border border-base-300 space-y-6"
+      >
         {/* Título del proyecto */}
         <div>
           <label className="text-xl font-semibold">Título de proyecto</label>
@@ -270,7 +245,6 @@ export default function CreateProyects() {
             className="input input-bordered w-full mt-2 px-6 p-5"
           />
         </div>
-
 
         {/* Empresa */}
         <div className="flex gap-6">
@@ -286,27 +260,22 @@ export default function CreateProyects() {
           </div>
           {/* Región */}
           <div className="flex-1">
-            
             <label className="text-xl font-semibold">País</label>
             <select
               value={countryId}
               onChange={(e) => setCountryId(e.target.value)}
-              className="select select-bordered w-full mt-2 px-6 p-5"
+              onBlur={(e) => setCountryId(e.target.value)}
+              className="select select-bordered w-full mt-2 px-6 "
             >
               <option value="">Selecciona un país</option>
               {paises.map((pais) => (
-                <option key={pais.country_id} value={pais.country_id}>
+                <option key={pais.country_id} value={String(pais.country_id)}>
                   {pais.country_name}
                 </option>
               ))}
             </select>
-            
           </div>
-
-
-
         </div>
-
 
         {/* Fechas */}
         <div className="flex gap-6">
@@ -330,8 +299,6 @@ export default function CreateProyects() {
           </div>
         </div>
 
-
-
         {/* Descripción */}
         <div>
           <label className="text-xl font-semibold">Descripción</label>
@@ -343,7 +310,6 @@ export default function CreateProyects() {
             onChange={(e) => setDescription(e.target.value)}
           ></textarea>
         </div>
-
 
         {/* Tabla del stafs*/}
         <div className="overflow-x-auto mt-6">
@@ -357,9 +323,7 @@ export default function CreateProyects() {
             >
               Agregar Puesto
             </button>
-
           </div>
-
 
           {/* Modal */}
           <dialog id="modalAgregarPuesto" className="modal">
@@ -372,7 +336,6 @@ export default function CreateProyects() {
                 onChange={(e) => setNuevoNombre(e.target.value)}
               />
 
-
               <h3 className="font-bold text-lg">Cantidad</h3>
               <input
                 type="number"
@@ -384,14 +347,13 @@ export default function CreateProyects() {
                 min={1}
               />
 
-
               <h3 className="font-bold text-lg">Habilidades</h3>
               <select
                 className="select select-bordered w-full"
                 onChange={(e) => {
                   const selected = e.target.value;
-                  if (selected && !nuevasHabilidades.includes(selected)) {
-                    setNuevasHabilidades([...nuevasHabilidades, selected]);
+                  if (selected && !nuevasHabilidades.includes(Number(selected))) {
+                    setNuevasHabilidades([...nuevasHabilidades, Number(selected)]);
                   }
                 }}
               >
@@ -406,7 +368,7 @@ export default function CreateProyects() {
               {/* Badges de habilidades seleccionadas */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {nuevasHabilidades.map((id, i) => {
-                  const nombre = habilidadesList.find((h) => h.skill_id === Number(id))?.skill_name || `ID ${id}`;
+                  const nombre = habilidadesList.find((h) => h.skill_id === id)?.skill_name || `ID ${id}`;
                   return (
                     <div key={i} className="badge badge-secondary cursor-pointer" onClick={() =>
                       setNuevasHabilidades(nuevasHabilidades.filter((h) => h !== id))
@@ -417,16 +379,13 @@ export default function CreateProyects() {
                 })}
               </div>
 
-
-
-
               <h3 className="font-bold text-lg">Certificaciones</h3>
               <select
                 className="select select-bordered w-full"
                 onChange={(e) => {
                   const selected = e.target.value;
-                  if (selected && !nuevasCertificaciones.includes(selected)) {
-                    setNuevasCertificaciones([...nuevasCertificaciones, selected]);
+                  if (selected && !nuevasCertificaciones.includes(Number(selected))) {
+                    setNuevasCertificaciones([...nuevasCertificaciones, Number(selected)]);
                   }
                 }}
               >
@@ -438,36 +397,34 @@ export default function CreateProyects() {
                 ))}
               </select>
 
-                  {/* Badges de certificaciones seleccionadas */}
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {nuevasCertificaciones.map((id, i) => {
-                      const nombre = certificadosList.find((c) => c.certificate_id === Number(id))?.certificate_name || `ID ${id}`;
-                      return (
-                        <div
-                          key={i}
-                          className="badge badge-accent cursor-pointer"
-                          onClick={() =>
-                            setNuevasCertificaciones(nuevasCertificaciones.filter((c) => c !== id))
-                          }
-                        >
-                          {nombre} ✕
-                        </div>
-                      );
-                    })}
-                  </div>
+              {/* Badges de certificaciones seleccionadas */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {nuevasCertificaciones.map((id, i) => {
+                  const nombre = certificadosList.find((c) => c.certificate_id === id)?.certificate_name || `ID ${id}`;
+                  return (
+                    <div
+                      key={i}
+                      className="badge badge-accent cursor-pointer"
+                      onClick={() =>
+                        setNuevasCertificaciones(nuevasCertificaciones.filter((c) => c !== id))
+                      }
+                    >
+                      {nombre} ✕
+                    </div>
+                  );
+                })}
+              </div>
 
-
-              
               <div className="flex gap-4">
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() =>
-                  (document.getElementById("modalAgregarPuesto") as HTMLDialogElement)?.close()
-                }
-              >
-                Cancelar
-              </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() =>
+                    (document.getElementById("modalAgregarPuesto") as HTMLDialogElement)?.close()
+                  }
+                >
+                  Cancelar
+                </button>
 
                 <button
                   type="button"
@@ -478,133 +435,132 @@ export default function CreateProyects() {
                 </button>
               </div>
             </div>
-
           </dialog>
          
           <dialog id="modalEditarPuesto" className="modal">
-  <div className="modal-box space-y-4">
-    <h3 className="font-bold text-lg">Editar Puesto</h3>
+            <div className="modal-box space-y-4">
+              <h3 className="font-bold text-lg">Editar Puesto</h3>
 
-    <input
-      type="text"
-      className="input input-bordered w-full"
-      value={editNombre}
-      onChange={(e) => setEditNombre(e.target.value)}
-    />
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={editNombre}
+                onChange={(e) => setEditNombre(e.target.value)}
+              />
 
-    <h3 className="font-bold text-lg">Cantidad</h3>
-    <input
-      type="number"
-      className="input input-bordered w-full"
-      value={editCantidad}
-      onChange={(e) => setEditCantidad(parseInt(e.target.value))}
-      min={1}
-    />
+              <h3 className="font-bold text-lg">Cantidad</h3>
+              <input
+                type="number"
+                className="input input-bordered w-full"
+                value={editCantidad}
+                onChange={(e) => setEditCantidad(parseInt(e.target.value))}
+                min={1}
+              />
 
-    <h3 className="font-bold text-lg">Habilidades</h3>
-    <select
-      className="select select-bordered w-full"
-      onChange={(e) => {
-        const selected = e.target.value;
-        if (selected && !editHabilidades.includes(selected)) {
-          setEditHabilidades([...editHabilidades, selected]);
-        }
-      }}
-    >
-      <option value="">Selecciona una habilidad</option>
-      {habilidadesList.map((h) => (
-        <option key={h.skill_id} value={h.skill_id}>
-          {h.skill_name}
-        </option>
-      ))}
-    </select>
+              <h3 className="font-bold text-lg">Habilidades</h3>
+              <select
+                className="select select-bordered w-full"
+                onChange={(e) => {
+                  const selected = e.target.value;
+                  if (selected && !editHabilidades.includes(Number(selected))) {
+                    setEditHabilidades([...editHabilidades, Number(selected)]);
+                  }
+                }}
+              >
+                <option value="">Selecciona una habilidad</option>
+                {habilidadesList.map((h) => (
+                  <option key={h.skill_id} value={h.skill_id}>
+                    {h.skill_name}
+                  </option>
+                ))}
+              </select>
 
-    <div className="flex flex-wrap gap-2 mt-2">
-      {editHabilidades.map((id, i) => {
-        const nombre =
-          habilidadesList.find((h) => h.skill_id === Number(id))?.skill_name ||
-          `ID ${id}`;
-        return (
-          <div
-            key={i}
-            className="badge badge-secondary cursor-pointer"
-            onClick={() =>
-              setEditHabilidades(editHabilidades.filter((h) => h !== id))
-            }
-          >
-            {nombre} ✕
-          </div>
-        );
-      })}
-    </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {editHabilidades.map((id, i) => {
+                  const nombre =
+                    habilidadesList.find((h) => h.skill_id === id)?.skill_name ||
+                    `ID ${id}`;
+                  return (
+                    <div
+                      key={i}
+                      className="badge badge-secondary cursor-pointer"
+                      onClick={() =>
+                        setEditHabilidades(editHabilidades.filter((h) => h !== id))
+                      }
+                    >
+                      {nombre} ✕
+                    </div>
+                  );
+                })}
+              </div>
 
-    <h3 className="font-bold text-lg">Certificaciones</h3>
-    <select
-      className="select select-bordered w-full"
-      onChange={(e) => {
-        const selected = e.target.value;
-        if (selected && !editCertificaciones.includes(selected)) {
-          setEditCertificaciones([...editCertificaciones, selected]);
-        }
-      }}
-    >
-      <option value="">Selecciona una certificación</option>
-      {certificadosList.map((c) => (
-        <option key={c.certificate_id} value={c.certificate_id}>
-          {c.certificate_name}
-        </option>
-      ))}
-    </select>
+              <h3 className="font-bold text-lg">Certificaciones</h3>
+              <select
+                className="select select-bordered w-full"
+                onChange={(e) => {
+                  const selected = e.target.value;
+                  if (selected && !editCertificaciones.includes(Number(selected))) {
+                    setEditCertificaciones([...editCertificaciones, Number(selected)]);
+                  }
+                }}
+              >
+                <option value="">Selecciona una certificación</option>
+                {certificadosList.map((c) => (
+                  <option key={c.certificate_id} value={c.certificate_id}>
+                    {c.certificate_name}
+                  </option>
+                ))}
+              </select>
 
-    <div className="flex flex-wrap gap-2 mt-2">
-      {editCertificaciones.map((id, i) => {
-        const nombre =
-          certificadosList.find((c) => c.certificate_id === Number(id))
-            ?.certificate_name || `ID ${id}`;
-        return (
-          <div
-            key={i}
-            className="badge badge-accent cursor-pointer"
-            onClick={() =>
-              setEditCertificaciones(
-                editCertificaciones.filter((c) => c !== id)
-              )
-            }
-          >
-            {nombre} ✕
-          </div>
-        );
-      })}
-    </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {editCertificaciones.map((id, i) => {
+                  const nombre =
+                    certificadosList.find((c) => c.certificate_id === id)
+                      ?.certificate_name || `ID ${id}`;
+                  return (
+                    <div
+                      key={i}
+                      className="badge badge-accent cursor-pointer"
+                      onClick={() =>
+                        setEditCertificaciones(
+                          editCertificaciones.filter((c) => c !== id)
+                        )
+                      }
+                    >
+                      {nombre} ✕
+                    </div>
+                  );
+                })}
+              </div>
 
-    <div className="modal-action">
-      <div className="flex gap-4">
-        <button
-          type="button"
-          className="btn btn-outline"
-          onClick={() => {
-            const modal = document.getElementById(
-              "modalEditarPuesto"
-            ) as HTMLDialogElement;
-            if (modal && typeof modal.close === "function") {
-              modal.close();
-            }
-          }}
-        >
-          Cancelar
-        </button>
+              <div className="modal-action">
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      const modal = document.getElementById(
+                        "modalEditarPuesto"
+                      ) as HTMLDialogElement;
+                      if (modal && typeof modal.close === "function") {
+                        modal.close();
+                      }
+                    }}
+                  >
+                    Cancelar
+                  </button>
 
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleActualizarPuesto}
-        >
-          Actualizar
-        </button>
-      </div>
-    </div>
-  </div>
-</dialog>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleActualizarPuesto}
+                  >
+                    Actualizar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </dialog>
 
           {/* Tabla */}
           <table className="table w-full border border-base-300">
@@ -616,7 +572,6 @@ export default function CreateProyects() {
                 <th>Cantidad</th>
                 <th>Editar</th>
                 <th>Eliminar</th>
-
               </tr>
             </thead>
             <tbody>
@@ -627,23 +582,21 @@ export default function CreateProyects() {
                 const hiddenSkills = puesto.habilidades.length - 2;
                 const hiddenCerts = puesto.certificaciones.length - 2;
 
-
                 return (
                   <tr key={idx}>
                     <td>{puesto.nombre}</td>
 
-
                     {/* Habilidades */}
                     <td>
                       <div className="flex flex-wrap gap-2">
-                      {visibleSkills.map((id, i) => {
-                        const nombre = habilidadesList.find((h) => h.skill_id === Number(id))?.skill_name || `ID ${id}`;
-                        return (
-                          <div key={i} className="badge badge-secondary">
-                            {nombre}
-                          </div>
-                        );
-                      })}
+                        {visibleSkills.map((id, i) => {
+                          const nombre = habilidadesList.find((h) => h.skill_id === id)?.skill_name || `ID ${id}`;
+                          return (
+                            <div key={i} className="badge badge-secondary">
+                              {nombre}
+                            </div>
+                          );
+                        })}
 
                         {!expandSkills && hiddenSkills > 0 && (
                           <div
@@ -664,18 +617,17 @@ export default function CreateProyects() {
                       </div>
                     </td>
 
-
                     {/* Certificaciones */}
                     <td>
                       <div className="flex flex-wrap gap-2">
-                      {visibleCerts.map((id, i) => {
-                        const nombre = certificadosList.find((c) => c.certificate_id === Number(id))?.certificate_name || `ID ${id}`;
-                        return (
-                          <div key={i} className="badge badge-accent">
-                            {nombre}
-                          </div>
-                        );
-                      })}
+                        {visibleCerts.map((id, i) => {
+                          const nombre = certificadosList.find((c) => c.certificate_id === id)?.certificate_name || `ID ${id}`;
+                          return (
+                            <div key={i} className="badge badge-accent">
+                              {nombre}
+                            </div>
+                          );
+                        })}
                         {!expandCerts && hiddenCerts > 0 && (
                           <div
                             className="badge badge-outline cursor-pointer"
@@ -695,10 +647,8 @@ export default function CreateProyects() {
                       </div>
                     </td>
 
-
                     {/* Cantidad */}
                     <td>{puesto.cantidad}</td>
-
 
                     {/* Botón editar */}
                     <td>
@@ -721,24 +671,20 @@ export default function CreateProyects() {
                         🗑️
                       </button>
                     </td>
-
                   </tr>
                 );
               })}
             </tbody>
-        </table>
-      </div>
+          </table>
+        </div>
 
-
-      {/* BOTON DENTRO DEL FORM */}
-      <div className="flex justify-end mt-4">
-        <button type="submit" className="btn btn-primary px-10 text-lg font-semibold">
-          Crear proyecto
-        </button>
-      </div>
-    </form> {/* cierra bien el form */}
-
-
-  </div>
-);
+        {/* BOTON DENTRO DEL FORM */}
+        <div className="flex justify-end mt-4">
+          <button type="submit" className="btn btn-primary px-10 text-lg font-semibold">
+            Crear proyecto
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }
