@@ -152,7 +152,7 @@ try {
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex">
-            <div className="w-3/4">
+            <div className="w-3/4 gap-5 flex flex-col">
               {/* Company */}
               <div>
                 <label className="block text-sm font-medium">Empresa</label>

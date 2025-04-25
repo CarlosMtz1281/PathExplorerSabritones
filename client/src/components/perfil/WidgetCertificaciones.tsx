@@ -165,7 +165,7 @@ export default function WidgetCertificaciones() {
             Certificaciones Recomendada
           </p>
           <div className="flex justify-center items-center h-32 bg-base-200 border border-primary rounded-lg mt-4">
-            <h2 className="text-xl color-base-200">Proximamente</h2>
+            <h2 className="text-xl color-base-200">Proximamente...</h2>
           </div>
         </div>
         {modalIsOpen && selectedCertificate && (

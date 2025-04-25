@@ -75,7 +75,7 @@ export default function SplitPage() {
           style={{ backgroundImage: "url(/AccentureBack.png)" }}
         >
           {/* Top section (100% height) */}
-          <div className="absolute top-0 w-full h-screen flex items-center justify-center pb-30">
+          <div className="absolute top-0 w-full h-screen flex items-center justify-center pb-15">
             <div className="text-center font-[Kantumruy Pro]">
               <h1
                 className="text-8xl font-bold mb-1 pr-140 text-base-100"
