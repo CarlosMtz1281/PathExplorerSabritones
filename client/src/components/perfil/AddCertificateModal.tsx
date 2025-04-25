@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { FaCalendarAlt } from "react-icons/fa";
 
 interface AddCertificateModalProps {
   onClose: () => void; // Function to close the modal
@@ -151,7 +152,7 @@ try {
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex">
-            <div className="w-3/4">
+            <div className="w-3/4 gap-5 flex flex-col">
               {/* Company */}
               <div>
                 <label className="block text-sm font-medium">Empresa</label>
@@ -224,25 +225,36 @@ try {
                   <label className="block text-sm font-medium">
                     Fecha de Expedición
                   </label>
-                  <input
-                    type="date"
-                    name="issue_date"
-                    value={formData.issue_date}
-                    onChange={handleInputChange}
-                    className="input input-bordered w-full"
-                  />
+                  <div className="relative">
+
+                    <input
+                      type="date"
+                      name="issue_date"
+                      value={formData.issue_date}
+                      onChange={handleInputChange}
+                      className="input input-bordered w-full"
+                    />
+                    <div className="absolute right-3 top-6/12 -translate-y-1/2 pointer-events-none">
+                      <FaCalendarAlt className="text-gray-400 text-xl" />
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium">
                     Fecha de Expiración
                   </label>
-                  <input
-                    type="date"
-                    name="expiration_date"
-                    value={formData.expiration_date}
-                    onChange={handleInputChange}
-                    className="input input-bordered w-full"
-                  />
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="expiration_date"
+                      value={formData.expiration_date}
+                      onChange={handleInputChange}
+                      className="input input-bordered w-full"
+                    />
+                    <div className="absolute right-3 top-6/12 -translate-y-1/2 pointer-events-none">
+                      <FaCalendarAlt className="text-gray-400 text-xl" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -262,15 +274,17 @@ try {
 
             <div className="w-1/4 ml-4">
               {/* Company Logo */}
-              <div className="flex justify-center">
-                <Image
-                width={100}
-                height={100}
+                {formData.company && (
+                <div className="flex justify-center">
+                  <Image
+                  width={100}
+                  height={100}
                   src={companyLogo}
                   alt="Company Logo"
                   className="w-24 h-24 object-contain"
-                />
-              </div>
+                  />
+                </div>
+                )}
 
               {/* Skills */}
               <div className="mt-5">
