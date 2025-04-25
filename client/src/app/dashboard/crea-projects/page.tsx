@@ -2,14 +2,14 @@
 
 
 import { useState } from "react";
-import { useSession } from "next-auth/react"; // 👈 Importar sesión
+import { useSession } from "next-auth/react"; 
 import { useEffect } from "react";
 
 
 
 
 export default function CreateProyects() {
-  const { data: session } = useSession(); // 👈 Obtener la sesión actual
+  const { data: session } = useSession(); //Obtener la sesión actual
 
 
   type Puesto = {
@@ -21,16 +21,11 @@ export default function CreateProyects() {
   
   
   const [puestos, setPuestos] = useState<Puesto[]>([]);
-
-  
-
-
   const [expandSkills, setExpandSkills] = useState(false);
   const [expandCerts, setExpandCerts] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
   const [nuevasHabilidades, setNuevasHabilidades] = useState<(string | number)[]>([]);
-
   const [nuevasCertificaciones, setNuevasCertificaciones] = useState<(string | number)[]>([]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editNombre, setEditNombre] = useState("");
@@ -51,7 +46,7 @@ export default function CreateProyects() {
 >([]);
   
   useEffect(() => {
-    console.log("🚀 useEffect montado - intentando obtener países");
+    
   
     const fetchPaises = async () => {
       try {
@@ -59,7 +54,6 @@ export default function CreateProyects() {
         if (!res.ok) throw new Error(`Error al obtener países: ${res.status}`);
         
         const data = await res.json();
-        console.log("🌍 Países recibidos:", data);
         setPaises(data);
       } catch (error) {
         console.error("❌ Error al cargar países:", error);
@@ -77,7 +71,7 @@ export default function CreateProyects() {
         );
         if (!res.ok) throw new Error(`Error al obtener habilidades: ${res.status}`);
         const data = await res.json();
-        console.log("🛠️ Habilidades recibidas:", data);
+
         setHabilidadesList(data);
       } catch (error) {
         console.error("❌ Error al cargar habilidades:", error);
@@ -87,7 +81,7 @@ export default function CreateProyects() {
   }, []);
 
   useEffect(() => {
-    console.log("📚 useEffect montado - intentando obtener skills");
+
   
     const fetchSkills = async () => {
       try {
@@ -95,7 +89,7 @@ export default function CreateProyects() {
         if (!res.ok) throw new Error(`Error al obtener skills: ${res.status}`);
         
         const data = await res.json();
-        console.log("✅ Skills recibidas:", data);
+
         setSkills(data);
       } catch (error) {
         console.error("❌ Error al cargar skills:", error);
@@ -111,7 +105,7 @@ export default function CreateProyects() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/certificates`);
         if (!res.ok) throw new Error(`Error al obtener certificados: ${res.status}`);
         const data = await res.json();
-        console.log("📜 Certificados recibidos:", data);
+
         setCertificadosList(data);
       } catch (error) {
         console.error("❌ Error al cargar certificados:", error);
@@ -159,8 +153,8 @@ export default function CreateProyects() {
     setEditIndex(index);
     setEditNombre(p.nombre);
     setEditCantidad(p.cantidad);
-    setEditHabilidades(p.habilidades); // array directo
-    setEditCertificaciones(p.certificaciones); // array directo
+    setEditHabilidades(p.habilidades); 
+    setEditCertificaciones(p.certificaciones); 
   
     const modal = document.getElementById("modalEditarPuesto") as HTMLDialogElement;
     if (modal && typeof modal.showModal === "function") {
@@ -203,7 +197,7 @@ export default function CreateProyects() {
       const proyecto = {
         project_name: projectName,
         company_name: companyName,
-        country_id: Number(countryId), // ✅ ahora bien nombrado
+        country_id: Number(countryId), 
         desc: description,
         start_date: startDate,
         end_date: endDate,
@@ -222,7 +216,7 @@ export default function CreateProyects() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: session.sessionId, // O "" si aún no tienes sesión
+          authorization: session.sessionId, 
         },
         body: JSON.stringify(proyecto),
       });
@@ -278,7 +272,7 @@ export default function CreateProyects() {
         </div>
 
 
-        {/* Empresa y Región */}
+        {/* Empresa */}
         <div className="flex gap-6">
           <div className="flex-1">
             <label className="text-xl font-semibold">Empresa</label>
@@ -612,12 +606,6 @@ export default function CreateProyects() {
   </div>
 </dialog>
 
-
-         
-
-
-
-
           {/* Tabla */}
           <table className="table w-full border border-base-300">
             <thead>
@@ -742,7 +730,7 @@ export default function CreateProyects() {
       </div>
 
 
-      {/* BOTÓN DENTRO DEL FORM */}
+      {/* BOTON DENTRO DEL FORM */}
       <div className="flex justify-end mt-4">
         <button type="submit" className="btn btn-primary px-10 text-lg font-semibold">
           Crear proyecto
