@@ -31,13 +31,55 @@ export default function AltaEmpleado() {
   });
 
   const validCombinations = [
-    { is_employee: true, is_people_lead: false, is_capability_lead: false, is_delivery_lead: false, is_admin: false },
-    { is_employee: true, is_people_lead: true, is_capability_lead: false, is_delivery_lead: false, is_admin: false },
-    { is_employee: true, is_people_lead: false, is_capability_lead: true, is_delivery_lead: false, is_admin: false },
-    { is_employee: true, is_people_lead: false, is_capability_lead: false, is_delivery_lead: true, is_admin: false },
-    { is_employee: false, is_people_lead: false, is_capability_lead: false, is_delivery_lead: false, is_admin: true },
-    { is_employee: true, is_people_lead: true, is_capability_lead: false, is_delivery_lead: true, is_admin: false },
-    { is_employee: true, is_people_lead: true, is_capability_lead: true, is_delivery_lead: false, is_admin: false },
+    {
+      is_employee: true,
+      is_people_lead: false,
+      is_capability_lead: false,
+      is_delivery_lead: false,
+      is_admin: false,
+    },
+    {
+      is_employee: true,
+      is_people_lead: true,
+      is_capability_lead: false,
+      is_delivery_lead: false,
+      is_admin: false,
+    },
+    {
+      is_employee: true,
+      is_people_lead: false,
+      is_capability_lead: true,
+      is_delivery_lead: false,
+      is_admin: false,
+    },
+    {
+      is_employee: true,
+      is_people_lead: false,
+      is_capability_lead: false,
+      is_delivery_lead: true,
+      is_admin: false,
+    },
+    {
+      is_employee: false,
+      is_people_lead: false,
+      is_capability_lead: false,
+      is_delivery_lead: false,
+      is_admin: true,
+    },
+    {
+      is_employee: true,
+      is_people_lead: true,
+      is_capability_lead: false,
+      is_delivery_lead: true,
+      is_admin: false,
+    },
+    {
+      is_employee: true,
+      is_people_lead: true,
+      is_capability_lead: true,
+      is_delivery_lead: false,
+      is_admin: false,
+    },
   ];
 
   const [experienceForm, setExperienceForm] = useState({
@@ -91,7 +133,9 @@ export default function AltaEmpleado() {
     }
 
     if (!passwordRegex.test(form.password)) {
-      alert("La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula, un número y un símbolo.");
+      alert(
+        "La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una letra minúscula, un número y un símbolo."
+      );
       return;
     }
 
@@ -339,29 +383,39 @@ export default function AltaEmpleado() {
                 }
               />
               <label className="text-sm">Fecha de inicio</label>
-              <input
-                type="date"
-                className="input input-bordered w-full mb-2"
-                value={experienceForm.start_date}
-                onChange={(e) =>
-                  setExperienceForm({
-                    ...experienceForm,
-                    start_date: e.target.value,
-                  })
-                }
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  className="input input-bordered w-full mb-2"
+                  value={experienceForm.start_date}
+                  onChange={(e) =>
+                    setExperienceForm({
+                      ...experienceForm,
+                      start_date: e.target.value,
+                    })
+                  }
+                />
+                <div className="absolute right-3 top-5/12 -translate-y-1/2 pointer-events-none">
+                  <FaCalendarAlt className="text-gray-400 text-xl" />
+                </div>
+              </div>
               <label className="text-sm">Fecha de finalización</label>
-              <input
-                type="date"
-                className="input input-bordered w-full mb-2"
-                value={experienceForm.end_date}
-                onChange={(e) =>
-                  setExperienceForm({
-                    ...experienceForm,
-                    end_date: e.target.value,
-                  })
-                }
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  className="input input-bordered w-full mb-2"
+                  value={experienceForm.end_date}
+                  onChange={(e) =>
+                    setExperienceForm({
+                      ...experienceForm,
+                      end_date: e.target.value,
+                    })
+                  }
+                />
+                <div className="absolute right-3 top-5/12 -translate-y-1/2 pointer-events-none">
+                  <FaCalendarAlt className="text-gray-400 text-xl" />
+                </div>
+              </div>
 
               <div className="modal-action">
                 <button className="btn" onClick={() => setIsModalOpen(false)}>
