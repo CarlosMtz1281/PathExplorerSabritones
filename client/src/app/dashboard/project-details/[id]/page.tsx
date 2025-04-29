@@ -332,10 +332,10 @@ const ProjectDetails = () => {
             try {
               const [skillsResponse, certificatesResponse] = await Promise.all([
                 fetch(
-                  `${process.env.NEXT_PUBLIC_API_BASE}/getsSkillsId/${member.user_id}`
+                  `${process.env.NEXT_PUBLIC_API_BASE}/employee/getsSkillsId/${member.user_id}`
                 ),
                 fetch(
-                  `${process.env.NEXT_PUBLIC_API_BASE}/getCertificatesByUserId/${member.user_id}`
+                  `${process.env.NEXT_PUBLIC_API_BASE}/course/getCertificatesByUserId/${member.user_id}`
                 ),
               ]);
 
