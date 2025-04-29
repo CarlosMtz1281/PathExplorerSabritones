@@ -474,8 +474,7 @@ const ProjectDetails = () => {
                   {project.end_date || "En progreso"}
                 </p>
                 <p className="text-sm text-secondary mb-2">
-                  <strong>Duración:</strong>{" "}
-                  <span className="link link-primary">{duration}</span>
+                  <strong>Duración: </strong> {duration}
                 </p>
                 <p className="text-sm text-secondary mb-2">
                   <strong>Delivery Lead:</strong> {project.details.capability}
