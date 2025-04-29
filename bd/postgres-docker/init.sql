@@ -548,7 +548,7 @@ INSERT INTO "Projects" (
 (5, 'Banking System Modernization', 'Global Finance Corp', 'Migration of legacy banking systems to microservices architecture', '2025-03-01', '2026-06-30', 3),
 (14, 'Healthcare Analytics', 'MediData Solutions', 'Big data analytics platform for healthcare providers', '2025-02-10', '2025-11-30', 4),
 (13, 'IoT Fleet Management', 'LogiTech', 'IoT solution for real-time fleet tracking and management', '2025-04-01', '2026-03-31', 6),
-(14, 'Mobile Banking App', 'FinTech Innovations', 'Cross-platform mobile application for banking services', '2025-04-26', '2026-02-28', 7),
+(14, 'Mobile Banking App', 'FinTech Innovations', 'Cross-platform mobile application for banking services', '2025-05-26', '2026-02-28', 7),
 (14, 'E-Learning Platform', 'EduTech Solutions', 'Development of an interactive e-learning platform', '2025-05-01', '2026-03-31', 7),
 (14, 'Smart Home Automation', 'HomeTech Inc.', 'IoT-based smart home automation system', '2025-05-02', '2026-04-30', 7),
 (14, 'Retail Analytics Dashboard', 'Retail Insights', 'Dashboard for retail data analytics and visualization', '2025-05-03', '2026-05-31', 7),
@@ -797,8 +797,7 @@ INSERT INTO "Certificate_Users" (
     "status"
 ) VALUES
 (1, 1, '2021-06-15', '2024-06-15', 'https://certs.example.com/java1', 'completed'),
-(2, 1, '2022-01-20', '2025-01-20', 'https://certs.example.com/pmp1', 'completed'),
-(3, 1, '2023-01-10', '2026-01-10', 'https://certs.example.com/aws1', 'completed'),
+
 (4, 1, '2023-02-15', '2026-02-15', 'https://certs.example.com/azure1', 'in progress'),
 (5, 1, '2023-03-20', '2026-03-20', 'https://certs.example.com/google1', 'in progress'),
 (3, 14, '2022-03-10', '2024-03-10', 'https://certs.example.com/aws1', 'completed'),

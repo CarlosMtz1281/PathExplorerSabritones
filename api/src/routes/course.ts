@@ -173,6 +173,18 @@ router.post("/add-certificate", async (req, res) => {
     // Update session expiration
     await updateSession(sessionKey);
 
+    // Check if the user already has the certification
+    const existingCertificate = await prisma.certificate_Users.findFirst({
+      where: {
+        user_id: Number(userId),
+        certificate_id: Number(certificate_id),
+      },
+    });
+
+    if (existingCertificate) {
+      return res.status(400).json({ error: "User already has this certification" });
+    }
+
     // Add the certificate for the user
     const newCertificate = await prisma.certificate_Users.create({
       data: {
