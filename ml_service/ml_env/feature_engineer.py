@@ -1,0 +1,171 @@
+from typing import Dict, List
+import numpy as np
+from sklearn.preprocessing import normalize
+from data_fetcher import DataFetcher
+
+
+class CertificateRecommenderFeaturizer:
+    def __init__(self, data_fetcher: DataFetcher):
+        self.skill_weights = {
+            "current_skills": 0.3,
+            "goal_skills": 1.0,
+            "position_skills": 0.75,
+            "course_skills": 0.3,
+            "certificate_skills": 0.3,
+        }
+        self.repetition_bonus = 0.15
+        self.data_fetcher = data_fetcher
+        self.skill_name_to_id = self._load_skill_mappings()
+
+    def _load_skill_mappings(self) -> Dict[str, int]:
+        """Load skill mappings from the API"""
+        skills = self.data_fetcher.get_all_skills()
+        skill_name_to_id = {}
+        for skill in skills:
+            name = skill.get("skill_name", "").lower()
+            skill_id = skill.get("skill_id")
+            if skill_id:
+                skill_name_to_id[name] = skill_id
+        return skill_name_to_id
+
+    def _extract_skills_from_text(self, text: str) -> List[int]:
+        tokens = text.lower().split()
+        found_skills = set()
+        # Check single words and n-grams (e.g., "java development")
+        for n in [1, 2, 3]:  # Check 1, 2, and 3-word phrases
+            for i in range(len(tokens) - n + 1):
+                phrase = " ".join(tokens[i : i + n])
+                if phrase in self.skill_name_to_id:
+                    found_skills.add(self.skill_name_to_id[phrase])
+        print(f"Extracted skills from text: {text} -> {found_skills}")
+        return list(found_skills)
+
+    def create_user_vector(self, user_data: Dict, all_skills: List[int]) -> np.ndarray:
+        """Create weighted skill vector for user"""
+        print("Creating user vector...")
+        skill_vector = np.zeros(len(all_skills))
+        skill_index = {skill_id: idx for idx, skill_id in enumerate(all_skills)}
+
+        def extract_skill_ids(items):
+            if not items:
+                return []
+
+            # Case: list of dicts with "skill_id"
+            if isinstance(items[0], dict) and "skill_id" in items[0]:
+                return [item["skill_id"] for item in items]
+
+            # Case: list of numbers (int or str) — ensure conversion to int
+            try:
+                return [int(item) for item in items]
+            except (TypeError, ValueError):
+                print("Unexpected skill format:", items)
+                return []
+
+        # Handle current skills
+        skills_data = user_data.get("skills", {})
+        current_skills = (
+            skills_data.get("skills_id", [])
+            if isinstance(skills_data, dict)
+            else extract_skill_ids(skills_data)
+        )
+        print(f"Current skills: {current_skills}")
+        self._add_skills(
+            skill_vector,
+            skill_index,
+            current_skills,
+            self.skill_weights["current_skills"],
+        )
+
+        # Goal skills: only add if nested "skills" are provided
+        goal_skills = []
+        for goal in user_data.get("goals", []):
+            desc_skills = self._extract_skills_from_text(goal.get("goal_desc", ""))
+            goal_skills.extend(desc_skills)
+        print(f"Goal skills: {goal_skills}")
+        self._add_skills(
+            skill_vector, skill_index, goal_skills, self.skill_weights["goal_skills"]
+        )
+
+        # Positions
+        position_data = user_data.get("positions", {})
+        position_skills = (
+            position_data.get("skills_id", [])
+            if isinstance(position_data, dict)
+            else []
+        )
+        if not position_skills:
+            for position in position_data:  # if it's a list
+                position_skills.extend(extract_skill_ids(position.get("skills", [])))
+        print(f"Position skills: {position_skills}")
+        self._add_skills(
+            skill_vector,
+            skill_index,
+            position_skills,
+            self.skill_weights["position_skills"],
+        )
+
+        # Courses
+        course_data = user_data.get("courses", {})
+        course_skills = (
+            course_data.get("skills_id", []) if isinstance(course_data, dict) else []
+        )
+        if not course_skills:
+            for course in course_data:
+                course_skills.extend(course.get("skills_id", []))
+        print(f"Course skills: {course_skills}")
+        self._add_skills(
+            skill_vector,
+            skill_index,
+            course_skills,
+            self.skill_weights["course_skills"],
+        )
+
+        # Certificates
+        cert_data = user_data.get("certificates", {})
+        cert_skills = (
+            cert_data.get("skills_id", []) if isinstance(cert_data, dict) else []
+        )
+        if not cert_skills:
+            for cert in cert_data:
+                cert_skills.extend(cert.get("skills_id", []))
+        print(f"Certificate skills: {cert_skills}")
+        self._add_skills(
+            skill_vector,
+            skill_index,
+            cert_skills,
+            self.skill_weights["certificate_skills"],
+        )
+
+        print(f"Final skill vector before normalization: {skill_vector}")
+
+        if np.any(skill_vector):
+            print("Normalizing skill vector")
+            return normalize([skill_vector])[0]
+
+        return skill_vector
+
+    def _count_skills(self, skills: List[int]) -> Dict[int, int]:
+        """Count occurrences of each skill ID"""
+        skill_counts = {}
+        for skill_id in skills:
+            if skill_id in skill_counts:
+                skill_counts[skill_id] += 1
+            else:
+                skill_counts[skill_id] = 1
+        return skill_counts
+
+    def _add_skills(
+        self,
+        vector: np.ndarray,
+        skill_index: Dict,
+        skills: List[int],
+        base_weight: float,
+    ):
+        """Helper method to add skills to vector"""
+        skill_counts = self._count_skills(skills)
+        print(f"Skill counts: {skill_counts}")
+        for skill_id, count in skill_counts.items():
+            total_weight = base_weight + (self.repetition_bonus * (count - 1))
+            if skill_id in skill_index:
+                print(f"Adding skill {skill_id} with weight {total_weight}")
+                vector[skill_index[skill_id]] += total_weight
