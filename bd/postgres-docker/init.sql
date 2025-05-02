@@ -317,7 +317,28 @@ INSERT INTO "Skills" ("name", "technical") VALUES
 ('CI/CD', TRUE),
 ('Microservices', TRUE),
 ('REST API', TRUE),
+('TensorFlow', TRUE),
+('PyTorch', TRUE),
+('Ethical Hacking', TRUE),
+('Blockchain', TRUE),
+('Smart Contracts', TRUE),
+('Serverless Architecture', TRUE),
+('Quantum Computing', TRUE),
+('GraphQL', TRUE),
+('Apache Kafka', TRUE),
+('Prometheus', TRUE),
+('Istio', TRUE),
+('Jenkins', TRUE),
+('Ansible', TRUE),
+('Chaos Engineering', TRUE),
+('Generative AI', TRUE),
+
 -- Soft skills
+('Mentorship', FALSE),
+('Strategic Thinking', FALSE),
+('Cross-cultural Communication', FALSE),
+('Innovation Management', FALSE),
+('Change Management', FALSE),
 ('Project Management', FALSE),
 ('Communication', FALSE),
 ('Leadership', FALSE),
@@ -363,7 +384,15 @@ INSERT INTO "Certificates" (
 ('Cisco Certified Network Associate (CCNA)', 'Networking fundamentals certification', 'Cisco'),
 ('Cisco Certified CyberOps Associate', 'Cybersecurity operations certification', 'Cisco'),
 ('Cisco Certified DevNet Associate', 'DevOps and network automation certification', 'Cisco'),
-('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 'Cisco');
+('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 'Cisco'),
+('TensorFlow Developer Certificate', 'Build and train ML models using TensorFlow', 'Google'),
+('Certified Ethical Hacker (CEH)', 'Identify vulnerabilities and secure systems', 'EC-Council'),
+('Blockchain Developer Certification', 'Build decentralized applications and smart contracts', 'Blockchain Council'),
+('HashiCorp Certified Terraform Associate', 'Infrastructure automation using Terraform', 'HashiCorp'),
+('Certified Kubernetes Security Specialist', 'Secure containerized applications', 'CNCF'),
+('Azure AI Engineer Associate', 'Implement AI solutions on Microsoft Azure', 'Microsoft'),
+('Quantum Computing Fundamentals', 'Introduction to quantum computing concepts', 'IBM'),
+('Serverless Architecture Certification', 'Build and deploy serverless applications', 'AWS');
 
 -- 5) Courses - Expanded with more learning paths
 INSERT INTO "Courses" (
@@ -382,7 +411,16 @@ INSERT INTO "Courses" (
 ('Cybersecurity Fundamentals', 'Introduction to information security', '40 hours'),
 ('Effective Communication for Tech Professionals', 'Improving workplace communication', '20 hours'),
 ('Leadership in Tech', 'Developing leadership skills for technical roles', '30 hours'),
-('Docker and Kubernetes Mastery', 'Containerization and orchestration', '45 hours');
+('Docker and Kubernetes Mastery', 'Containerization and orchestration', '45 hours'),
+('Advanced ML with TensorFlow', 'Production-grade ML model development', '60 hours'),
+('Blockchain Development 101', 'Ethereum, Solidity, and DApp development', '45 hours'),
+('Serverless Patterns on AWS', 'Building event-driven architectures', '35 hours'),
+('Quantum Computing Basics', 'Qubits and quantum algorithms', '25 hours'),
+('MLOps Fundamentals', 'Machine learning operations lifecycle', '30 hours'),
+('Advanced DevOps Monitoring', 'Observability with Prometheus/Grafana', '30 hours'),
+('Generative AI with GANs', 'Creating generative models', '40 hours'),
+('Cloud-Native Architecture', 'Designing for Kubernetes environments', '40 hours'),
+('Ethical Hacking Lab', 'Hands-on penetration testing', '50 hours');
 
 -- 6) Work_Position - Expanded with more roles
 INSERT INTO "Work_Position" (
@@ -416,7 +454,17 @@ INSERT INTO "Goals" ("goal_name", "goal_desc") VALUES
 ('Develop Data Analysis Skills', 'Learn to work with big data and visualization tools'),
 ('Improve Time Management', 'Optimize personal productivity and task prioritization'),
 ('Learn Cloud Security', 'Understand security best practices for cloud environments'),
-('Master Kubernetes', 'Become proficient in container orchestration');
+('Master Kubernetes', 'Become proficient in container orchestration'),
+('Become Machine Learning Engineer', 'Gain production ML deployment skills'),
+('Master Blockchain Development', 'Build enterprise-grade DApps'),
+('Develop Cybersecurity Expertise', 'Protect critical infrastructure'),
+('Learn Quantum Computing', 'Understand quantum algorithms'),
+('Achieve Cloud-Native Expertise', 'Master container orchestration'),
+('Improve MLOps Skills', 'Implement CI/CD for ML pipelines'),
+('Become AI Ethics Specialist', 'Ensure responsible AI development'),
+('Master Observability', 'Implement advanced monitoring solutions'),
+('Learn Generative AI', 'Create content-generation systems'),
+('Develop Edge Computing Skills', 'Build IoT-optimized solutions');
 
 -- 8) Users - Expanded with more realistic employee data
 INSERT INTO "Users" (
@@ -827,7 +875,23 @@ INSERT INTO "Certificate_Skills" ("certificate_id", "skill_id") VALUES
 (9, 16), (9, 25),     -- ISTQB -> Testing, QA
 (10, 29), (10, 34),   -- CISSP -> Security, Security
 (11, 7), (11, 20),    -- Salesforce -> CRM, Business
-(12, 17), (12, 34);   -- RHCE -> Linux, Security
+(12, 17), (12, 34),   -- RHCE -> Linux, Security
+-- TensorFlow
+(25, 36), (25, 15), (25, 3),
+-- Ethical Hacking
+(26, 38), (26, 34), (26, 29),
+-- Blockchain
+(27, 39), (27, 40), (27, 19),
+-- Terraform
+(28, 17), (28, 45), (28, 9),
+-- Kubernetes Security
+(29, 10), (29, 34), (29, 17),
+-- Azure AI
+(30, 15), (30, 36), (30, 12),
+-- Quantum Computing
+(31, 42), (31, 15), (31, 16),
+-- Serverless
+(32, 41), (32, 11), (32, 17);
 
 -- 23) Course_Users - Expanded with more course enrollments
 INSERT INTO "Course_Users" (
@@ -868,7 +932,16 @@ INSERT INTO "Course_Skills" ("course_id", "skill_id") VALUES
 (9, 29), (9, 34), -- Cybersecurity -> Security, Security
 (10, 22), (10, 24), -- Communication -> Communication, Teamwork
 (11, 23), (11, 26), -- Leadership -> Leadership, Time Management
-(12, 9), (12, 10);  -- Docker/K8s -> Docker, Kubernetes
+(12, 9), (12, 10),  -- Docker/K8s -> Docker, Kubernetes
+(13, 36), (13, 15), (13, 16),  -- Advanced ML
+(14, 39), (14, 40), (14, 19),   -- Blockchain
+(15, 38), (15, 34), (15, 29),   -- Cybersecurity
+(16, 41), (16, 11), (16, 17),   -- Serverless
+(17, 42), (17, 15), (17, 16),   -- Quantum
+(18, 45), (18, 17), (18, 18),   -- MLOps
+(19, 46), (19, 47), (19, 9),    -- Monitoring
+(20, 44), (20, 36), (20, 15),   -- Generative AI
+(21, 10), (21, 17), (21, 19);   -- Cloud-Native
 
 -- 25) Employee_Position - Expanded with more position assignments
 INSERT INTO "Employee_Position" (
@@ -907,7 +980,17 @@ INSERT INTO "Goal_Skills" ("goal_id", "skill_id") VALUES
 (9, 16), (9, 25),         -- Data Analysis -> Data Analysis, Problem Solving
 (10, 26), (10, 31),       -- Time Management -> Time Mgmt, Productivity
 (11, 29), (11, 34),       -- Cloud Security -> Security, Security
-(12, 9), (12, 10);        -- Kubernetes -> Docker, Kubernetes
+(12, 9), (12, 10),        -- Kubernetes -> Docker, Kubernetes
+(13, 36), (13, 15), (13, 16),   -- ML Engineer
+(14, 39), (14, 40), (14, 19),    -- Blockchain
+(15, 38), (15, 34), (15, 29),    -- Cybersecurity
+(16, 42), (16, 15), (16, 16),    -- Quantum
+(17, 10), (17, 17), (17, 9),     -- Cloud-Native
+(18, 45), (18, 17), (18, 18),    -- MLOps
+(19, 22), (19, 24), (19, 33),    -- AI Ethics
+(20, 46), (20, 47), (20, 9),     -- Observability
+(21, 44), (21, 36), (21, 15),    -- Generative AI
+(22, 48), (22, 19), (22, 34);    -- Edge Computing
 
 -- 27) Goal_Users - Expanded with more goal assignments
 INSERT INTO "Goal_Users" (
