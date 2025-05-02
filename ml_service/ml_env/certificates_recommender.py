@@ -9,6 +9,7 @@ class CertificateRecommender:
         self.skill_matrix = None
         self.certificate_ids = []
         self.skill_ids = []
+        self.certificate_providers = {}
 
     def train(self, certificates: List[Dict]):
         """Build skill matrix for all certificates"""
@@ -17,10 +18,12 @@ class CertificateRecommender:
         )
 
         self.certificate_ids = [cert["id"] for cert in certificates]
+        self.certificate_providers = {
+            cert["id"]: cert.get("provider") for cert in certificates
+        }
+
         self.skill_matrix = np.zeros((len(certificates), len(self.skill_ids)))
-
         skill_index = {skill_id: idx for idx, skill_id in enumerate(self.skill_ids)}
-
         for idx, cert in enumerate(certificates):
             for skill in cert["skills"]:
                 skill_id = skill["skill_id"]
@@ -31,7 +34,12 @@ class CertificateRecommender:
         self.skill_matrix = normalize(self.skill_matrix)
 
     def recommend(
-        self, user_vector: np.ndarray, exclude_cert_ids: List[int], top_n: int = 10
+        self,
+        user_vector: np.ndarray,
+        exclude_cert_ids: List[int],
+        existing_providers: List[int] = None,
+        provider_bonus: float = 0.025,
+        top_n: int = 10,
     ) -> List[Dict]:
         """Get top certificate recommendations"""
         if self.skill_matrix is None:
@@ -39,6 +47,13 @@ class CertificateRecommender:
 
         # Calculate similarities
         similarities = cosine_similarity([user_vector], self.skill_matrix)[0]
+
+        if existing_providers:
+            for idx in range(len(similarities)):
+                cert_id = self.certificate_ids[idx]
+                cert_provider = self.certificate_providers.get(cert_id)
+                if cert_provider and cert_provider in existing_providers:
+                    similarities[idx] += provider_bonus
 
         # Sort certificates by similarity
         sorted_indices = np.argsort(similarities)[::-1]

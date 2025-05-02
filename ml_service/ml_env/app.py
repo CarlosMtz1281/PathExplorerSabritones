@@ -24,9 +24,14 @@ certificates_with_skills = [
     {
         "id": cert["certificate_id"],
         "skills": data_fetcher.get_certificate_skills(cert["certificate_id"]),
+        "provider": cert.get("provider"),
     }
     for cert in certificates
 ]
+
+certificate_provider_map = {
+    cert["id"]: cert["provider"] for cert in certificates_with_skills
+}
 
 # Train recommender
 recommender.train(certificates_with_skills)
@@ -53,6 +58,14 @@ def recommend_certificates(user_id: int):
             ]
         print(f"Exclude IDs: {exclude_ids}")
 
+        existing_providers = list(
+            set(
+                certificate_provider_map[cert_id]
+                for cert_id in exclude_ids
+                if cert_id in certificate_provider_map
+            )
+        )
+
         # Create feature vector
         all_skills = recommender.skill_ids
         print(f"All Skills found in all certificates: {all_skills}")
@@ -61,7 +74,9 @@ def recommend_certificates(user_id: int):
         print(f"User Vector: {user_vector}")
 
         # Get recommendations
-        recommendations = recommender.recommend(user_vector, exclude_ids)
+        recommendations = recommender.recommend(
+            user_vector, exclude_ids, existing_providers
+        )
 
         return jsonify(
             {
