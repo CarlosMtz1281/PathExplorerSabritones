@@ -7,6 +7,26 @@ dotenv.config();
 
 const router = express.Router();
 
+// Middleware to check if the user is authenticated
+const isAuthenticated = (req, res, next) => {
+  const expectedPassword = process.env.ADMIN_PASSWORD_ML;
+  if (!expectedPassword) {
+    return res.status(500).json({ error: "Admin password not configured" });
+  }
+  if (!req.headers["admin-password"]) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const inputPassword = req.headers["admin-password"];
+  if (inputPassword !== expectedPassword) {
+    return res.status(401).json({
+      error: "Unauthorized",
+    });
+  }
+  next();
+};
+
+router.use(isAuthenticated);
+
 router.get("/", async (req, res) => {
   console.log("ML User Data base");
   res.json({ message: "ML User Data base" });
