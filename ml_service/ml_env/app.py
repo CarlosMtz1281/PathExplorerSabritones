@@ -33,6 +33,8 @@ certificate_provider_map = {
     cert["id"]: cert["provider"] for cert in certificates_with_skills
 }
 
+skills = data_fetcher.get_all_skills()
+
 # Train recommender
 recommender.train(certificates_with_skills)
 
@@ -84,9 +86,33 @@ def recommend_certificates(user_id: int):
                 "recommendations": recommendations,
                 "diagnostics": {  # Add diagnostic info
                     "user_skills": user_data.get("skills", []),
+                    # show user skills with names
+                    "user_skills_names": [
+                        skill["skill_name"]
+                        for skill in skills
+                        if skill["skill_id"] in user_data.get("skills", [])["skills_id"]
+                    ],
                     "user_certificates": user_data.get("certificates", []),
+                    "user_certificates_skill_names": [
+                        skill["skill_name"]
+                        for skill in skills
+                        if skill["skill_id"]
+                        in user_data.get("certificates", [])["skills_id"]
+                    ],
                     "user_courses": user_data.get("courses", []),
+                    "user_courses_skill_names": [
+                        skill["skill_name"]
+                        for skill in skills
+                        if skill["skill_id"]
+                        in user_data.get("courses", [])["skills_id"]
+                    ],
                     "user_positions": user_data.get("positions", []),
+                    "user_positions_skill_names": [
+                        skill["skill_name"]
+                        for skill in skills
+                        if skill["skill_id"]
+                        in user_data.get("positions", [])["skills_id"]
+                    ],
                     "user_goals": user_data.get("goals", []),
                 },
             }

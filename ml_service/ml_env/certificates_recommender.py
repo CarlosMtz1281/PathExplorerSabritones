@@ -39,7 +39,7 @@ class CertificateRecommender:
         exclude_cert_ids: List[int],
         existing_providers: List[int] = None,
         provider_bonus: float = 0.025,
-        top_n: int = 10,
+        top_n: int = 100,
     ) -> List[Dict]:
         """Get top certificate recommendations"""
         if self.skill_matrix is None:
