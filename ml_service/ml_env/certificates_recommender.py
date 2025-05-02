@@ -2,11 +2,13 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
 from typing import List, Dict
+from sklearn.feature_extraction.text import TfidfTransformer
 
 
 class CertificateRecommender:
     def __init__(self):
         self.skill_matrix = None
+        self.cert_sim_matrix = None
         self.certificate_ids = []
         self.skill_ids = []
         self.certificate_providers = {}
@@ -30,8 +32,10 @@ class CertificateRecommender:
                 if skill_id in skill_index:
                     self.skill_matrix[idx, skill_index[skill_id]] = 1
 
-        # Normalize matrix
-        self.skill_matrix = normalize(self.skill_matrix)
+        transformer = TfidfTransformer(norm="l2", use_idf=True)
+        self.skill_matrix = transformer.fit_transform(self.skill_matrix).toarray()
+        # Compute certificate similarity matrix
+        self.cert_sim_matrix = cosine_similarity(self.skill_matrix)
 
     def recommend(
         self,
@@ -40,6 +44,7 @@ class CertificateRecommender:
         existing_providers: List[int] = None,
         provider_bonus: float = 0.025,
         top_n: int = 100,
+        diversity_lambda: float = 0.5,
     ) -> List[Dict]:
         """Get top certificate recommendations"""
         if self.skill_matrix is None:
@@ -55,20 +60,40 @@ class CertificateRecommender:
                 if cert_provider and cert_provider in existing_providers:
                     similarities[idx] += provider_bonus
 
-        # Sort certificates by similarity
-        sorted_indices = np.argsort(similarities)[::-1]
-
+        candidate_indices = [
+            idx
+            for idx, cert_id in enumerate(self.certificate_ids)
+            if cert_id not in exclude_cert_ids
+        ]
         recommendations = []
-        for idx in sorted_indices:
-            cert_id = self.certificate_ids[idx]
-            if cert_id not in exclude_cert_ids:
-                recommendations.append(
-                    {
-                        "certificate_id": cert_id,
-                        "similarity_score": float(similarities[idx]),
-                    }
-                )
-            if len(recommendations) >= top_n:
+        selected_indices = []
+
+        while len(recommendations) < top_n and candidate_indices:
+            best_mmr = -np.inf
+            best_idx = None
+            for idx in candidate_indices:
+                current_sim = similarities[idx]
+                if not selected_indices:
+                    mmr = diversity_lambda * current_sim
+                else:
+                    max_sim = np.max(self.cert_sim_matrix[idx, selected_indices])
+                    mmr = (diversity_lambda * current_sim) - (
+                        (1 - diversity_lambda) * max_sim
+                    )
+                if mmr > best_mmr:
+                    best_mmr = mmr
+                    best_idx = idx
+            if best_idx is None:
                 break
+            cert_id = self.certificate_ids[best_idx]
+            recommendations.append(
+                {
+                    "certificate_id": cert_id,
+                    "similarity_score": float(similarities[best_idx]),
+                    "mmr_score": float(mmr),
+                }
+            )
+            selected_indices.append(best_idx)
+            candidate_indices.remove(best_idx)
 
         return recommendations

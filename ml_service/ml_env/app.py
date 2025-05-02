@@ -77,7 +77,7 @@ def recommend_certificates(user_id: int):
 
         # Get recommendations
         recommendations = recommender.recommend(
-            user_vector, exclude_ids, existing_providers
+            user_vector, exclude_ids, existing_providers, diversity_lambda=0.5
         )
 
         return jsonify(

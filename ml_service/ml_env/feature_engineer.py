@@ -7,11 +7,11 @@ from data_fetcher import DataFetcher
 class CertificateRecommenderFeaturizer:
     def __init__(self, data_fetcher: DataFetcher):
         self.skill_weights = {
-            "current_skills": 0.3,
+            "current_skills": 0.5,
             "goal_skills": 1.0,
-            "position_skills": 0.75,
-            "course_skills": 0.3,
-            "certificate_skills": 0.3,
+            "position_skills": 1.0,
+            "course_skills": 0.5,
+            "certificate_skills": 0.7,
         }
         self.repetition_bonus = 0.15
         self.data_fetcher = data_fetcher
