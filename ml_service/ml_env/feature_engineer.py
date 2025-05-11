@@ -37,12 +37,10 @@ class CertificateRecommenderFeaturizer:
                 phrase = " ".join(tokens[i : i + n])
                 if phrase in self.skill_name_to_id:
                     found_skills.add(self.skill_name_to_id[phrase])
-        print(f"Extracted skills from text: {text} -> {found_skills}")
         return list(found_skills)
 
     def create_user_vector(self, user_data: Dict, all_skills: List[int]) -> np.ndarray:
         """Create weighted skill vector for user"""
-        print("Creating user vector...")
         skill_vector = np.zeros(len(all_skills))
         skill_index = {skill_id: idx for idx, skill_id in enumerate(all_skills)}
 
@@ -58,7 +56,6 @@ class CertificateRecommenderFeaturizer:
             try:
                 return [int(item) for item in items]
             except (TypeError, ValueError):
-                print("Unexpected skill format:", items)
                 return []
 
         # Handle current skills
@@ -68,7 +65,6 @@ class CertificateRecommenderFeaturizer:
             if isinstance(skills_data, dict)
             else extract_skill_ids(skills_data)
         )
-        print(f"Current skills: {current_skills}")
         self._add_skills(
             skill_vector,
             skill_index,
@@ -81,7 +77,6 @@ class CertificateRecommenderFeaturizer:
         for goal in user_data.get("goals", []):
             desc_skills = self._extract_skills_from_text(goal.get("goal_desc", ""))
             goal_skills.extend(desc_skills)
-        print(f"Goal skills: {goal_skills}")
         self._add_skills(
             skill_vector, skill_index, goal_skills, self.skill_weights["goal_skills"]
         )
@@ -96,7 +91,6 @@ class CertificateRecommenderFeaturizer:
         if not position_skills:
             for position in position_data:  # if it's a list
                 position_skills.extend(extract_skill_ids(position.get("skills", [])))
-        print(f"Position skills: {position_skills}")
         self._add_skills(
             skill_vector,
             skill_index,
@@ -112,7 +106,6 @@ class CertificateRecommenderFeaturizer:
         if not course_skills:
             for course in course_data:
                 course_skills.extend(course.get("skills_id", []))
-        print(f"Course skills: {course_skills}")
         self._add_skills(
             skill_vector,
             skill_index,
@@ -128,7 +121,6 @@ class CertificateRecommenderFeaturizer:
         if not cert_skills:
             for cert in cert_data:
                 cert_skills.extend(cert.get("skills_id", []))
-        print(f"Certificate skills: {cert_skills}")
         self._add_skills(
             skill_vector,
             skill_index,
@@ -136,10 +128,7 @@ class CertificateRecommenderFeaturizer:
             self.skill_weights["certificate_skills"],
         )
 
-        print(f"Final skill vector before normalization: {skill_vector}")
-
         if np.any(skill_vector):
-            print("Normalizing skill vector")
             return normalize([skill_vector])[0]
 
         return skill_vector
@@ -163,9 +152,7 @@ class CertificateRecommenderFeaturizer:
     ):
         """Helper method to add skills to vector"""
         skill_counts = self._count_skills(skills)
-        print(f"Skill counts: {skill_counts}")
         for skill_id, count in skill_counts.items():
             total_weight = base_weight + (self.repetition_bonus * (count - 1))
             if skill_id in skill_index:
-                print(f"Adding skill {skill_id} with weight {total_weight}")
                 vector[skill_index[skill_id]] += total_weight

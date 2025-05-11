@@ -39,12 +39,14 @@ skills = data_fetcher.get_all_skills()
 recommender.train(certificates_with_skills)
 
 
-@app.route("/recommend/certificates/<int:user_id>", methods=["GET"])
+@app.route(
+    "/recommend/certificates/<int:user_id>",
+    methods=["GET"],
+)
 def recommend_certificates(user_id: int):
     try:
         # Get user data
         user_data = data_fetcher.get_user_data(user_id)
-        print(f"User Data: {user_data}")
 
         certificates_data = user_data.get("certificates", {})
 
@@ -58,7 +60,6 @@ def recommend_certificates(user_id: int):
             exclude_ids = [
                 c["certificate_id"] for c in certificates_data if "certificate_id" in c
             ]
-        print(f"Exclude IDs: {exclude_ids}")
 
         existing_providers = list(
             set(
@@ -68,53 +69,70 @@ def recommend_certificates(user_id: int):
             )
         )
 
+        user_skill_ids = set()
+        user_skill_ids.update(user_data.get("skills", {}).get("skills_id", []))
+        user_skill_ids.update(user_data.get("certificates", {}).get("skills_id", []))
+        user_skill_ids.update(user_data.get("courses", {}).get("skills_id", []))
+        user_skill_ids.update(user_data.get("positions", {}).get("skills_id", []))
+
         # Create feature vector
         all_skills = recommender.skill_ids
-        print(f"All Skills found in all certificates: {all_skills}")
 
         user_vector = featurizer.create_user_vector(user_data, all_skills)
-        print(f"User Vector: {user_vector}")
 
         # Get recommendations
         recommendations = recommender.recommend(
-            user_vector, exclude_ids, existing_providers, diversity_lambda=0.5
+            user_vector, exclude_ids, existing_providers, diversity_lambda=0.85
         )
+
+        certificatesDict = data_fetcher.get_all_certificates()
+
+        recommendations = [
+            {
+                "certificate_id": cert["certificate_id"],
+                "certificate_name": next(
+                    (
+                        cert_data["certificate_name"]
+                        for cert_data in certificatesDict
+                        if cert_data["certificate_id"] == cert["certificate_id"]
+                    ),
+                    None,
+                ),
+                "certificate_description": next(
+                    (
+                        cert_data["certificate_desc"]
+                        for cert_data in certificatesDict
+                        if cert_data["certificate_id"] == cert["certificate_id"]
+                    )
+                ),
+                "provider": certificate_provider_map.get(cert["certificate_id"]),
+                "score": cert["mmr_score"],
+                "skills": [
+                    skill["skill_name"]
+                    for skill in data_fetcher.get_certificate_skills(
+                        cert["certificate_id"]
+                    )
+                ],
+                "coincident_skills": [
+                    skill["skill_name"]
+                    for skill in data_fetcher.get_certificate_skills(
+                        cert["certificate_id"]
+                    )
+                    if skill["skill_id"] in user_skill_ids
+                ],
+            }
+            for cert in recommendations
+        ]
 
         return jsonify(
             {
                 "user_id": user_id,
+                "user_skills": [
+                    skill["skill_name"]
+                    for skill in skills
+                    if skill["skill_id"] in user_skill_ids  # Show all aggregated skills
+                ],
                 "recommendations": recommendations,
-                "diagnostics": {  # Add diagnostic info
-                    "user_skills": user_data.get("skills", []),
-                    # show user skills with names
-                    "user_skills_names": [
-                        skill["skill_name"]
-                        for skill in skills
-                        if skill["skill_id"] in user_data.get("skills", [])["skills_id"]
-                    ],
-                    "user_certificates": user_data.get("certificates", []),
-                    "user_certificates_skill_names": [
-                        skill["skill_name"]
-                        for skill in skills
-                        if skill["skill_id"]
-                        in user_data.get("certificates", [])["skills_id"]
-                    ],
-                    "user_courses": user_data.get("courses", []),
-                    "user_courses_skill_names": [
-                        skill["skill_name"]
-                        for skill in skills
-                        if skill["skill_id"]
-                        in user_data.get("courses", [])["skills_id"]
-                    ],
-                    "user_positions": user_data.get("positions", []),
-                    "user_positions_skill_names": [
-                        skill["skill_name"]
-                        for skill in skills
-                        if skill["skill_id"]
-                        in user_data.get("positions", [])["skills_id"]
-                    ],
-                    "user_goals": user_data.get("goals", []),
-                },
             }
         )
 
