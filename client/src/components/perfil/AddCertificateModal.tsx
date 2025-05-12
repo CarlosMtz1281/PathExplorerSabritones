@@ -59,50 +59,82 @@ const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
   };
 
 const handleSubmit = async (e: React.FormEvent) => {
-e.preventDefault();
+  e.preventDefault();
 
-try {
+  try {
     if (!session || !session.user) {
-        console.error("Session is missing or invalid");
-        return;
+      console.error("Session is missing or invalid");
+      return;
     }
 
     const sessionKey = session.sessionId; // Retrieve session key from session hook
     if (!sessionKey) {
-        console.error("Session key is missing");
-        return;
+      console.error("Session key is missing");
+      return;
+    }
+
+    // Check if the user already has the selected certificate
+    const existingCertificate = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE}/course/certificates`,
+      {
+        headers: {
+          "session-key": sessionKey,
+        },
+      }
+    );
+    console.log("Existing Certificates:", existingCertificate.data);
+    const userCertificates = existingCertificate.data; // Array of user's certificates
+    const alreadyExists = userCertificates.some(
+      (cert: certificates) =>
+        cert.certificate_name === formData.certificate_name
+    );
+
+    if (alreadyExists) {
+      alert("El usuario ya tiene este certificado.");
+      // Reset the form
+      setFormData({
+        company: "",
+        certificate_name: "",
+        status: "",
+        issue_date: "",
+        expiration_date: "",
+        link: "",
+        skills: [],
+        pdf: null,
+      });
+      return;
     }
 
     const payload = {
-        certificate_id: certifications.find(
-            (cert) => cert.certificate_name === formData.certificate_name
-        )?.certificate_id,
-        certificate_date: formData.issue_date,
-        certificate_expiration_date: formData.expiration_date || null,
-        certificate_link: formData.link || null,
-        certificate_status: formData.status,
+      certificate_id: certifications.find(
+        (cert) => cert.certificate_name === formData.certificate_name
+      )?.certificate_id,
+      certificate_date: formData.issue_date,
+      certificate_expiration_date: formData.expiration_date || null,
+      certificate_link: formData.link || null,
+      certificate_status: formData.status,
     };
 
     if (!payload.certificate_id || !payload.certificate_date || !payload.certificate_status) {
-        console.error("Certificate ID, date, and status are required");
-        return;
+      console.error("Certificate ID, date, and status are required");
+      return;
     }
 
     const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE}/course/add-certificate`,
-        payload,
-        {
-            headers: {
-                "session-key": sessionKey,
-            },
-        }
+      `${process.env.NEXT_PUBLIC_API_BASE}/course/add-certificate`,
+      payload,
+      {
+        headers: {
+          "session-key": sessionKey,
+        },
+      }
     );
 
     console.log("Certificate added successfully:", response.data);
     onClose(); // Close the modal after successful submission
-} catch (error) {
+  } catch (error) {
     console.error("Error adding certificate:", error);
-}
+  }
 };
 
   const companyLogo = formData.company
@@ -152,7 +184,7 @@ try {
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex">
-            <div className="w-3/4">
+            <div className="w-3/4 gap-5 flex flex-col">
               {/* Company */}
               <div>
                 <label className="block text-sm font-medium">Empresa</label>
@@ -328,8 +360,12 @@ try {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <button type="submit" className="btn btn-primary w-full">
+                   {/* Submit Button */}
+          <button
+            type="submit"
+            className="btn btn-primary w-full"
+            disabled={formData.status === "expired" || formData.status === "in progress"}
+          >
             Guardar Certificado
           </button>
         </form>

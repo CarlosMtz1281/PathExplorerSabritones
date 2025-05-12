@@ -5,6 +5,7 @@ import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
   FaHome,
+  FaSuitcase,
   FaUser,
   FaCog,
   FaClipboardList,
@@ -59,7 +60,7 @@ export default function Navbar() {
           >
             <FaUser className="w-6 h-6" />
             {!isCollapsed && (
-              <h3 className="text-2xl font-semibold">Profile</h3>
+              <h3 className="text-xl font-semibold">Perfil</h3>
             )}
           </a>
         </li>
@@ -70,7 +71,7 @@ export default function Navbar() {
           >
             <FaSuitcase className="w-5 h-5" />
             {!isCollapsed && (
-              <h3 className="text-2xl font-semibold">CL Proyectos</h3>
+              <h3 className="text-xl font-semibold"> Proyectos</h3>
             )}
           </a>
         </li>
@@ -79,7 +80,8 @@ export default function Navbar() {
             href="/dashboard/crea-projects"
             className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
-            <FaClipboardList className="w-5 h-5" />
+            <FaSuitcase 
+            className="w-5 h-5" />
             {!isCollapsed && (
               <h3 className="text-xl font-semibold leading-tight">
                 Crear Proyectos
@@ -94,7 +96,7 @@ export default function Navbar() {
           >
             <FaGgCircle className="w-5 h-5" />
             {!isCollapsed && (
-              <h3 className="text-xl font-semibold">Crear Proyectos</h3>
+              <h3 className="text-xl font-semibold">Crear Usuarios</h3>
             )}
           </a>
         </li>
@@ -106,7 +108,7 @@ export default function Navbar() {
         className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-red-500 hover:bg-base-200 justify-start mb-4"
       >
         <FaSignOutAlt className="w-5 h-5" />
-        {!isCollapsed && <h3 className="text-2xl font-semibold">Logout</h3>}
+        {!isCollapsed && <h3 className="text-xl font-semibold">Cerrar Sessión</h3>}
       </button>
 
       {/* Collapse Button */}

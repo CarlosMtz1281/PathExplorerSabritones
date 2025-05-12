@@ -332,10 +332,10 @@ const ProjectDetails = () => {
             try {
               const [skillsResponse, certificatesResponse] = await Promise.all([
                 fetch(
-                  `${process.env.NEXT_PUBLIC_API_BASE}/getsSkillsId/${member.user_id}`
+                  `${process.env.NEXT_PUBLIC_API_BASE}/employee/getsSkillsId/${member.user_id}`
                 ),
                 fetch(
-                  `${process.env.NEXT_PUBLIC_API_BASE}/getCertificatesByUserId/${member.user_id}`
+                  `${process.env.NEXT_PUBLIC_API_BASE}/course/getCertificatesByUserId/${member.user_id}`
                 ),
               ]);
 
@@ -473,8 +473,7 @@ const ProjectDetails = () => {
                   {project.end_date || "En progreso"}
                 </p>
                 <p className="text-sm text-secondary mb-2">
-                  <strong>Duración:</strong>{" "}
-                  <span className="link link-primary">{duration}</span>
+                  <strong>Duración: </strong> {duration}
                 </p>
                 <p className="text-sm text-secondary mb-2">
                   <strong>Delivery Lead:</strong> {project.details.capability}
