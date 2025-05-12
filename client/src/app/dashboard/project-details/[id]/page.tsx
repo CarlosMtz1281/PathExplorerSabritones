@@ -449,12 +449,11 @@ const ProjectDetails = () => {
   // Get filled positions (team members)
   const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
-  function onClick(event: MouseEvent<HTMLButtonElement, MouseEvent>): void {
-    throw new Error("Function not implemented.");
-  }
-
-  function handlePostular(user_id: number): void {
-    throw new Error("Function not implemented.");
+  async function handlePostular(user_id: number): Promise<void> {
+    const project_id = id;
+    await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate/${user_id}/${project_id}`
+    );
   }
 
   return (
