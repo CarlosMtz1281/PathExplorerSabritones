@@ -175,4 +175,45 @@ router.get("/goals/:user_id", async (req, res) => {
   }
 });
 
+// get all courses
+router.get("/all_courses", async (req, res) => {
+  try {
+    const courses = await prisma.courses.findMany({});
+
+    const formattedCourses = courses.map((course) => ({
+      course_id: course.course_id,
+      course_name: course.course_name,
+      course_desc: course.course_desc,
+    }));
+
+    res.status(200).json(formattedCourses);
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// skills related to a specific course
+router.get("/course/:course_id", async (req, res) => {
+  const { course_id } = req.params;
+  try {
+    const course = await prisma.course_Skills.findMany({
+      where: { course_id: Number(course_id) },
+      include: {
+        Skills: true,
+      },
+    });
+
+    const formattedCourse = course.map((c) => ({
+      skill_id: c.skill_id,
+      skill_name: c.Skills.name,
+    }));
+
+    res.status(200).json(formattedCourse);
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
