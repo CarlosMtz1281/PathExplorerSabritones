@@ -93,6 +93,18 @@ export default function Navbar() {
             )}
           </a>
         </li>
+        <li className="w-full">
+          <a
+            href="/dashboard/repo-empleados"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaUser className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold">Empleados</h3>
+            )}
+          </a>
+        </li>
+
         
       </ul>
 

@@ -425,6 +425,88 @@ router.patch("/checkstaffall", async (req, res) => {
   }
 });
 
+
+router.get("/list", async (req, res) => {
+  try {
+    const employees = await prisma.users.findMany({
+      where: {
+        Permits: {
+          is_admin: false,
+        },
+      },
+      include: {
+        Country: {
+          select: { country_name: true },
+        },
+        Capability_Employee_Capability_Employee_employee_idToUsers: {
+          include: {
+            Capability: {
+              select: {
+                capability_name: true,
+              },
+            },
+            Users_Capability_Employee_employee_idToUsers: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        User_Skills: {
+          include: {
+            Skills: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        Certificate_Users: {
+          include: {
+            Certificates: {
+              select: {
+                certificate_name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const formatted = employees.map((user) => {
+      const capEntry =
+        user.Capability_Employee_Capability_Employee_employee_idToUsers[0];
+      const capabilityName = capEntry?.Capability?.capability_name || "N/A";
+      const capabilityLead =
+        capEntry?.Users_Capability_Employee_employee_idToUsers?.name || "N/A";
+
+      const skills = user.User_Skills?.map((us) => us.Skills.name || "N/A") || [];
+
+      const certifications =
+        user.Certificate_Users?.map((cu) => cu.Certificates.certificate_name || "N/A") || [];
+
+      return {
+        user_id: user.user_id,
+        name: user.name || "N/A",
+        mail: user.mail || "N/A",
+        hire_date: user.hire_date,
+        country: user.Country?.country_name || "N/A",
+        capability_name: capabilityName,
+        capability_lead: capabilityLead,
+        skills,
+        certifications,
+      };
+    });
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error("Error fetching employee list:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
 // In your employee.ts route
 // In your employee.ts route
 router.get("/experience", async (req, res) => {

@@ -201,13 +201,13 @@ export default function CreateProyects() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!session?.sessionId) {
       console.error("❌ No hay sessionId, el usuario no está autenticado.");
       alert("Necesitas iniciar sesión para continuar.");
       return;
     }
-
+  
     const proyecto = {
       project_name: projectName,
       company_name: companyName,
@@ -222,7 +222,7 @@ export default function CreateProyects() {
         certifications: p.certificaciones,
       })),
     };
-
+  
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE}/project/create`,
@@ -235,26 +235,27 @@ export default function CreateProyects() {
           body: JSON.stringify(proyecto),
         }
       );
-
+  
       if (!res.ok) throw new Error("Error al crear proyecto");
+  
       alert("✅ Proyecto creado con éxito");
+  
+      // ✅ Solo limpiar si todo salió bien
+      setProjectName("");
+      setCompanyName("");
+      setCountryId("");
+      setDescription("");
+      setStartDate("");
+      setEndDate("");
+      setPuestos([]);
+  
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error("❌ Error al enviar datos:", err);
       alert("❌ Error al enviar datos");
     }
-
-    // Limpiar el formulario
-    setProjectName("");
-    setCompanyName("");
-    setCountryId("");
-    setDescription("");
-    setStartDate("");
-    setEndDate("");
-    setPuestos([]);
-
-    //Regresar a arriba
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  
 
   return (
     <div className="flex flex-col h-screen bg-base-200 px-15 py-10">
