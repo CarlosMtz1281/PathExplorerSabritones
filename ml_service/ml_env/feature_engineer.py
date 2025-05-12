@@ -4,7 +4,7 @@ from sklearn.preprocessing import normalize
 from data_fetcher import DataFetcher
 
 
-class CertificateRecommenderFeaturizer:
+class RecommenderFeaturizer:
     def __init__(self, data_fetcher: DataFetcher):
         self.skill_weights = {
             "current_skills": 0.5,
