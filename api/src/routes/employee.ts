@@ -13,9 +13,9 @@ router.get("/", async (req, res) => {
   res.json({ message: "Employee base" });
 });
 
-router.get("/user", async (req, res) => {
+router.get("/user/:userId", async (req, res) => {
   try {
-    const userId = parseInt(req.headers["user-id"], 10);
+    const userId = parseInt(req.params.userId);
 
     if (!userId) {
       return res
@@ -229,7 +229,7 @@ router.post("/create", async (req, res) => {
     is_people_lead,
     is_capability_lead,
     is_delivery_lead,
-    is_admin
+    is_admin,
   } = req.body;
 
   if (!name || !mail || !password || !birthday || !country_id) {
