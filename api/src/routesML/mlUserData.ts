@@ -216,4 +216,59 @@ router.get("/course/:course_id", async (req, res) => {
   }
 });
 
+// get all available positions
+router.get("/all_positions", async (req, res) => {
+  try {
+    // fetch all positions where project date is in the future
+    const currentDate = new Date();
+    const positions = await prisma.project_Positions.findMany({
+      where: {
+        AND: {
+          Projects: {
+            start_date: {
+              gte: currentDate,
+            },
+          },
+          user_id: null,
+        },
+      },
+    });
+
+    const formattedPositions = positions.map((position) => ({
+      position_id: position.position_id,
+      project_id: position.project_id,
+      position_name: position.position_name,
+      position_desc: position.position_desc,
+    }));
+
+    res.status(200).json(formattedPositions);
+  } catch (error) {
+    console.error("Error fetching positions:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// skills related to a specific position
+router.get("/position/:position_id", async (req, res) => {
+  const { position_id } = req.params;
+  try {
+    const position = await prisma.project_Position_Skills.findMany({
+      where: { position_id: Number(position_id) },
+      include: {
+        Skills: true,
+      },
+    });
+
+    const formattedPosition = position.map((p) => ({
+      skill_id: p.skill_id,
+      skill_name: p.Skills.name,
+    }));
+
+    res.status(200).json(formattedPosition);
+  } catch (error) {
+    console.error("Error fetching position:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
