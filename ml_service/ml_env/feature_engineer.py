@@ -74,59 +74,70 @@ class RecommenderFeaturizer:
 
         # Goal skills: only add if nested "skills" are provided
         goal_skills = []
-        for goal in user_data.get("goals", []):
-            desc_skills = self._extract_skills_from_text(goal.get("goal_desc", ""))
-            goal_skills.extend(desc_skills)
-        self._add_skills(
-            skill_vector, skill_index, goal_skills, self.skill_weights["goal_skills"]
-        )
+        if isinstance(user_data.get("goals"), dict):
+            for goal in user_data.get("goals", []):
+                desc_skills = self._extract_skills_from_text(goal.get("goal_desc", ""))
+                goal_skills.extend(desc_skills)
+            self._add_skills(
+                skill_vector,
+                skill_index,
+                goal_skills,
+                self.skill_weights["goal_skills"],
+            )
 
         # Positions
-        position_data = user_data.get("positions", {})
-        position_skills = (
-            position_data.get("skills_id", [])
-            if isinstance(position_data, dict)
-            else []
-        )
-        if not position_skills:
-            for position in position_data:  # if it's a list
-                position_skills.extend(extract_skill_ids(position.get("skills", [])))
-        self._add_skills(
-            skill_vector,
-            skill_index,
-            position_skills,
-            self.skill_weights["position_skills"],
-        )
+        if isinstance(user_data.get("goals"), dict):
+            position_data = user_data.get("positions", {})
+            position_skills = (
+                position_data.get("skills_id", [])
+                if isinstance(position_data, dict)
+                else []
+            )
+            if not position_skills:
+                for position in position_data:  # if it's a list
+                    position_skills.extend(
+                        extract_skill_ids(position.get("skills", []))
+                    )
+            self._add_skills(
+                skill_vector,
+                skill_index,
+                position_skills,
+                self.skill_weights["position_skills"],
+            )
 
         # Courses
-        course_data = user_data.get("courses", {})
-        course_skills = (
-            course_data.get("skills_id", []) if isinstance(course_data, dict) else []
-        )
-        if not course_skills:
-            for course in course_data:
-                course_skills.extend(course.get("skills_id", []))
-        self._add_skills(
-            skill_vector,
-            skill_index,
-            course_skills,
-            self.skill_weights["course_skills"],
-        )
+        if isinstance(user_data.get("goals"), dict):
+            course_data = user_data.get("courses", {})
+            course_skills = (
+                course_data.get("skills_id", [])
+                if isinstance(course_data, dict)
+                else []
+            )
+            if not course_skills:
+                for course in course_data:
+                    course_skills.extend(course.get("skills_id", []))
+            self._add_skills(
+                skill_vector,
+                skill_index,
+                course_skills,
+                self.skill_weights["course_skills"],
+            )
 
         # Certificates
-        cert_data = user_data.get("certificates", {})
-        cert_skills = (
-            cert_data.get("skills_id", []) if isinstance(cert_data, dict) else []
-        )
-        if not cert_skills:
-            for cert in cert_data:
-                cert_skills.extend(cert.get("skills_id", []))
-        self._add_skills(
-            skill_vector,
-            skill_index,
-            cert_skills,
-            self.skill_weights["certificate_skills"],
-        )
+        if isinstance(user_data.get("goals"), dict):
+            cert_data = user_data.get("certificates", {})
+            cert_skills = (
+                cert_data.get("skills_id", []) if isinstance(cert_data, dict) else []
+            )
+            if not cert_skills:
+                for cert in cert_data:
+                    cert_skills.extend(cert.get("skills_id", []))
+            self._add_skills(
+                skill_vector,
+                skill_index,
+                cert_skills,
+                self.skill_weights["certificate_skills"],
+            )
 
         if np.any(skill_vector):
             return normalize([skill_vector])[0]

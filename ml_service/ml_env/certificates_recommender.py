@@ -42,7 +42,7 @@ class CertificateRecommender:
         user_vector: np.ndarray,
         exclude_cert_ids: List[int],
         existing_providers: List[int] = None,
-        provider_bonus: float = 0.025,
+        provider_bonus: float = 0.125,
         top_n: int = 100,
         diversity_lambda: float = 0.5,
     ) -> List[Dict]:
@@ -90,7 +90,7 @@ class CertificateRecommender:
                 {
                     "certificate_id": cert_id,
                     "similarity_score": float(similarities[best_idx]),
-                    "mmr_score": float(mmr),
+                    "mmr_score": float(best_mmr),
                 }
             )
             selected_indices.append(best_idx)

@@ -66,6 +66,22 @@ positions_with_skills = [
 positionsRecommender.train(positions_with_skills)
 
 
+def noUser(user_data):
+    all_empty = all(
+        (
+            not user_data[key] or all(not v for v in user_data[key].values())
+            if isinstance(user_data[key], dict)
+            else not user_data[key]
+        )
+        for key in user_data
+    )
+
+    if all_empty:
+        return True
+
+    return False
+
+
 @app.route(
     "/recommend/certificates/<int:user_id>",
     methods=["GET"],
@@ -73,6 +89,8 @@ positionsRecommender.train(positions_with_skills)
 def recommend_certificates(user_id: int):
     try:
         user_data = data_fetcher.get_user_data(user_id)
+        if noUser(user_data):
+            return jsonify({"error": "User not found"}), 404
 
         certificates_data = user_data.get("certificates", {})
 
@@ -172,6 +190,9 @@ def recommend_courses(user_id: int):
         # Get user data
         user_data = data_fetcher.get_user_data(user_id)
 
+        if noUser(user_data):
+            return jsonify({"error": "User not found"}), 404
+
         course_data = user_data.get("courses", {})
 
         if isinstance(course_data, dict) and "course_id" in course_data:
@@ -253,6 +274,8 @@ def recommend_positions(user_id: int):
     try:
         # Get user data
         user_data = data_fetcher.get_user_data(user_id)
+        if noUser(user_data):
+            return jsonify({"error": "User not found"}), 404
 
         position_data = user_data.get("positions", {})
 
