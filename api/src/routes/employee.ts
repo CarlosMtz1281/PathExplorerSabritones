@@ -18,9 +18,7 @@ router.get("/user", async (req, res) => {
     const userId = parseInt(req.headers["user-id"], 10);
 
     if (!userId) {
-      return res
-        .status(400)
-        .json({ error: "User ID is required in the headers." });
+      return res.status(400).json({ error: "User ID is required in the headers." });
     }
 
     const user = await prisma.users.findUnique({
@@ -28,6 +26,13 @@ router.get("/user", async (req, res) => {
       include: {
         Country: true,
         Permits: true,
+
+        // 🔥 AÑADE ESTO:
+        Certificate_Users: {
+          include: {
+            Certificates: true,
+          },
+        },
       },
     });
 
@@ -41,6 +46,7 @@ router.get("/user", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
 
 router.get("/skills", async (req, res) => {
   try {
@@ -470,6 +476,24 @@ router.get("/list", async (req, res) => {
             },
           },
         },
+        Project_User: {
+          include: {
+            Projects: {
+              select: {
+                project_name: true,
+              },
+            },
+          },
+        },
+        Employee_Position: {
+          include: {
+            Work_Position: {
+              select: {
+                position_name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -485,6 +509,12 @@ router.get("/list", async (req, res) => {
       const certifications =
         user.Certificate_Users?.map((cu) => cu.Certificates.certificate_name || "N/A") || [];
 
+      const projects =
+        user.Project_User?.map((pu) => pu.Projects?.project_name).filter(Boolean) || [];
+
+      const positions =
+        user.Employee_Position?.map((ep) => ep.Work_Position?.position_name).filter(Boolean) || [];
+
       return {
         user_id: user.user_id,
         name: user.name || "N/A",
@@ -495,6 +525,8 @@ router.get("/list", async (req, res) => {
         capability_lead: capabilityLead,
         skills,
         certifications,
+        project_names: projects.length > 0 ? projects : ["Staff"],
+        position_names: positions.length > 0 ? positions : ["Sin posición"],
       };
     });
 
@@ -505,51 +537,53 @@ router.get("/list", async (req, res) => {
   }
 });
 
-
-
-// In your employee.ts route
-// In your employee.ts route
 router.get("/experience", async (req, res) => {
   try {
-    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    // 🔍 Usa query param si existe, si no usa sesión
+    let userId = req.query.userId ? parseInt(req.query.userId as string) : null;
 
-    // Fetch jobs with their work positions
+    if (!userId) {
+      const sessionResult = await getUserIdFromSession(req.headers["session-key"]);
+      if (sessionResult === "timeout" || typeof sessionResult !== "number") {
+        return res.status(400).json({ error: "Missing or invalid user ID" });
+      }
+      userId = sessionResult;
+    }
+    
+
+    // Fetch jobs
     const workPositions = await prisma.employee_Position.findMany({
-      where: { user_id: Number(userId) },
-      include: {
-        Work_Position: true,
-      },
+      where: { user_id: userId },
+      include: { Work_Position: true },
       orderBy: { start_date: "asc" },
     });
 
-    // Fetch projects with all necessary relations
+    // Fetch projects
     const userProjects = await prisma.project_User.findMany({
-      where: { user_id: Number(userId) },
+      where: { user_id: userId },
       include: {
         Projects: {
           include: {
             Country: true,
             Users: true, // Delivery lead
             Project_Positions: {
-              where: { user_id: Number(userId) },
+              where: { user_id: userId },
               include: {
                 Project_Position_Skills: {
-                  include: {
-                    Skills: true,
-                  },
+                  include: { Skills: true },
                 },
               },
             },
             Feedback: {
-              where: { user_id: Number(userId) },
+              where: { user_id: userId },
             },
           },
         },
       },
     });
-    // Format dates consistently
+
     const formatDate = (date: Date | null) =>
-      date ? new Date(date).toLocaleDateString("es-ES") : "Current";
+      date ? new Date(date).toLocaleDateString("es-ES") : "Actualidad";
 
     const jobs = workPositions.map((pos) => ({
       company: pos.Work_Position.company || "Unknown",
@@ -561,8 +595,8 @@ router.get("/experience", async (req, res) => {
     }));
 
     const projects = userProjects.map((proj) => {
-      const position = proj.Projects.Project_Positions[0]; // Get John's position in this project
-      const feedback = proj.Projects.Feedback[0]; // Get feedback for John in this project
+      const position = proj.Projects.Project_Positions[0];
+      const feedback = proj.Projects.Feedback[0];
 
       return {
         projectName: proj.Projects.project_name || "Unknown",
@@ -587,4 +621,5 @@ router.get("/experience", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 export default router;

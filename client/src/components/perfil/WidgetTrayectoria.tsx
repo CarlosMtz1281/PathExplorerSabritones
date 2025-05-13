@@ -129,7 +129,7 @@ const ExpandableProjectItem = ({ project }: { project: Project }) => {
   );
 };
 
-const WidgetTrayectoria = () => {
+const WidgetTrayectoria = ({ userId }: { userId?: number }) => {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -161,6 +161,13 @@ const WidgetTrayectoria = () => {
 
   const fetchAll = async () => {
     try {
+      if (userId) {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/employee/experience?userId=${userId}`);
+        setJobs(res.data.jobs);
+        setProjects(res.data.projects);
+        return;
+      }
+  
       const sessionId = session?.sessionId;
       if (!sessionId) {
         console.error("Session ID is missing");
@@ -171,23 +178,13 @@ const WidgetTrayectoria = () => {
         headers: { "session-key": sessionId },
       });
   
-      if (res.status === 401) {
-        console.error("Session expired or invalid. Redirecting to login...");
-        localStorage.removeItem("sessionId"); 
-        window.location.href = "/login"; 
-        return;
-      }
-  
       setJobs(res.data.jobs);
       setProjects(res.data.projects);
-
-      console.log("Fetched Jobs:", res.data.jobs); // Log jobs to the console
-      console.log("Fetched Projects:", res.data.projects); // Log projects to the console
     } catch (error) {
       console.error("Error fetching experience data:", error);
     }
   };
-
+  
   const [trees] = useState(() => {
     const treePositions = [];
     const treeTypes = ['tree-1', 'tree-2'];

@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import { useState, useEffect } from "react";
+
+import React, { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
@@ -10,20 +10,18 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 
 const Profile = () => {
-  const { id } = useParams();
-  console.log("Profile ID:", id);
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [userData, setUserData] = useState<User | null>(null);
+
   const fetchUserData = async () => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/employee/user`,
-        {
-          headers: {
-            "user-id": "1", // Hardcoded user ID
-          },
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user`, {
+        headers: {
+          "user-id": id || "", // ID dinámico desde URL
+        },
+      });
       if (!res.ok) {
         throw new Error("Failed to fetch user data");
       }
@@ -36,7 +34,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [id]);
 
   if (!userData) {
     return <div>Loading...</div>;
@@ -73,7 +71,7 @@ const Profile = () => {
             <Cargabilidad userId={userData.user_id} />
           </div>
 
-          {/* Additional Info - Removed flex-1 and added overflow control */}
+          {/* Additional Info */}
           <div className="mt-6 bg-accent text-base-100 p-4 rounded-lg w-full border border-black max-h-[40%] overflow-y-auto">
             <div className="flex flex-col gap-4">
               <div className="justify-between">
@@ -129,10 +127,13 @@ const Profile = () => {
           </div>
         </div>
       </div>
-            <div className="w-full flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] overflow-y-auto">
-        <WidgetCertificaciones />
-        <WidgetTrayectoria />
-        <WidgetHabilidades />
+
+      {/* Right Column - Widgets */}
+      <div className="w-full flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <WidgetCertificaciones userId={userData.user_id} />
+        <WidgetTrayectoria  userId={userData.user_id}/>
+        <WidgetHabilidades userId={userData.user_id}/>
+
       </div>
     </div>
   );

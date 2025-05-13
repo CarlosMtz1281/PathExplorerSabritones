@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import axios from "axios";
+import Link from "next/link"
+import React from "react";
+
 
 interface Employee {
     user_id: number;
@@ -14,6 +17,8 @@ interface Employee {
     capability_lead: string;
     skills: string[];
     certifications: string[];
+    project_names: string[];
+    position_names: string[];
   }
   
   
@@ -104,80 +109,88 @@ export default function RepoEmpleados() {
               <tr className="text-sm text-neutral font-bold">
                 <th className="w-0"></th>
                 <th>Nombre</th>
-                <th>Correo</th>
+                <th>Oficina</th>
                 <th>Área</th>
-                <th>Capability</th>
                 <th>Antigüedad</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((emp, idx) => (
-                <>
-                  <tr key={emp.user_id} className="hover:bg-base-200 transition-colors">
-                    <td className="text-center">
-                      <button
-                        onClick={() =>
-                          setExpandedIndex(expandedIndex === idx ? null : idx)
-                        }
-                        className="btn btn-ghost btn-sm"
-                      >
-                        {expandedIndex === idx ? (
-                          <FaChevronUp className="w-4 h-4" />
-                        ) : (
-                          <FaChevronDown className="w-4 h-4" />
-                        )}
-                      </button>
-                    </td>
-                    <td>{emp.name}</td>
-                    <td>{emp.mail}</td>
-                    <td>{emp.capability_name || "N/A"}</td>
-                    <td>{emp.capability_lead || "N/A"}</td>
-                    <td>{calculateAntiguedad(emp.hire_date)}</td>
-                  </tr>
-                  {expandedIndex === idx && (
-                    <tr className="hover:bg-violet-50 transition-colors">
-                      <td colSpan={6} className="p-4">
-                        <div className="grid md:grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p><strong>Correo:</strong> {emp.mail}</p>
-                            <p><strong>Delivery Lead:</strong> Proximanete..</p>
-                            <p><strong>Región:</strong> {emp.country}</p>
-                            <p><strong>Proyecto actual:</strong>Proximanete..</p>
-                            <p><strong>Nivel:</strong> Proximanete..</p>
-                          </div>
-                          <div>
+            {filtered.map((emp, idx) => (
+              <React.Fragment key={emp.user_id}>
+                <tr key={`row-${emp.user_id}`} className="hover:bg-base-200 transition-colors">
+                  <td className="text-center">
+                    <button
+                      onClick={() =>
+                        setExpandedIndex(expandedIndex === idx ? null : idx)
+                      }
+                      className="btn btn-ghost btn-sm"
+                    >
+                      {expandedIndex === idx ? (
+                        <FaChevronUp className="w-4 h-4" />
+                      ) : (
+                        <FaChevronDown className="w-4 h-4" />
+                      )}
+                    </button>
+                  </td>
+                  <td>{emp.name}</td>
+                  <td>{emp.country}</td>
+                  <td>{emp.capability_name || "N/A"}</td>
+                  
+                  <td>{calculateAntiguedad(emp.hire_date)}</td>
+                </tr>
+
+                {expandedIndex === idx && (
+                  <tr key={`expanded-${emp.user_id}`} className="hover:bg-violet-50 transition-colors">
+                    <td colSpan={6} className="p-4">
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p><strong>Correo:</strong> {emp.mail}</p>
+                          <p><strong>Delivery Lead:</strong> {emp.capability_lead || "N/A"}</p>
+                          <p><strong>Región:</strong> {emp.country}</p>
+                          <p><strong>Proyecto actual:</strong> {emp.project_names?.[0] || "Staff"}</p>
+                          <p><strong>Posición:</strong> {emp.position_names?.[0] || "Sin posición"}</p>
+                        </div>
+                        <div>
                           <p className="font-semibold">Habilidades:</p>
-                            <div className="flex flex-wrap gap-2 mt-1 mb-3">
-                            {emp.skills.length > 0 ? (
-                                emp.skills.map((skill, i) => (
-                                <span key={i} className="badge badge-ghost">{skill}</span>
-                                ))
-                            ) : (
-                                <span className="badge badge-ghost">N/A</span>
-                            )}
-                            </div>
-
-                            <p className="font-semibold">Certificaciones:</p>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                {emp.certifications.length > 0 ? (
-                                    emp.certifications.map((cert, i) => (
-                                    <span key={i} className="badge badge-ghost">{cert}</span>
-                                    ))
-                                ) : (
-                                    <span className="badge badge-ghost">N/A</span>
-                                )}
-                                </div>
-
+                          <div className="flex flex-wrap gap-2 mt-1 mb-3">
+                            {(emp.skills?.length > 0
+                              ? emp.skills
+                              : ["N/A"]
+                            ).map((skill, i) => (
+                              <span key={`skill-${i}`} className="badge badge-ghost">
+                                {skill}
+                              </span>
+                            ))}
                           </div>
-                          <div className="md:col-span-2 text-right">
-                            <button className="btn btn-primary btn-sm">Ir a Perfil</button>
+                          <p className="font-semibold">Certificaciones:</p>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {(emp.certifications?.length > 0
+                              ? emp.certifications
+                              : ["N/A"]
+                            ).map((cert, i) => (
+                              <span key={`cert-${i}`} className="badge badge-ghost">
+                                {cert}
+                              </span>
+                            ))}
                           </div>
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </>
-              ))}
+                        <div className="md:col-span-2 text-right">
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() =>
+                              window.location.href = `/dashboard/profile/${emp.user_id}`
+                            }
+                          >
+                            Ir a Perfil
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-6 text-base-content">
