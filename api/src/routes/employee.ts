@@ -472,6 +472,7 @@ router.get("/experience", async (req, res) => {
     const jobs = workPositions.map((pos) => ({
       company: pos.Work_Position.company || "Unknown",
       position: pos.Work_Position.position_name || "Unknown",
+      positionDesc: pos.Work_Position.position_desc || "No description",
       startDate: formatDate(pos.start_date),
       endDate: formatDate(pos.end_date),
       rawStart: pos.start_date,
@@ -505,4 +506,86 @@ router.get("/experience", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Endpoint para agregar una nueva experiencia laboral
+router.post("/addExperience", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "Session key is required in the headers." });
+    }
+
+    if (typeof userId !== "number") {
+      return res.status(400).json({ error: "Timeout session" });
+    }
+
+    const { company, position_name, position_desc, start_date, end_date } = req.body;
+
+    // Validación de datos requeridos
+    if (!company || !position_name || !start_date || !end_date) {
+      return res.status(400).json({ 
+        error: "Missing required fields. Company, position name, start date and end date are required."
+      });
+    }
+
+    // Crear nueva posición de trabajo
+    const position = await prisma.work_Position.create({
+      data: {
+        position_name,
+        position_desc: position_desc || "",
+        company
+      },
+    });
+
+    // Asociar la posición con el empleado
+    await prisma.employee_Position.create({
+      data: {
+        user_id: userId,
+        position_id: position.position_id,
+        start_date: new Date(start_date),
+        end_date: new Date(end_date),
+      },
+    });
+
+    // Actualizar el estado de in_project del usuario si es necesario
+    const today = new Date();
+    const endDateObj = new Date(end_date);
+    
+    if (endDateObj > today) {
+      await prisma.users.update({
+        where: { user_id: userId },
+        data: { in_project: true },
+      });
+    }
+
+    // console.log("Experience added successfully:", {
+    //   userId,
+    //   company,
+    //   position_name,
+    //   position_desc,
+    //   start_date,
+    //   end_date,
+    // });
+    // Respuesta exitosa
+    res.status(201).json({ 
+      message: "Experience added successfully",
+      data: {
+        position_id: position.position_id,
+        company,
+        position_name,
+        position_desc: position_desc || "",
+        start_date,
+        end_date
+      }
+    });
+  } catch (error) {
+    console.error("Error adding experience:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 export default router;

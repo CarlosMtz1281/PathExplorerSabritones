@@ -877,7 +877,7 @@ INSERT INTO "Employee_Position" (
     "start_date",
     "end_date"
 ) VALUES
-(1, 1, '2020-01-15', NULL),       -- John Doe - Software Engineer
+(1, 1, '2022-01-15', NULL),       -- John Doe - Software Engineer
 (2, 4, '2020-06-01', NULL),       -- Emily Wilson - Senior Software Engineer
 (3, 13, '2021-07-01', NULL),      -- Priya Sharma - DevOps Engineer
 (4, 11, '2020-05-15', NULL),      -- Raj Patel - Data Scientist
