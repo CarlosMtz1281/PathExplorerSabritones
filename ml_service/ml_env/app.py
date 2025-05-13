@@ -4,6 +4,7 @@ from data_fetcher import DataFetcher
 from feature_engineer import RecommenderFeaturizer
 from certificates_recommender import CertificateRecommender
 from courses_recommender import CoursesRecommender
+from positions_recommender import PositionsRecommender
 import numpy as np
 from dotenv import load_dotenv
 import os
@@ -19,6 +20,7 @@ data_fetcher = DataFetcher(data_fetcher_url)
 featurizer = RecommenderFeaturizer(data_fetcher)
 certificateRecommender = CertificateRecommender()
 coursesRecommender = CoursesRecommender()
+positionsRecommender = PositionsRecommender()
 
 skills = data_fetcher.get_all_skills()
 
@@ -51,6 +53,17 @@ courses_with_skills = [
 ]
 
 coursesRecommender.train(courses_with_skills)
+
+
+positions = data_fetcher.get_all_positions()
+positions_with_skills = [
+    {
+        "id": position["position_id"],
+        "skills": data_fetcher.get_position_skills(position["position_id"]),
+    }
+    for position in positions
+]
+positionsRecommender.train(positions_with_skills)
 
 
 @app.route(
@@ -228,6 +241,93 @@ def recommend_courses(user_id: int):
             }
         )
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route(
+    "/recommend/positions/<int:user_id>",
+    methods=["GET"],
+)
+def recommend_positions(user_id: int):
+    try:
+        # Get user data
+        user_data = data_fetcher.get_user_data(user_id)
+
+        position_data = user_data.get("positions", {})
+
+        if isinstance(position_data, dict) and "position_id" in position_data:
+            exclude_ids = position_data["position_id"]
+        else:
+            exclude_ids = [
+                p["position_id"] for p in position_data if "position_id" in p
+            ]
+
+        user_skill_ids = set()
+        user_skill_ids.update(user_data.get("skills", {}).get("skills_id", []))
+        user_skill_ids.update(user_data.get("certificates", {}).get("skills_id", []))
+        user_skill_ids.update(user_data.get("courses", {}).get("skills_id", []))
+        user_skill_ids.update(user_data.get("positions", {}).get("skills_id", []))
+
+        # Create feature vector
+        all_skills = positionsRecommender.skills_ids
+
+        user_vector = featurizer.create_user_vector(user_data, all_skills)
+
+        # Get recommendations
+        recommendations = positionsRecommender.recommend(
+            user_vector, exclude_ids, diversity_lambda=0.85
+        )
+
+        positionsDict = data_fetcher.get_all_positions()
+
+        recommendations = [
+            {
+                "position_id": position["position_id"],
+                "position_name": next(
+                    (
+                        position_data["position_name"]
+                        for position_data in positionsDict
+                        if position_data["position_id"] == position["position_id"]
+                    ),
+                    None,
+                ),
+                "position_description": next(
+                    (
+                        position_data["position_desc"]
+                        for position_data in positionsDict
+                        if position_data["position_id"] == position["position_id"]
+                    )
+                ),
+                "score": position["mmr_score"],
+                "skills": [
+                    skill["skill_name"]
+                    for skill in data_fetcher.get_position_skills(
+                        position["position_id"]
+                    )
+                ],
+                "coincident_skills": [
+                    skill["skill_name"]
+                    for skill in data_fetcher.get_position_skills(
+                        position["position_id"]
+                    )
+                    if skill["skill_id"] in user_skill_ids
+                ],
+            }
+            for position in recommendations
+        ]
+
+        return jsonify(
+            {
+                "user_id": user_id,
+                "user_skills": [
+                    skill["skill_name"]
+                    for skill in skills
+                    if skill["skill_id"] in user_vector
+                ],
+                "recommendations": recommendations,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

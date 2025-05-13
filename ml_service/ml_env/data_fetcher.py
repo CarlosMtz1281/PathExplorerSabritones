@@ -62,3 +62,18 @@ class DataFetcher:
             headers=self.headers,
         )
         return response.json() if response.status_code == 200 else []
+
+    def get_all_positions(self) -> List[Dict]:
+        """Fetch all available positions"""
+        response = requests.get(
+            f"{self.base_url}/ml-user-data/all_positions", headers=self.headers
+        )
+        return response.json() if response.status_code == 200 else []
+
+    def get_position_skills(self, position_id: int) -> List[int]:
+        """Get skills associated with a position"""
+        response = requests.get(
+            f"{self.base_url}/ml-user-data/position/{position_id}",
+            headers=self.headers,
+        )
+        return response.json() if response.status_code == 200 else []
