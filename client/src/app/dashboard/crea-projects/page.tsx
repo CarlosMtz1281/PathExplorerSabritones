@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react"; 
+import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { FaCalendarAlt } from "react-icons/fa";
 
@@ -14,14 +14,16 @@ export default function CreateProyects() {
     habilidades: number[];
     certificaciones: number[];
   };
-  
+
   const [puestos, setPuestos] = useState<Puesto[]>([]);
   const [expandSkills, setExpandSkills] = useState(false);
   const [expandCerts, setExpandCerts] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
   const [nuevasHabilidades, setNuevasHabilidades] = useState<number[]>([]);
-  const [nuevasCertificaciones, setNuevasCertificaciones] = useState<number[]>([]);
+  const [nuevasCertificaciones, setNuevasCertificaciones] = useState<number[]>(
+    []
+  );
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editNombre, setEditNombre] = useState("");
   const [editCantidad, setEditCantidad] = useState(1);
@@ -33,26 +35,38 @@ export default function CreateProyects() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [countryId, setCountryId] = useState("");
-  const [paises, setPaises] = useState<{ country_id: number; country_name: string }[]>([]);
-  const [skills, setSkills] = useState<{ skill_id: number; skill_name: string }[]>([]);
-  const [habilidadesList, setHabilidadesList] = useState<{ skill_id: number; skill_name: string; skill_technical: boolean }[]>([]);
-  const [certificadosList, setCertificadosList] = useState<
-    { certificate_id: number; certificate_name: string; certificate_desc: string }[]
+  const [paises, setPaises] = useState<
+    { country_id: number; country_name: string }[]
   >([]);
-  
+  const [skills, setSkills] = useState<
+    { skill_id: number; skill_name: string }[]
+  >([]);
+  const [habilidadesList, setHabilidadesList] = useState<
+    { skill_id: number; skill_name: string; skill_technical: boolean }[]
+  >([]);
+  const [certificadosList, setCertificadosList] = useState<
+    {
+      certificate_id: number;
+      certificate_name: string;
+      certificate_desc: string;
+    }[]
+  >([]);
+
   useEffect(() => {
     const fetchPaises = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/countries`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/general/countries`
+        );
         if (!res.ok) throw new Error(`Error al obtener países: ${res.status}`);
-        
+
         const data = await res.json();
         setPaises(data);
       } catch (error) {
         console.error("❌ Error al cargar países:", error);
       }
     };
-  
+
     fetchPaises();
   }, []);
 
@@ -62,7 +76,8 @@ export default function CreateProyects() {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE}/general/skills`
         );
-        if (!res.ok) throw new Error(`Error al obtener habilidades: ${res.status}`);
+        if (!res.ok)
+          throw new Error(`Error al obtener habilidades: ${res.status}`);
         const data = await res.json();
 
         setHabilidadesList(data);
@@ -76,9 +91,11 @@ export default function CreateProyects() {
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/skills`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/general/skills`
+        );
         if (!res.ok) throw new Error(`Error al obtener skills: ${res.status}`);
-        
+
         const data = await res.json();
 
         setSkills(data);
@@ -86,15 +103,18 @@ export default function CreateProyects() {
         console.error("❌ Error al cargar skills:", error);
       }
     };
-  
+
     fetchSkills();
   }, []);
 
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/general/certificates`);
-        if (!res.ok) throw new Error(`Error al obtener certificados: ${res.status}`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/general/certificates`
+        );
+        if (!res.ok)
+          throw new Error(`Error al obtener certificados: ${res.status}`);
         const data = await res.json();
 
         setCertificadosList(data);
@@ -104,7 +124,7 @@ export default function CreateProyects() {
     };
     fetchCertificates();
   }, []);
-  
+
   const agregarNuevoPuesto = () => {
     const nuevo = {
       nombre: nuevoNombre,
@@ -117,7 +137,9 @@ export default function CreateProyects() {
     setNuevaCantidad(1);
     setNuevasHabilidades([]);
     setNuevasCertificaciones([]);
-    (document.getElementById("modalAgregarPuesto") as HTMLDialogElement)?.close();
+    (
+      document.getElementById("modalAgregarPuesto") as HTMLDialogElement
+    )?.close();
   };
 
   const abrirModalAgregar = () => {
@@ -125,29 +147,35 @@ export default function CreateProyects() {
     setNuevaCantidad(1);
     setNuevasHabilidades([]);
     setNuevasCertificaciones([]);
-    const modal = document.getElementById("modalAgregarPuesto") as HTMLDialogElement;
+    const modal = document.getElementById(
+      "modalAgregarPuesto"
+    ) as HTMLDialogElement;
     if (modal && typeof modal.showModal === "function") {
       modal.showModal();
     }
   };
 
   const eliminarPuesto = (index: number) => {
-    const confirmacion = confirm("¿Estás seguro de que deseas eliminar este puesto?");
+    const confirmacion = confirm(
+      "¿Estás seguro de que deseas eliminar este puesto?"
+    );
     if (!confirmacion) return;
     const actualizados = [...puestos];
     actualizados.splice(index, 1);
     setPuestos(actualizados);
   };
-  
+
   const abrirModalEditar = (index: number) => {
     const p = puestos[index];
     setEditIndex(index);
     setEditNombre(p.nombre);
     setEditCantidad(p.cantidad);
-    setEditHabilidades(p.habilidades); 
-    setEditCertificaciones(p.certificaciones); 
-  
-    const modal = document.getElementById("modalEditarPuesto") as HTMLDialogElement;
+    setEditHabilidades(p.habilidades);
+    setEditCertificaciones(p.certificaciones);
+
+    const modal = document.getElementById(
+      "modalEditarPuesto"
+    ) as HTMLDialogElement;
     if (modal && typeof modal.showModal === "function") {
       modal.showModal();
     }
@@ -166,7 +194,9 @@ export default function CreateProyects() {
     const actualizados = [...puestos];
     actualizados[editIndex] = actualizado;
     setPuestos(actualizados);
-    (document.getElementById("modalEditarPuesto") as HTMLDialogElement)?.close();
+    (
+      document.getElementById("modalEditarPuesto") as HTMLDialogElement
+    )?.close();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -181,7 +211,7 @@ export default function CreateProyects() {
     const proyecto = {
       project_name: projectName,
       company_name: companyName,
-      country_id: Number(countryId), 
+      country_id: Number(countryId),
       desc: description,
       start_date: startDate,
       end_date: endDate,
@@ -192,17 +222,20 @@ export default function CreateProyects() {
         certifications: p.certificaciones,
       })),
     };
-    
+
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/project/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: session.sessionId, 
-        },
-        body: JSON.stringify(proyecto),
-      });
-     
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: session.sessionId,
+          },
+          body: JSON.stringify(proyecto),
+        }
+      );
+
       if (!res.ok) throw new Error("Error al crear proyecto");
       alert("✅ Proyecto creado con éxito");
     } catch (err) {
@@ -218,7 +251,7 @@ export default function CreateProyects() {
     setStartDate("");
     setEndDate("");
     setPuestos([]);
-    
+
     //Regresar a arriba
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -283,19 +316,21 @@ export default function CreateProyects() {
           <div className="flex-1">
             <label className="text-xl font-semibold">Fecha de Inicio</label>
             <div className="relative">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="input input-bordered w-full mt-2 pl-6 pr-10 py-5"
-            />
-            <div className="absolute right-3 top-7/12 -translate-y-1/2 pointer-events-none">
-              <FaCalendarAlt className="text-gray-400 text-xl" />
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="input input-bordered w-full mt-2 pl-6 pr-10 py-5"
+              />
+              <div className="absolute right-3 top-7/12 -translate-y-1/2 pointer-events-none">
+                <FaCalendarAlt className="text-gray-400 text-xl" />
+              </div>
             </div>
           </div>
-          </div>
           <div className="flex-1">
-            <label className="text-xl font-semibold">Fecha de Finalización</label>
+            <label className="text-xl font-semibold">
+              Fecha de Finalización
+            </label>
             <div className="relative">
               <input
                 type="date"
@@ -353,7 +388,9 @@ export default function CreateProyects() {
                 className="input input-bordered w-full"
                 value={nuevaCantidad || ""}
                 onChange={(e) =>
-                  setNuevaCantidad(e.target.value ? parseInt(e.target.value) : 0)
+                  setNuevaCantidad(
+                    e.target.value ? parseInt(e.target.value) : 0
+                  )
                 }
                 min={1}
               />
@@ -363,8 +400,14 @@ export default function CreateProyects() {
                 className="select select-bordered w-full"
                 onChange={(e) => {
                   const selected = e.target.value;
-                  if (selected && !nuevasHabilidades.includes(Number(selected))) {
-                    setNuevasHabilidades([...nuevasHabilidades, Number(selected)]);
+                  if (
+                    selected &&
+                    !nuevasHabilidades.includes(Number(selected))
+                  ) {
+                    setNuevasHabilidades([
+                      ...nuevasHabilidades,
+                      Number(selected),
+                    ]);
                   }
                 }}
               >
@@ -379,11 +422,19 @@ export default function CreateProyects() {
               {/* Badges de habilidades seleccionadas */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {nuevasHabilidades.map((id, i) => {
-                  const nombre = habilidadesList.find((h) => h.skill_id === id)?.skill_name || `ID ${id}`;
+                  const nombre =
+                    habilidadesList.find((h) => h.skill_id === id)
+                      ?.skill_name || `ID ${id}`;
                   return (
-                    <div key={i} className="badge badge-secondary cursor-pointer" onClick={() =>
-                      setNuevasHabilidades(nuevasHabilidades.filter((h) => h !== id))
-                    }>
+                    <div
+                      key={i}
+                      className="badge badge-secondary cursor-pointer"
+                      onClick={() =>
+                        setNuevasHabilidades(
+                          nuevasHabilidades.filter((h) => h !== id)
+                        )
+                      }
+                    >
                       {nombre} ✕
                     </div>
                   );
@@ -395,8 +446,14 @@ export default function CreateProyects() {
                 className="select select-bordered w-full"
                 onChange={(e) => {
                   const selected = e.target.value;
-                  if (selected && !nuevasCertificaciones.includes(Number(selected))) {
-                    setNuevasCertificaciones([...nuevasCertificaciones, Number(selected)]);
+                  if (
+                    selected &&
+                    !nuevasCertificaciones.includes(Number(selected))
+                  ) {
+                    setNuevasCertificaciones([
+                      ...nuevasCertificaciones,
+                      Number(selected),
+                    ]);
                   }
                 }}
               >
@@ -411,13 +468,17 @@ export default function CreateProyects() {
               {/* Badges de certificaciones seleccionadas */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {nuevasCertificaciones.map((id, i) => {
-                  const nombre = certificadosList.find((c) => c.certificate_id === id)?.certificate_name || `ID ${id}`;
+                  const nombre =
+                    certificadosList.find((c) => c.certificate_id === id)
+                      ?.certificate_name || `ID ${id}`;
                   return (
                     <div
                       key={i}
                       className="badge badge-accent cursor-pointer"
                       onClick={() =>
-                        setNuevasCertificaciones(nuevasCertificaciones.filter((c) => c !== id))
+                        setNuevasCertificaciones(
+                          nuevasCertificaciones.filter((c) => c !== id)
+                        )
                       }
                     >
                       {nombre} ✕
@@ -431,7 +492,11 @@ export default function CreateProyects() {
                   type="button"
                   className="btn btn-outline"
                   onClick={() =>
-                    (document.getElementById("modalAgregarPuesto") as HTMLDialogElement)?.close()
+                    (
+                      document.getElementById(
+                        "modalAgregarPuesto"
+                      ) as HTMLDialogElement
+                    )?.close()
                   }
                 >
                   Cancelar
@@ -447,7 +512,7 @@ export default function CreateProyects() {
               </div>
             </div>
           </dialog>
-         
+
           <dialog id="modalEditarPuesto" className="modal">
             <div className="modal-box space-y-4">
               <h3 className="font-bold text-lg">Editar Puesto</h3>
@@ -489,14 +554,16 @@ export default function CreateProyects() {
               <div className="flex flex-wrap gap-2 mt-2">
                 {editHabilidades.map((id, i) => {
                   const nombre =
-                    habilidadesList.find((h) => h.skill_id === id)?.skill_name ||
-                    `ID ${id}`;
+                    habilidadesList.find((h) => h.skill_id === id)
+                      ?.skill_name || `ID ${id}`;
                   return (
                     <div
                       key={i}
                       className="badge badge-secondary cursor-pointer"
                       onClick={() =>
-                        setEditHabilidades(editHabilidades.filter((h) => h !== id))
+                        setEditHabilidades(
+                          editHabilidades.filter((h) => h !== id)
+                        )
                       }
                     >
                       {nombre} ✕
@@ -510,8 +577,14 @@ export default function CreateProyects() {
                 className="select select-bordered w-full"
                 onChange={(e) => {
                   const selected = e.target.value;
-                  if (selected && !editCertificaciones.includes(Number(selected))) {
-                    setEditCertificaciones([...editCertificaciones, Number(selected)]);
+                  if (
+                    selected &&
+                    !editCertificaciones.includes(Number(selected))
+                  ) {
+                    setEditCertificaciones([
+                      ...editCertificaciones,
+                      Number(selected),
+                    ]);
                   }
                 }}
               >
@@ -588,8 +661,12 @@ export default function CreateProyects() {
             <tbody>
               {/* Filas por cada puesto vacante */}
               {puestos.map((puesto, idx) => {
-                const visibleSkills = expandSkills ? puesto.habilidades : puesto.habilidades.slice(0, 2);
-                const visibleCerts = expandCerts ? puesto.certificaciones : puesto.certificaciones.slice(0, 2);
+                const visibleSkills = expandSkills
+                  ? puesto.habilidades
+                  : puesto.habilidades.slice(0, 2);
+                const visibleCerts = expandCerts
+                  ? puesto.certificaciones
+                  : puesto.certificaciones.slice(0, 2);
                 const hiddenSkills = puesto.habilidades.length - 2;
                 const hiddenCerts = puesto.certificaciones.length - 2;
 
@@ -601,7 +678,9 @@ export default function CreateProyects() {
                     <td>
                       <div className="flex flex-wrap gap-2">
                         {visibleSkills.map((id, i) => {
-                          const nombre = habilidadesList.find((h) => h.skill_id === id)?.skill_name || `ID ${id}`;
+                          const nombre =
+                            habilidadesList.find((h) => h.skill_id === id)
+                              ?.skill_name || `ID ${id}`;
                           return (
                             <div key={i} className="badge badge-secondary">
                               {nombre}
@@ -632,7 +711,10 @@ export default function CreateProyects() {
                     <td>
                       <div className="flex flex-wrap gap-2">
                         {visibleCerts.map((id, i) => {
-                          const nombre = certificadosList.find((c) => c.certificate_id === id)?.certificate_name || `ID ${id}`;
+                          const nombre =
+                            certificadosList.find(
+                              (c) => c.certificate_id === id
+                            )?.certificate_name || `ID ${id}`;
                           return (
                             <div key={i} className="badge badge-accent">
                               {nombre}
@@ -663,13 +745,13 @@ export default function CreateProyects() {
 
                     {/* Botón editar */}
                     <td>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline btn-circle"
-                      onClick={() => abrirModalEditar(idx)}
-                    >
-                      ✏️
-                    </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline btn-circle"
+                        onClick={() => abrirModalEditar(idx)}
+                      >
+                        ✏️
+                      </button>
                     </td>
 
                     <td>
@@ -691,7 +773,10 @@ export default function CreateProyects() {
 
         {/* BOTON DENTRO DEL FORM */}
         <div className="flex justify-end mt-4">
-          <button type="submit" className="btn btn-primary px-10 text-lg font-semibold">
+          <button
+            type="submit"
+            className="btn btn-primary px-10 text-lg font-semibold"
+          >
             Crear proyecto
           </button>
         </div>

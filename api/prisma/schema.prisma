@@ -67,6 +67,7 @@ model Certificates {
   certificate_name              String?                         @db.VarChar
   certificate_desc              String?
   provider                      String?                         @db.VarChar
+  Area_Certificates             Area_Certificates[]
   Certificate_Skills            Certificate_Skills[]
   Certificate_Users             Certificate_Users[]
   Project_Position_Certificates Project_Position_Certificates[]
@@ -99,6 +100,7 @@ model Courses {
   course_name    String?         @db.VarChar
   course_desc    String?
   estimated_time String?         @db.VarChar
+  Area_Courses   Area_Courses[]
   Course_Skills  Course_Skills[]
   Course_Users   Course_Users[]
 }
@@ -206,6 +208,7 @@ model Project_Positions {
   position_desc                 String?
   user_id                       Int?
   Postulations                  Postulations[]
+  Project_Position_Areas        Project_Position_Areas[]
   Project_Position_Certificates Project_Position_Certificates[]
   Project_Position_Skills       Project_Position_Skills[]
   Projects                      Projects?                       @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_positions_project")
@@ -295,6 +298,7 @@ model Users {
   Project_User                                                  Project_User[]
   Projects                                                      Projects[]
   Session                                                       Session[]
+  User_Area_Score                                               User_Area_Score[]
   User_Score                                                    User_Score[]
   User_Skills                                                   User_Skills[]
   Country                                                       Country?                 @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_region")
@@ -317,4 +321,51 @@ model Country {
   Capability   Capability[]
   Projects     Projects[]
   Users        Users[]
+}
+
+model Area_Certificates {
+  area_id        Int
+  certificate_id Int
+  Areas          Areas        @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_area_certificates_area")
+  Certificates   Certificates @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_area_certificates_certificate")
+
+  @@id([area_id, certificate_id])
+}
+
+model Area_Courses {
+  area_id   Int
+  course_id Int
+  Areas     Areas   @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_area_courses_area")
+  Courses   Courses @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_area_courses_course")
+
+  @@id([area_id, course_id])
+}
+
+model Areas {
+  area_id                Int                      @id @default(autoincrement())
+  area_name              String?                  @db.VarChar
+  area_desc              String?
+  Area_Certificates      Area_Certificates[]
+  Area_Courses           Area_Courses[]
+  Project_Position_Areas Project_Position_Areas[]
+  User_Area_Score        User_Area_Score[]
+}
+
+model Project_Position_Areas {
+  position_id       Int
+  area_id           Int
+  Areas             Areas             @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_position_areas_area")
+  Project_Positions Project_Positions @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_position_areas_position")
+
+  @@id([position_id, area_id])
+}
+
+model User_Area_Score {
+  user_id Int
+  area_id Int
+  score   Int?
+  Areas   Areas @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_area")
+  Users   Users @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_user")
+
+  @@id([user_id, area_id])
 }
