@@ -180,6 +180,7 @@ router.get("/certificates", async (req, res) => {
         certificate_id: true,
         certificate_name: true,
         certificate_desc: true,
+        provider: true,
       },
     });
 
@@ -194,7 +195,7 @@ router.get("/roles", async (req, res) => {
   try {
     const roles = await prisma.permits.findMany();
 
-    const readableRoles = roles.map(role => {
+    const readableRoles = roles.map((role) => {
       const labels = [];
 
       if (role.is_admin) labels.push("Admin");
@@ -216,6 +217,28 @@ router.get("/roles", async (req, res) => {
   }
 });
 
+// Get skills related to a specific certificate
+router.get("/certificates/:certificateId/skills", async (req, res) => {
+  const { certificateId } = req.params;
 
+  try {
+    const skills = await prisma.certificate_Skills.findMany({
+      where: { certificate_id: Number(certificateId) },
+      include: {
+        Skills: true,
+      },
+    });
+
+    const formattedSkills = skills.map((skill) => ({
+      skill_id: skill.skill_id,
+      skill_name: skill.Skills.name,
+    }));
+
+    res.status(200).json(formattedSkills);
+  } catch (error) {
+    console.error("Error fetching skills:", error);
+    res.status(500).json({ error: "Failed to fetch skills" });
+  }
+});
 
 export default router;
