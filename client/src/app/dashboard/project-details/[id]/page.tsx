@@ -449,11 +449,53 @@ const ProjectDetails = () => {
   // Get filled positions (team members)
   const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
-  async function handlePostular(user_id: number): Promise<void> {
+  async function handlePostular(user_id: number, position_id: number): Promise<void> {
     const project_id = id;
-    await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate/${user_id}/${project_id}`
-    );
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate/${user_id}/${project_id}/${position_id}`
+      );
+      console.log('Postulation successful:', response.data);
+      alert('Postulation submitted successfully!');
+      
+      // Update the project state to include the new postulation
+      if (project) {
+        const updatedProject = { ...project };
+        // Find the position that was just postulated for
+        const positionIndex = updatedProject.positions.findIndex(
+          (pos) => pos.position_id === position_id
+        );
+        
+        if (positionIndex !== -1) {
+          // Initialize Postulations array if it doesn't exist
+          if (!updatedProject.positions[positionIndex].Postulations) {
+            updatedProject.positions[positionIndex].Postulations = [];
+          }
+          
+          // Add the new postulation to the position
+          updatedProject.positions[positionIndex].Postulations?.push({
+            postulation_id: response.data.postulation_id || Date.now(), // Use response id or fallback
+            user_id: user_id,
+            Users: {
+              user_id: user_id,
+              name: session?.user?.name || '',
+              mail: session?.user?.email || ''
+            },
+            Meeting: null
+          });
+          
+          // Update the project state
+          setProject(updatedProject);
+        }
+      }
+    } catch (error: any) {
+      console.error('Error during postulation:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(`Error: ${error.response.data.error}`);
+      } else {
+        alert('An error occurred during postulation. Please try again.');
+      }
+    }
   }
 
   return (
@@ -688,7 +730,7 @@ const ProjectDetails = () => {
                 <span className="loading loading-spinner loading-lg"></span>
               </div>
             ) : candidates.length > 0 ? (
-              <div className="space-y-4 overflow-y-auto max-h-[calc(80vh-5rem)]">
+              <div className="space-y-4">
                 {candidates.map((candidate) => (
                   <div
                     key={candidate.user_id}
@@ -745,13 +787,24 @@ const ProjectDetails = () => {
                                 )}
                               </div>
                             </div>
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => handlePostular(candidate.user_id)}
-                              disabled
-                            >
-                              Postular
-                            </button>
+                            {/* Check if user has already postulated for this position */}
+                            {selectedPosition.Postulations?.some(
+                              (postulation) => postulation.user_id === candidate.user_id
+                            ) ? (
+                              <button
+                                className="btn btn-disabled btn-sm"
+                                disabled
+                              >
+                                Postulado
+                              </button>
+                            ) : (
+                              <button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => handlePostular(candidate.user_id, selectedPosition.position_id)}
+                              >
+                                Postular
+                              </button>
+                            )}
                           </div>
                         )}
 

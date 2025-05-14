@@ -245,4 +245,68 @@ router.post("/create", async (req, res) => {
   }
 });
 
+router.get("/postulate/:user_id/:project_id/:position_id", async (req, res) => {
+  console.log("Postulating...");
+  console.log("Request params:", req.params);
+  try {
+    const { user_id, project_id, position_id } = req.params;
+    const userId = parseInt(user_id);
+    const projectId = parseInt(project_id);
+    const positionId = parseInt(position_id);
+    
+    console.log("Parsed values:", { userId, projectId, positionId });
+
+    // More detailed validation
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: "Invalid user_id parameter" });
+    }
+    if (isNaN(projectId)) {
+      return res.status(400).json({ error: "Invalid project_id parameter" });
+    }
+    if (isNaN(positionId)) {
+      return res.status(400).json({ error: "Invalid position_id parameter" });
+    }
+
+    // Check if the position exists and belongs to the specified project
+    const position = await prisma.project_Positions.findFirst({
+      where: {
+        position_id: positionId,
+        project_id: projectId
+      }
+    });
+
+    if (!position) {
+      return res.status(404).json({ error: "Position not found for this project" });
+    }
+
+    // Check if a postulation already exists
+    const existingPostulation = await prisma.postulations.findFirst({
+      where: {
+        project_position_id: positionId,
+        user_id: userId
+      }
+    });
+
+    if (existingPostulation) {
+      return res.status(400).json({ error: "You have already postulated for this position" });
+    }
+
+    // Create a new postulation record
+    const postulation = await prisma.postulations.create({
+      data: {
+        project_position_id: positionId,
+        user_id: userId,
+        postulation_date: new Date()
+      }
+    });
+
+    res.status(201).json({
+      message: "Postulation created successfully",
+      postulation
+    });
+  } catch (error) {
+    console.error("Error postulating:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 export default router;
