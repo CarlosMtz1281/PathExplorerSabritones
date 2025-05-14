@@ -15,7 +15,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize components
-data_fetcher_url = os.getenv("DATA_API_URL")
+data_fetcher_url = os.getenv("DATA_API_URL_HOST_DOCKER")
 data_fetcher = DataFetcher(data_fetcher_url)
 featurizer = RecommenderFeaturizer(data_fetcher)
 certificateRecommender = CertificateRecommender()
@@ -38,7 +38,6 @@ certificates_with_skills = [
 certificate_provider_map = {
     cert["id"]: cert["provider"] for cert in certificates_with_skills
 }
-
 
 certificateRecommender.train(certificates_with_skills)
 
@@ -359,7 +358,4 @@ if __name__ == "__main__":
     PORT = os.getenv("FLASK_RUN_PORT")
     HOST = os.getenv("FLASK_RUN_HOST")
     URL = os.getenv("FLASK_API_URL")
-    print("\n\n=== API READY ===")
-    print(f"Access at: {URL}")
-    print("Press CTRL+C to stop\n")
     app.run(host=HOST, port=PORT, debug=True)
