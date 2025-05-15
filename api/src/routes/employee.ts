@@ -470,6 +470,7 @@ router.get("/experience", async (req, res) => {
       date ? new Date(date).toLocaleDateString("es-ES") : "Current";
 
     const jobs = workPositions.map((pos) => ({
+      positionId: pos.position_id,
       company: pos.Work_Position.company || "Unknown",
       position: pos.Work_Position.position_name || "Unknown",
       positionDesc: pos.Work_Position.position_desc || "No description",
@@ -587,5 +588,210 @@ router.post("/addExperience", async (req, res) => {
   }
 });
 
+// Endpoint para actualizar una experiencia laboral existente
+router.put("/updateExperience/:positionId", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    const positionId = parseInt(req.params.positionId);
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "Session key is required in the headers." });
+    }
+
+    if (typeof userId !== "number") {
+      return res.status(400).json({ error: "Timeout session" });
+    }
+
+    if (isNaN(positionId)) {
+      return res.status(400).json({ error: "Invalid position ID" });
+    }
+
+    const { company, position_name, position_desc, start_date, end_date } = req.body;
+
+    // Validación de datos requeridos
+    if (!company || !position_name || !start_date || !end_date) {
+      return res.status(400).json({ 
+        error: "Missing required fields. Company, position name, start date and end date are required."
+      });
+    }
+
+    // Verificar que la posición pertenece al usuario
+    const existingPosition = await prisma.employee_Position.findFirst({
+      where: {
+        user_id: userId,
+        position_id: positionId
+      }
+    });
+
+    if (!existingPosition) {
+      return res.status(404).json({ 
+        error: "Position not found or doesn't belong to user" 
+      });
+    }
+
+    // Actualizar la posición de trabajo
+    const updatedPosition = await prisma.work_Position.update({
+      where: { position_id: positionId },
+      data: {
+        position_name,
+        position_desc: position_desc || "",
+        company
+      },
+    });
+
+    // Actualizar las fechas en employee_Position
+    await prisma.employee_Position.update({
+      where: {
+        position_id_user_id: {
+          user_id: userId,
+          position_id: positionId
+        }
+      },
+      data: {
+        start_date: new Date(start_date),
+        end_date: new Date(end_date),
+      },
+    });
+
+    // Actualizar el estado de in_project del usuario si es necesario
+    const today = new Date();
+    const endDateObj = new Date(end_date);
+    
+    if (endDateObj > today) {
+      await prisma.users.update({
+        where: { user_id: userId },
+        data: { in_project: true },
+      });
+    } else {
+      // Verificar si el usuario tiene otras posiciones activas
+      const activePositions = await prisma.employee_Position.findMany({
+        where: {
+          user_id: userId,
+          OR: [
+            { end_date: null },
+            { end_date: { gt: today } }
+          ]
+        }
+      });
+
+      if (activePositions.length === 0) {
+        await prisma.users.update({
+          where: { user_id: userId },
+          data: { in_project: false },
+        });
+      }
+    }
+
+    res.status(200).json({ 
+      message: "Experience updated successfully",
+      data: {
+        position_id: updatedPosition.position_id,
+        company,
+        position_name,
+        position_desc: position_desc || "",
+        start_date,
+        end_date
+      }
+    });
+  } catch (error) {
+    console.error("Error updating experience:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Endpoint para eliminar una experiencia laboral
+router.delete("/deleteExperience/:positionId", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    const positionId = parseInt(req.params.positionId);
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "Session key is required in the headers." });
+    }
+
+    if (typeof userId !== "number") {
+      return res.status(400).json({ error: "Timeout session" });
+    }
+
+    if (isNaN(positionId)) {
+      return res.status(400).json({ error: "Invalid position ID" });
+    }
+
+    // Verificar que la posición pertenece al usuario
+    const existingPosition = await prisma.employee_Position.findFirst({
+      where: {
+        user_id: userId,
+        position_id: positionId
+      }
+    });
+
+    if (!existingPosition) {
+      return res.status(404).json({ 
+        error: "Position not found or doesn't belong to user" 
+      });
+    }
+
+    // Obtener información sobre la posición antes de borrar
+    const positionInfo = await prisma.work_Position.findUnique({
+      where: { position_id: positionId }
+    });
+
+    // Eliminar la relación employee_Position primero (debido a las restricciones de clave foránea)
+    await prisma.employee_Position.delete({
+      where: {
+        position_id_user_id: {
+          user_id: userId,
+          position_id: positionId
+        }
+      }
+    });
+
+    // Eliminar la posición de trabajo
+    await prisma.work_Position.delete({
+      where: { position_id: positionId }
+    });
+
+    // Verificar si el usuario necesita actualizar su estado in_project
+    const today = new Date();
+    const wasActivePosition = !existingPosition.end_date || 
+                            new Date(existingPosition.end_date) > today;
+
+    if (wasActivePosition) {
+      // Verificar si el usuario tiene otras posiciones activas
+      const remainingPositions = await prisma.employee_Position.findMany({
+        where: {
+          user_id: userId,
+          OR: [
+            { end_date: null },
+            { end_date: { gt: today } }
+          ]
+        }
+      });
+
+      if (remainingPositions.length === 0) {
+        await prisma.users.update({
+          where: { user_id: userId },
+          data: { in_project: false },
+        });
+      }
+    }
+
+    res.status(200).json({ 
+      message: "Experience deleted successfully",
+      data: {
+        position_id: positionId,
+        company: positionInfo?.company,
+        position_name: positionInfo?.position_name
+      }
+    });
+  } catch (error) {
+    console.error("Error deleting experience:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 export default router;

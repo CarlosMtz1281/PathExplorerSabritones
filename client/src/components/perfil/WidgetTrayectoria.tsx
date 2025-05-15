@@ -6,6 +6,7 @@
   import { PiTarget } from "react-icons/pi";
 
   interface Job {
+    positionId: number;
     company: string;
     position: string;
     positionDesc: string;
@@ -157,6 +158,8 @@
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [submitError, setSubmitError] = useState("");
+    const [isEditExperienceModalOpen, setIsEditExperienceModalOpen] = useState(false);
+    const [currentJob, setCurrentJob] = useState<Job | null>(null);
   
 
     // Group projects by job period and sort them by start date
@@ -206,8 +209,8 @@
         setJobs(res.data.jobs);
         setProjects(res.data.projects);
 
-        console.log("Fetched Jobs:", res.data.jobs); // Log jobs to the console
-        console.log("Fetched Projects:", res.data.projects); // Log projects to the console
+        //console.log("Fetched Jobs:", res.data.jobs); // Log jobs to the console
+        //console.log("Fetched Projects:", res.data.projects); // Log projects to the console
       } catch (error) {
         console.error("Error fetching experience data:", error);
       }
@@ -285,6 +288,20 @@
 
         if (response.status === 201) {
           setSubmitSuccess(true);
+          setExperienceForm({
+            company: "",
+            position_name: "",
+            position_desc: "",
+            start_date: "",
+            end_date: "",
+          });
+          setFormErrors({
+            company: "",
+            position_name: "",
+            start_date: "",
+            end_date: "",
+          });
+          setSubmitError("");
           // Actualizar la lista de trabajos
           fetchAll();
           // Cerrar el modal después de 1.5 segundos
@@ -331,6 +348,54 @@
       return treePositions;
     });
 
+    const updateExperience = async (positionId: number) => {
+      setIsSubmitting(true);
+      setSubmitError("");
+      setSubmitSuccess(false);
+    
+      try {
+        const sessionId = session?.sessionId;
+        if (!sessionId) {
+          throw new Error("Session ID is missing");
+        }
+    
+        const formattedExperience = {
+          ...experienceForm,
+          start_date: new Date(experienceForm.start_date).toISOString(),
+          end_date: new Date(experienceForm.end_date).toISOString(),
+        };
+    
+        const response = await axios.put(
+          `${process.env.NEXT_PUBLIC_API_BASE}/employee/updateExperience/${positionId}`,
+          formattedExperience,
+          {
+            headers: { "session-key": sessionId },
+          }
+        );
+    
+        if (response.status === 200) {
+          setSubmitSuccess(true);
+          setSubmitError("");
+          // Update the jobs list
+          fetchAll();
+          // Close the modal after 1.5 seconds
+          setTimeout(() => {
+            setIsEditExperienceModalOpen(false);
+            setSubmitSuccess(false);
+          }, 1500);
+        }
+      } catch (error) {
+        console.error("Error updating experience:", error);
+        setSubmitError(
+          error.response?.data?.message || 
+          "Error al actualizar la experiencia. Por favor, inténtalo de nuevo."
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+
     const handleModalToggle = () => {
       setIsModalOpen(!isModalOpen);
     };
@@ -349,14 +414,80 @@
       setIsAddExperienceModalOpen(true);
     };
 
-      // Función para manejar el envío del formulario
-      const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (validateForm()) {
-          await submitExperience();
+    // Función para manejar el envío del formulario
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      
+      if (validateForm()) {
+        await submitExperience();
+      }
+    };
+
+    const handleEditExperience = (job: Job) => {
+      setCurrentJob(job);
+      setExperienceForm({
+        company: job.company,
+        position_name: job.position,
+        position_desc: job.positionDesc,
+        start_date: job.startDate,
+        end_date: job.endDate,
+      });
+      setIsEditExperienceModalOpen(true);
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      
+      if (!currentJob) return;
+      
+      if (validateForm()) {
+        await updateExperience(currentJob.positionId);
+      }
+    };
+    
+    const handleDeleteExperience = async (positionId: number) => {
+      if (!confirm("¿Estás seguro de que deseas eliminar esta experiencia?")) {
+        return;
+      }
+    
+      setIsSubmitting(true);
+      setSubmitError("");
+      setSubmitSuccess(false);
+    
+      try {
+        const sessionId = session?.sessionId;
+        if (!sessionId) {
+          throw new Error("Session ID is missing");
         }
-      };
+    
+        const response = await axios.delete(
+          `${process.env.NEXT_PUBLIC_API_BASE}/employee/deleteExperience/${positionId}`,
+          {
+            headers: { "session-key": sessionId },
+          }
+        );
+    
+        if (response.status === 200) {
+          setSubmitSuccess(true);
+          setSubmitError("");
+          // Update the jobs list
+          fetchAll();
+          // Close the modal after 1.5 seconds
+          setTimeout(() => {
+            setIsEditExperienceModalOpen(false);
+            setSubmitSuccess(false);
+          }, 1500);
+        }
+      } catch (error) {
+        console.error("Error deleting experience:", error);
+        setSubmitError(
+          error.response?.data?.message || 
+          "Error al eliminar la experiencia. Por favor, inténtalo de nuevo."
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
 
 
     useEffect(() => {
@@ -377,17 +508,25 @@
 
     // Efecto para limpiar errores cuando se cierra el modal
     useEffect(() => {
-      if (!isAddExperienceModalOpen) {
+      if (!isAddExperienceModalOpen && !isEditExperienceModalOpen) {
         setFormErrors({
           company: "",
           position_name: "",
           start_date: "",
           end_date: "",
         });
+        setExperienceForm({
+          company: "",
+          position_name: "",
+          position_desc: "",
+          start_date: "",
+          end_date: "",
+        });
+        setCurrentJob(null);
         setSubmitError("");
         setSubmitSuccess(false);
       }
-    }, [isAddExperienceModalOpen]);
+    }, [isAddExperienceModalOpen, isEditExperienceModalOpen]);
 
     useEffect(() => {
       fetchAll();
@@ -519,7 +658,7 @@
           </div>
         </div>
 
-        {/* Enhanced Modal */}
+        {/* Details Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1">
             <div
@@ -543,38 +682,50 @@
                   const jobProjects = getProjectsForJob(job);
                   return (
                     <div key={index} className="mb-8 last:mb-0">
-                      {/* Job Section - Only the icon has bg-base-200 */}
+                      {/* Job Section */}
                       <div className="flex items-center gap-4 mb-4 p-4 bg-base-100 rounded-lg">
-                      <div className="w-18 h-18 flex-shrink-0 bg-base-200 rounded-lg flex items-center justify-center border">
-                        <img
-                          src={job.company === "Accenture" 
-                            ? "/trayectoria/Accenture.png" 
-                            : "/trayectoria/building.svg"}
-                          alt={job.company}
-                          className="w-12 h-12 object-contain"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold">{job.company}</h3>
-                        <div className="flex items-center gap-2">
-                        <p className="text-lg">{job.position}</p>
-                          {job.positionDesc && (
-                            <div className="group relative inline-block">
-                              <button className="text-primary focus:outline-none">
-                                <IoMdInformationCircleOutline className="text-lg" />
-                              </button>
-                              <div className="absolute left-full ml-2 hidden group-hover:block w-64 bg-base-200 border border-base-300 rounded-lg shadow-lg p-3 z-50">
-                                <p className="text-sm text-base-content">{job.positionDesc}</p>
-                              </div>
-                            </div>
-                          )}
+                        <div className="w-18 h-18 flex-shrink-0 bg-base-200 rounded-lg flex items-center justify-center border">
+                          <img
+                            src={job.company === "Accenture" 
+                              ? "/trayectoria/Accenture.png" 
+                              : "/trayectoria/building.svg"}
+                            alt={job.company}
+                            className="w-12 h-12 object-contain"
+                          />
                         </div>
-                        
-                        <p className="text-sm text-accent">
-                          {job.startDate} - {job.endDate}
-                        </p>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-xl font-semibold">{job.company}</h3>
+                              <div className="flex items-center gap-2">
+                                <p className="text-lg">{job.position}</p>
+                                {job.positionDesc && (
+                                  <div className="group relative inline-block">
+                                    <button className="text-primary focus:outline-none">
+                                      <IoMdInformationCircleOutline className="text-lg" />
+                                    </button>
+                                    <div className="absolute left-full ml-2 hidden group-hover:block w-64 bg-base-200 border border-base-300 rounded-lg shadow-lg p-3 z-50">
+                                      <p className="text-sm text-base-content">{job.positionDesc}</p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <p className="text-sm text-accent">
+                                {job.startDate} - {job.endDate}
+                              </p>
+                            </div>
+                            <button 
+                              onClick={() => handleEditExperience(job)}
+                              className="btn btn-sm btn-ghost text-primary"
+                              title="Editar experiencia"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
 
                       {/* Projects Section */}
                       {jobProjects.length > 0 ? (
@@ -786,6 +937,208 @@
                       </>
                     ) : (
                       "Guardar Experiencia"
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Modal de editar experiencia */}
+        {isEditExperienceModalOpen && currentJob && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-1">
+            <div
+              className="flex flex-col bg-base-100 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex justify-between items-center p-4 border-b bg-base-100">
+                <h2 className="text-2xl font-bold">Editar Experiencia</h2>
+                <button 
+                  onClick={() => setIsEditExperienceModalOpen(false)}
+                  className="btn btn-circle btn-ghost btn-sm"
+                  disabled={isSubmitting}
+                >
+                  <IoMdClose className="text-xl" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <form onSubmit={handleEditSubmit} className="flex-1 overflow-y-auto p-6 bg-base-100">
+                {/* Mensajes de éxito/error */}
+                {submitSuccess && (
+                  <div className="alert alert-success mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>¡Experiencia actualizada con éxito!</span>
+                  </div>
+                )}
+                
+                {submitError && (
+                  <div className="alert alert-error mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{submitError}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Empresa */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Empresa*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nombre de la empresa"
+                      className={`input input-bordered w-full ${formErrors.company ? 'input-error' : ''}`}
+                      value={experienceForm.company}
+                      onChange={(e) => setExperienceForm({
+                        ...experienceForm,
+                        company: e.target.value
+                      })}
+                      disabled={isSubmitting}
+                    />
+                    {formErrors.company && (
+                      <label className="label">
+                        <span className="label-text-alt text-error">{formErrors.company}</span>
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Puesto */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Puesto*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nombre del puesto"
+                      className={`input input-bordered w-full ${formErrors.position_name ? 'input-error' : ''}`}
+                      value={experienceForm.position_name}
+                      onChange={(e) => setExperienceForm({
+                        ...experienceForm,
+                        position_name: e.target.value
+                      })}
+                      disabled={isSubmitting}
+                    />
+                    {formErrors.position_name && (
+                      <label className="label">
+                        <span className="label-text-alt text-error">{formErrors.position_name}</span>
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Fechas */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Fecha de inicio*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        className={`input input-bordered w-full ${formErrors.start_date ? 'input-error' : ''}`}
+                        value={experienceForm.start_date}
+                        onChange={(e) => setExperienceForm({
+                          ...experienceForm,
+                          start_date: e.target.value
+                        })}
+                        disabled={isSubmitting}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <FaCalendarAlt className="text-gray-400" />
+                      </div>
+                    </div>
+                    {formErrors.start_date && (
+                      <label className="label">
+                        <span className="label-text-alt text-error">{formErrors.start_date}</span>
+                      </label>
+                    )}
+                  </div>
+
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text">Fecha de finalización*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        className={`input input-bordered w-full ${formErrors.end_date ? 'input-error' : ''}`}
+                        value={experienceForm.end_date}
+                        onChange={(e) => setExperienceForm({
+                          ...experienceForm,
+                          end_date: e.target.value
+                        })}
+                        disabled={isSubmitting}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <FaCalendarAlt className="text-gray-400" />
+                      </div>
+                    </div>
+                    {formErrors.end_date && (
+                      <label className="label">
+                        <span className="label-text-alt text-error">{formErrors.end_date}</span>
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Descripción */}
+                  <div className="form-control md:col-span-2">
+                    <label className="label">
+                      <span className="label-text">Descripción del puesto</span>
+                    </label>
+                    <textarea
+                      placeholder="Describe tus responsabilidades y logros"
+                      className="textarea textarea-bordered w-full h-24"
+                      value={experienceForm.position_desc}
+                      onChange={(e) => setExperienceForm({
+                        ...experienceForm,
+                        position_desc: e.target.value
+                      })}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="flex justify-end p-4 border-t bg-base-100 gap-2 mt-4">
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => setIsEditExperienceModalOpen(false)}
+                    disabled={isSubmitting}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="loading loading-spinner"></span>
+                        Guardando...
+                      </>
+                    ) : (
+                      "Actualizar Experiencia"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-error"
+                    onClick={() => handleDeleteExperience(currentJob.positionId)}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="loading loading-spinner"></span>
+                        Eliminando...
+                      </>
+                    ) : (
+                      "Eliminar"
                     )}
                   </button>
                 </div>
