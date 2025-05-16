@@ -6,6 +6,7 @@ import generalRoutes from "./routes/general";
 import projectRoutes from "./routes/project";
 import employeeRoutes from "./routes/employee";
 import courseRoutes from "./routes/course";
+import mlUserDataRoutes from "./routesML/mlUserData";
 import fs from "fs";
 import cookieParser from "cookie-parser";
 
@@ -26,6 +27,7 @@ app.use("/general", generalRoutes);
 app.use("/project", projectRoutes);
 app.use("/employee", employeeRoutes);
 app.use("/course", courseRoutes);
+app.use("/ml-user-data", mlUserDataRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World! 🌍");

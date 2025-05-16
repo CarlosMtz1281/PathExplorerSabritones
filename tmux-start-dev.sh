@@ -22,7 +22,7 @@ tmux split-window -v -t $SESSION_NAME:0.3
 # 4 - bottom-right
 
 # Pane 4: Start database
-tmux send-keys -t $SESSION_NAME:0.4 'cd bd/postgres-docker && docker compose up --no-recreate' C-m
+# tmux send-keys -t $SESSION_NAME:0.4 'cd bd/postgres-docker && docker compose down -v && docker compose up' C-m
 
 # Pane 3: Wait for DB, then run API commands
 tmux send-keys -t $SESSION_NAME:0.3 '
