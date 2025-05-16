@@ -5,7 +5,6 @@ import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
   FaHome,
-  FaSuitcase,
   FaUser,
   FaCog,
   FaClipboardList,
@@ -13,7 +12,13 @@ import {
   FaChevronRight,
   FaSignOutAlt,
   FaGgCircle,
+  FaAddressCard,
+  FaDochub,
+  FaProcedures,
+  FaRProject,
+  FaSuitcase,
 } from "react-icons/fa";
+import { FaUpwork } from "react-icons/fa6";
 
 export default function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -25,7 +30,6 @@ export default function Navbar() {
     });
   };
   const { data: session, status } = useSession();
-
 
   return (
     <div
@@ -54,9 +58,7 @@ export default function Navbar() {
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaUser className="w-6 h-6" />
-            {!isCollapsed && (
-              <h3 className="text-xl font-semibold">Perfil</h3>
-            )}
+            {!isCollapsed && <h3 className="text-xl font-semibold">Perfil</h3>}
           </a>
         </li>
         <li className="w-full">
@@ -64,21 +66,22 @@ export default function Navbar() {
             href="/dashboard/repo-projects"
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
-            <FaClipboardList className="w-5 h-5" />
+            <FaSuitcase className="w-5 h-5" />
             {!isCollapsed && (
               <h3 className="text-xl font-semibold"> Proyectos</h3>
             )}
           </a>
         </li>
-          <li className="w-full mt-2">
+        <li className="w-full mt-2">
           <a
             href="/dashboard/crea-projects"
             className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
-            <FaSuitcase 
-            className="w-5 h-5" />
+            <FaSuitcase className="w-5 h-5" />
             {!isCollapsed && (
-              <h3 className="text-xl font-semibold leading-tight">Crear Proyectos</h3>
+              <h3 className="text-xl font-semibold leading-tight">
+                Crear Proyectos
+              </h3>
             )}
           </a>
         </li>
@@ -93,6 +96,7 @@ export default function Navbar() {
             )}
           </a>
         </li>
+<<<<<<< HEAD
         <li className="w-full">
           <a
             href="/dashboard/repo-empleados"
@@ -106,6 +110,8 @@ export default function Navbar() {
         </li>
 
         
+=======
+>>>>>>> main
       </ul>
 
       {/* Logout Button */}
@@ -114,7 +120,9 @@ export default function Navbar() {
         className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-red-500 hover:bg-base-200 justify-start mb-4"
       >
         <FaSignOutAlt className="w-5 h-5" />
-        {!isCollapsed && <h3 className="text-xl font-semibold">Cerrar Sessión</h3>}
+        {!isCollapsed && (
+          <h3 className="text-xl font-semibold">Cerrar Sessión</h3>
+        )}
       </button>
 
       {/* Collapse Button */}

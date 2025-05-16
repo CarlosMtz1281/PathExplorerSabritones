@@ -17,11 +17,9 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user`, {
-        headers: {
-          "user-id": id || "", // ID dinámico desde URL
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`
+      );
       if (!res.ok) {
         throw new Error("Failed to fetch user data");
       }
@@ -127,13 +125,10 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
-      {/* Right Column - Widgets */}
       <div className="w-full flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] overflow-y-auto">
-        <WidgetCertificaciones userId={userData.user_id} />
-        <WidgetTrayectoria  userId={userData.user_id}/>
-        <WidgetHabilidades userId={userData.user_id}/>
-
+        <WidgetCertificaciones />
+        <WidgetTrayectoria />
+        <WidgetHabilidades />
       </div>
     </div>
   );

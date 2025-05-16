@@ -181,6 +181,32 @@ CREATE TABLE "Goal_Users" (
   "completed" boolean,
   PRIMARY KEY ("goal_id", "user_id")
 );
+CREATE TABLE "Areas" (
+  "area_id" SERIAL PRIMARY KEY,
+  "area_name" varchar,
+  "area_desc" text
+);
+CREATE TABLE "Area_Certificates" (
+  "area_id" integer,
+  "certificate_id" integer,
+  PRIMARY KEY ("area_id", "certificate_id")
+);
+CREATE TABLE "Area_Courses" (
+  "area_id" integer,
+  "course_id" integer,
+  PRIMARY KEY ("area_id", "course_id")
+);
+CREATE TABLE "Project_Position_Areas" (
+  "position_id" integer,
+  "area_id" integer,
+  PRIMARY KEY ("position_id", "area_id")
+);
+CREATE TABLE "User_Area_Score" (
+  "user_id" integer,
+  "area_id" integer,
+  "score" integer,
+  PRIMARY KEY ("user_id", "area_id")
+);
 CREATE TABLE "Session" (
   "session_id" varchar PRIMARY KEY DEFAULT encode(gen_random_bytes(32), 'base64'),
   "user_id" integer NOT NULL,
@@ -250,6 +276,18 @@ ADD CONSTRAINT fk_goal_users_user FOREIGN KEY ("user_id") REFERENCES "Users"("us
 ALTER TABLE "Goal_Users"
 ADD CONSTRAINT fk_goal_users_goal FOREIGN KEY ("goal_id") REFERENCES "Goals"("goal_id"),
   ADD CONSTRAINT fk_goal_users_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id");
+ALTER TABLE "Area_Certificates"
+ADD CONSTRAINT fk_area_certificates_area FOREIGN KEY ("area_id") REFERENCES "Areas"("area_id"),
+  ADD CONSTRAINT fk_area_certificates_certificate FOREIGN KEY ("certificate_id") REFERENCES "Certificates"("certificate_id");
+ALTER TABLE "Area_Courses"
+ADD CONSTRAINT fk_area_courses_area FOREIGN KEY ("area_id") REFERENCES "Areas"("area_id"),
+  ADD CONSTRAINT fk_area_courses_course FOREIGN KEY ("course_id") REFERENCES "Courses"("course_id");
+ALTER TABLE "Project_Position_Areas"
+ADD CONSTRAINT fk_project_position_areas_position FOREIGN KEY ("position_id") REFERENCES "Project_Positions"("position_id"),
+  ADD CONSTRAINT fk_project_position_areas_area FOREIGN KEY ("area_id") REFERENCES "Areas"("area_id");
+ALTER TABLE "User_Area_Score"
+ADD CONSTRAINT fk_user_area_score_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id"),
+  ADD CONSTRAINT fk_user_area_score_area FOREIGN KEY ("area_id") REFERENCES "Areas"("area_id");
 ALTER TABLE "Session"
 ADD CONSTRAINT fk_session_user FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE CASCADE;
 -- =======================
@@ -317,7 +355,28 @@ INSERT INTO "Skills" ("name", "technical") VALUES
 ('CI/CD', TRUE),
 ('Microservices', TRUE),
 ('REST API', TRUE),
+('TensorFlow', TRUE),
+('PyTorch', TRUE),
+('Ethical Hacking', TRUE),
+('Blockchain', TRUE),
+('Smart Contracts', TRUE),
+('Serverless Architecture', TRUE),
+('Quantum Computing', TRUE),
+('GraphQL', TRUE),
+('Apache Kafka', TRUE),
+('Prometheus', TRUE),
+('Istio', TRUE),
+('Jenkins', TRUE),
+('Ansible', TRUE),
+('Chaos Engineering', TRUE),
+('Generative AI', TRUE),
+
 -- Soft skills
+('Mentorship', FALSE),
+('Strategic Thinking', FALSE),
+('Cross-cultural Communication', FALSE),
+('Innovation Management', FALSE),
+('Change Management', FALSE),
 ('Project Management', FALSE),
 ('Communication', FALSE),
 ('Leadership', FALSE),
@@ -363,7 +422,15 @@ INSERT INTO "Certificates" (
 ('Cisco Certified Network Associate (CCNA)', 'Networking fundamentals certification', 'Cisco'),
 ('Cisco Certified CyberOps Associate', 'Cybersecurity operations certification', 'Cisco'),
 ('Cisco Certified DevNet Associate', 'DevOps and network automation certification', 'Cisco'),
-('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 'Cisco');
+('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 'Cisco'),
+('TensorFlow Developer Certificate', 'Build and train ML models using TensorFlow', 'Google'),
+('Certified Ethical Hacker (CEH)', 'Identify vulnerabilities and secure systems', 'EC-Council'),
+('Blockchain Developer Certification', 'Build decentralized applications and smart contracts', 'Blockchain Council'),
+('HashiCorp Certified Terraform Associate', 'Infrastructure automation using Terraform', 'HashiCorp'),
+('Certified Kubernetes Security Specialist', 'Secure containerized applications', 'CNCF'),
+('Azure AI Engineer Associate', 'Implement AI solutions on Microsoft Azure', 'Microsoft'),
+('Quantum Computing Fundamentals', 'Introduction to quantum computing concepts', 'IBM'),
+('Serverless Architecture Certification', 'Build and deploy serverless applications', 'AWS');
 
 -- 5) Courses - Expanded with more learning paths
 INSERT INTO "Courses" (
@@ -382,7 +449,16 @@ INSERT INTO "Courses" (
 ('Cybersecurity Fundamentals', 'Introduction to information security', '40 hours'),
 ('Effective Communication for Tech Professionals', 'Improving workplace communication', '20 hours'),
 ('Leadership in Tech', 'Developing leadership skills for technical roles', '30 hours'),
-('Docker and Kubernetes Mastery', 'Containerization and orchestration', '45 hours');
+('Docker and Kubernetes Mastery', 'Containerization and orchestration', '45 hours'),
+('Advanced ML with TensorFlow', 'Production-grade ML model development', '60 hours'),
+('Blockchain Development 101', 'Ethereum, Solidity, and DApp development', '45 hours'),
+('Serverless Patterns on AWS', 'Building event-driven architectures', '35 hours'),
+('Quantum Computing Basics', 'Qubits and quantum algorithms', '25 hours'),
+('MLOps Fundamentals', 'Machine learning operations lifecycle', '30 hours'),
+('Advanced DevOps Monitoring', 'Observability with Prometheus/Grafana', '30 hours'),
+('Generative AI with GANs', 'Creating generative models', '40 hours'),
+('Cloud-Native Architecture', 'Designing for Kubernetes environments', '40 hours'),
+('Ethical Hacking Lab', 'Hands-on penetration testing', '50 hours');
 
 -- 6) Work_Position - Expanded with more roles
 INSERT INTO "Work_Position" (
@@ -401,7 +477,8 @@ INSERT INTO "Work_Position" (
 ('Technical Architect', 'Designs system architecture and technical solutions', 'Enterprise Systems'),
 ('Scrum Master', 'Facilitates Agile processes and removes impediments', 'Agile Transformations'),
 ('Data Engineer', 'Builds and maintains data pipelines', 'Big Data Technologies'),
-('Security Analyst', 'Protects systems from cyber threats', 'Cyber Security Experts');
+('Security Analyst', 'Protects systems from cyber threats', 'Cyber Security Experts'),
+('Senior Software Engineer', 'Leads development of enterprise applications', 'Accenture');
 
 -- 7) Goals - Expanded with more development goals
 INSERT INTO "Goals" ("goal_name", "goal_desc") VALUES
@@ -416,7 +493,17 @@ INSERT INTO "Goals" ("goal_name", "goal_desc") VALUES
 ('Develop Data Analysis Skills', 'Learn to work with big data and visualization tools'),
 ('Improve Time Management', 'Optimize personal productivity and task prioritization'),
 ('Learn Cloud Security', 'Understand security best practices for cloud environments'),
-('Master Kubernetes', 'Become proficient in container orchestration');
+('Master Kubernetes', 'Become proficient in container orchestration'),
+('Become Machine Learning Engineer', 'Gain production ML deployment skills'),
+('Master Blockchain Development', 'Build enterprise-grade DApps'),
+('Develop Cybersecurity Expertise', 'Protect critical infrastructure'),
+('Learn Quantum Computing', 'Understand quantum algorithms'),
+('Achieve Cloud-Native Expertise', 'Master container orchestration'),
+('Improve MLOps Skills', 'Implement CI/CD for ML pipelines'),
+('Become AI Ethics Specialist', 'Ensure responsible AI development'),
+('Master Observability', 'Implement advanced monitoring solutions'),
+('Learn Generative AI', 'Create content-generation systems'),
+('Develop Edge Computing Skills', 'Build IoT-optimized solutions');
 
 -- 8) Users - Expanded with more realistic employee data
 INSERT INTO "Users" (
@@ -577,7 +664,11 @@ INSERT INTO "Projects" (
 -- Completed projects
 (5, 'Legacy System Migration', 'Enterprise Systems Ltd', 'Migration from mainframe to cloud-based systems', '2024-01-10', '2024-12-15', 3),
 (13, 'Data Warehouse Implementation', 'Analytics Corp', 'Enterprise data warehouse with BI capabilities', '2024-03-01', '2024-11-30', 4),
-(14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2024-05-15', '2025-01-31', 1);
+(14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2024-05-15', '2025-01-31', 1),
+
+-- John Doe projects
+(5, 'Financial Analytics Platform', 'Accenture', 'Development of analytics platform for financial services', '2024-02-01', '2024-08-31', 1),
+(5, 'Client Portal Modernization', 'Accenture', 'Modernization of legacy client portal system', '2024-05-01', '2024-11-30', 1);
 
 
 -- 14) Meeting - Expanded with more meetings
@@ -628,7 +719,27 @@ INSERT INTO "Project_Positions" (
 (5, 'Flutter Developer', 'Build cross-platform mobile app', NULL),
 (5, 'Backend Developer', 'Develop banking API services', 9),
 (5, 'UX Designer', 'Design user-friendly banking interfaces', 10),
-(5, 'Security Engineer', 'Implement financial-grade security', 8);
+(5, 'Security Engineer', 'Implement financial-grade security', 8),
+
+-- Proyecto 14 (NextGen E-Commerce)
+(14, 'Lead Java Developer', 'Lead backend development with Spring Boot', NULL),
+(14, 'Senior Frontend Developer', 'Build React-based user interfaces', NULL),
+(14, 'DevOps Engineer', 'Setup CI/CD pipelines and cloud infrastructure', NULL),
+(14, 'QA Automation Engineer', 'Implement automated testing framework', NULL),
+
+-- Proyecto 15 (Digital Banking)
+(15, 'Java Microservices Architect', 'Design banking microservices architecture', NULL),
+(15, 'Angular Developer', 'Develop banking portal frontend', NULL),
+(15, 'Database Specialist', 'Optimize and secure financial databases', NULL),
+
+-- Proyecto 16 (ERP)
+(16, 'Full Stack Java Developer', 'Develop ERP modules end-to-end', NULL),
+(16, 'UI/UX Designer', 'Design intuitive ERP interfaces', NULL),
+(16, 'Scrum Master', 'Facilitate Agile development process', NULL),
+
+-- John does
+(31, 'Tech Lead', 'Technical leadership for analytics platform development', 1),
+(32, 'Senior Developer', 'Lead developer for portal modernization', 1);
 
 -- 16) Project_User - Expanded with more assignments
 INSERT INTO "Project_User" ("user_id", "project_id") VALUES
@@ -654,7 +765,10 @@ INSERT INTO "Project_User" ("user_id", "project_id") VALUES
 (12, 7), (13, 7), (8, 7),
 
 -- AR Retail Experience (upcoming) tentative assignments
-(10, 8), (9, 8), (14, 8);
+(10, 8), (9, 8), (14, 8),
+
+-- John Doe
+(1, 31), (1, 32);
 
 -- 17) Project_Position_Skills - Expanded with more skill requirements
 INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
@@ -722,7 +836,41 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (21, 5), (21, 30), (21, 33),
 
 -- Security Engineer skills
-(22, 10), (22, 29), (22, 34);
+(22, 10), (22, 29), (22, 34),
+
+-- Lead Java Developer
+(25, 1), (25, 8), (25, 20),
+
+-- Senior Frontend Developer
+(26, 4), (26, 5), (26, 6),
+
+-- DevOps Engineer
+(27, 9), (27, 10), (27, 17),
+
+-- QA Automation Engineer
+(28, 13), (28, 16), (28, 25),
+
+-- Java Microservices Architect
+(29, 1), (29, 8), (29, 19),
+
+-- Angular Developer
+(30, 4), (30, 6), (30, 20),
+
+-- Database Specialist
+(31, 13), (31, 14), (31, 25),
+
+-- Full Stack Java Developer
+(32, 1), (32, 4), (32, 8),
+
+-- UI/UX Designer
+(33, 5), (33, 30), (33, 33),
+
+-- Scrum Master
+(34, 27), (34, 28), (34, 23),
+
+-- John Doe
+(23, 1), (23, 8), (23, 20),  -- Tech Lead needs Java, Spring Boot, Architecture
+(24, 1), (24, 4), (24, 5);    -- Senior Dev needs Java, JavaScript, React
 
 -- 18) Project_Position_Certificates - Expanded with more certificate requirements
 INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VALUES
@@ -785,7 +933,9 @@ INSERT INTO "Feedback" (
 (5, 10, 'UX designs are very intuitive', 5),
 (9, 5, 'Successfully completed migration ahead of schedule', 5),
 (10, 13, 'Data warehouse implementation had some delays', 3),
-(11, 14, 'Security upgrade completed with zero downtime', 5);
+(11, 14, 'Security upgrade completed with zero downtime', 5),
+(31, 1, 'Excellent technical leadership and architecture design', 5),
+(32, 1, 'Delivered high-quality code ahead of schedule', 4);
 
 -- 21) Certificate_Users - Expanded with more certifications
 INSERT INTO "Certificate_Users" (
@@ -827,7 +977,23 @@ INSERT INTO "Certificate_Skills" ("certificate_id", "skill_id") VALUES
 (9, 16), (9, 25),     -- ISTQB -> Testing, QA
 (10, 29), (10, 34),   -- CISSP -> Security, Security
 (11, 7), (11, 20),    -- Salesforce -> CRM, Business
-(12, 17), (12, 34);   -- RHCE -> Linux, Security
+(12, 17), (12, 34),   -- RHCE -> Linux, Security
+-- TensorFlow
+(25, 36), (25, 15), (25, 3),
+-- Ethical Hacking
+(26, 38), (26, 34), (26, 29),
+-- Blockchain
+(27, 39), (27, 40), (27, 19),
+-- Terraform
+(28, 17), (28, 45), (28, 9),
+-- Kubernetes Security
+(29, 10), (29, 34), (29, 17),
+-- Azure AI
+(30, 15), (30, 36), (30, 12),
+-- Quantum Computing
+(31, 42), (31, 15), (31, 16),
+-- Serverless
+(32, 41), (32, 11), (32, 17);
 
 -- 23) Course_Users - Expanded with more course enrollments
 INSERT INTO "Course_Users" (
@@ -868,7 +1034,16 @@ INSERT INTO "Course_Skills" ("course_id", "skill_id") VALUES
 (9, 29), (9, 34), -- Cybersecurity -> Security, Security
 (10, 22), (10, 24), -- Communication -> Communication, Teamwork
 (11, 23), (11, 26), -- Leadership -> Leadership, Time Management
-(12, 9), (12, 10);  -- Docker/K8s -> Docker, Kubernetes
+(12, 9), (12, 10),  -- Docker/K8s -> Docker, Kubernetes
+(13, 36), (13, 15), (13, 16),  -- Advanced ML
+(14, 39), (14, 40), (14, 19),   -- Blockchain
+(15, 38), (15, 34), (15, 29),   -- Cybersecurity
+(16, 41), (16, 11), (16, 17),   -- Serverless
+(17, 42), (17, 15), (17, 16),   -- Quantum
+(18, 45), (18, 17), (18, 18),   -- MLOps
+(19, 46), (19, 47), (19, 9),    -- Monitoring
+(20, 44), (20, 36), (20, 15),   -- Generative AI
+(21, 10), (21, 17), (21, 19);   -- Cloud-Native
 
 -- 25) Employee_Position - Expanded with more position assignments
 INSERT INTO "Employee_Position" (
@@ -877,7 +1052,7 @@ INSERT INTO "Employee_Position" (
     "start_date",
     "end_date"
 ) VALUES
-(1, 1, '2020-01-15', NULL),       -- John Doe - Software Engineer
+(1, 1, '2022-01-15', '2023-12-31'),-- John Doe - Software Engineer
 (2, 4, '2020-06-01', NULL),       -- Emily Wilson - Senior Software Engineer
 (3, 13, '2021-07-01', NULL),      -- Priya Sharma - DevOps Engineer
 (4, 11, '2020-05-15', NULL),      -- Raj Patel - Data Scientist
@@ -892,7 +1067,8 @@ INSERT INTO "Employee_Position" (
 (1, 7, '2017-11-03', NULL),       -- Michael Davis - Software Engineer
 (1, 9, '2021-01-10', NULL),       -- Thomas Müller - Software Engineer
 (1, 11, '2020-05-15', NULL),      -- Raj Patel - Software Engineer
-(2, 14, '2020-02-18', NULL);      -- Liam Taylor - Senior Software Engineer
+(2, 14, '2020-02-18', NULL),      -- Liam Taylor - Senior Software Engineer
+(13, 1, '2024-01-01', NULL);      -- John Doe current position at Accenture
 
 -- 26) Goal_Skills - Expanded with more goal-skill relationships
 INSERT INTO "Goal_Skills" ("goal_id", "skill_id") VALUES
@@ -907,7 +1083,17 @@ INSERT INTO "Goal_Skills" ("goal_id", "skill_id") VALUES
 (9, 16), (9, 25),         -- Data Analysis -> Data Analysis, Problem Solving
 (10, 26), (10, 31),       -- Time Management -> Time Mgmt, Productivity
 (11, 29), (11, 34),       -- Cloud Security -> Security, Security
-(12, 9), (12, 10);        -- Kubernetes -> Docker, Kubernetes
+(12, 9), (12, 10),        -- Kubernetes -> Docker, Kubernetes
+(13, 36), (13, 15), (13, 16),   -- ML Engineer
+(14, 39), (14, 40), (14, 19),    -- Blockchain
+(15, 38), (15, 34), (15, 29),    -- Cybersecurity
+(16, 42), (16, 15), (16, 16),    -- Quantum
+(17, 10), (17, 17), (17, 9),     -- Cloud-Native
+(18, 45), (18, 17), (18, 18),    -- MLOps
+(19, 22), (19, 24), (19, 33),    -- AI Ethics
+(20, 46), (20, 47), (20, 9),     -- Observability
+(21, 44), (21, 36), (21, 15),    -- Generative AI
+(22, 48), (22, 19), (22, 34);    -- Edge Computing
 
 -- 27) Goal_Users - Expanded with more goal assignments
 INSERT INTO "Goal_Users" (
@@ -990,144 +1176,153 @@ INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
 (18, 1), (18, 2), (18, 10), (18, 23), (18, 29), (18, 34);
 
 
+-- 29) Areas - Inserting 10 different technology areas
+INSERT INTO "Areas" ("area_name", "area_desc") VALUES
+('Java Development', 'Backend development using Java and Spring ecosystem'),
+('Frontend Development', 'Building user interfaces with modern frameworks'),
+('Cloud & DevOps', 'Cloud infrastructure and DevOps practices'),
+('Data Science & Analytics', 'Data analysis, machine learning and AI'),
+('Mobile Development', 'Cross-platform and native mobile app development'),
+('Quality Assurance', 'Software testing and quality assurance'),
+('UX/UI Design', 'User experience and interface design'),
+('Project Management', 'Agile project management and leadership'),
+('Cybersecurity', 'Information security and secure coding practices'),
+('Database Engineering', 'Database design, optimization and administration');
 
+-- 30) Area_Certificates - Associating relevant certificates with each area
+INSERT INTO "Area_Certificates" ("area_id", "certificate_id") VALUES
+-- Java Development
+(1, 1), (1, 4), 
 
+-- Frontend Development
+(2, 11), (2, 12),
 
--- John Doe new jobs and projects
+-- Cloud & DevOps
+(3, 5), (3, 6), (3, 7), (3, 8),
 
--- Add Accenture work position for John Doe
-INSERT INTO "Work_Position" (
-    "position_name",
-    "position_desc",
-    "company"
-) VALUES
-('Senior Software Engineer', 'Leads development of enterprise applications', 'Accenture');
+-- Data Science & Analytics
+(4, 17), (4, 18), (4, 19), (4, 20),
 
--- Get the position_id of the newly created Accenture position
--- (Assuming this is position_id 13 since you had 12 positions previously)
--- In a real application, you'd want to get this ID programmatically
+-- Mobile Development
+(5, 11), (5, 12),
 
--- Add John Doe's employment at Accenture (after his current position)
-INSERT INTO "Employee_Position" (
-    "position_id",
-    "user_id",
-    "start_date",
-    "end_date"
-) VALUES
-(13, 1, '2024-01-01', NULL);  -- Current position at Accenture
+-- Quality Assurance
+(6, 9),
 
--- Update John Doe's previous position end date
-UPDATE "Employee_Position" 
-SET "end_date" = '2023-12-31'
-WHERE "user_id" = 1 AND "position_id" = 1;
+-- UX/UI Design
+(7, 11), (7, 12),
 
--- Add two projects during John's time at Accenture
-INSERT INTO "Projects" (
-    "delivery_lead_user_id",
-    "project_name",
-    "company_name",
-    "project_desc",
-    "start_date",
-    "end_date",
-    "country_id"
-) VALUES
--- Project during Accenture employment
-(5, 'Financial Analytics Platform', 'Accenture', 'Development of analytics platform for financial services', '2024-02-01', '2024-08-31', 1),
-(5, 'Client Portal Modernization', 'Accenture', 'Modernization of legacy client portal system', '2024-05-01', '2024-11-30', 1);
+-- Project Management
+(8, 2), (8, 4),
 
--- Get the project_ids of the newly created projects
--- (Assuming these are project_ids 14 and 15)
+-- Cybersecurity
+(9, 10), (9, 22), (9, 23),
 
--- Add positions for these projects
-INSERT INTO "Project_Positions" (
-    "project_id", 
-    "position_name",
-    "position_desc",
-    "user_id"
-) VALUES
-(12, 'Tech Lead', 'Technical leadership for analytics platform development', 1),
-(13, 'Senior Developer', 'Lead developer for portal modernization', 1);
+-- Database Engineering
+(10, 2), (10, 3);
 
--- Add John to the projects
-INSERT INTO "Project_User" ("user_id", "project_id") VALUES
-(1, 12), (1, 13);
+-- 31) Area_Courses - Associating relevant courses with each area
+INSERT INTO "Area_Courses" ("area_id", "course_id") VALUES
+-- Java Development
+(1, 1), (1, 2),
 
--- Add required skills for these positions
-INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
-(23, 1), (23, 8), (23, 20),  -- Tech Lead needs Java, Spring Boot, Architecture
-(24, 1), (24, 4), (24, 5);    -- Senior Dev needs Java, JavaScript, React
+-- Frontend Development
+(2, 4),
 
--- Add feedback for John's work on these projects
-INSERT INTO "Feedback" (
-    "project_id",
-    "user_id",
-    "desc",
-    "score"
-) VALUES
-(12, 1, 'Excellent technical leadership and architecture design', 5),
-(13, 1, 'Delivered high-quality code ahead of schedule', 5);
+-- Cloud & DevOps
+(3, 5), (3, 6), (3, 12),
 
+-- Data Science & Analytics
+(4, 3), (4, 8),
 
+-- Mobile Development
+(5, 4),
 
+-- Quality Assurance
+(6, 9),
 
+-- UX/UI Design
+(7, 10),
 
+-- Project Management
+(8, 7),
 
+-- Cybersecurity
+(9, 9),
 
+-- Database Engineering
+(10, 5);
 
+-- 32) Project_Position_Areas - Associating project positions with relevant areas
+INSERT INTO "Project_Position_Areas" ("position_id", "area_id") VALUES
+-- E-Commerce Platform positions
+(1, 1),   -- Java Backend Developer -> Java Development
+(2, 2),   -- Frontend Developer -> Frontend Development
+(3, 3),   -- DevOps Engineer -> Cloud & DevOps
+(5, 6),   -- QA Engineer -> Quality Assurance
 
+-- Banking System Modernization positions
+(6, 1),   -- Solution Architect -> Java Development
+(6, 3),   -- Solution Architect -> Cloud & DevOps
+(8, 10),  -- Database Specialist -> Database Engineering
+(10, 9),  -- Security Specialist -> Cybersecurity
 
-INSERT INTO "Project_Positions" (
-    "project_id", 
-    "position_name",
-    "position_desc",
-    "user_id"
-) VALUES
--- Proyecto 14 (NextGen E-Commerce)
-(14, 'Lead Java Developer', 'Lead backend development with Spring Boot', NULL),
-(14, 'Senior Frontend Developer', 'Build React-based user interfaces', NULL),
-(14, 'DevOps Engineer', 'Setup CI/CD pipelines and cloud infrastructure', NULL),
-(14, 'QA Automation Engineer', 'Implement automated testing framework', NULL),
+-- Healthcare Analytics positions
+(11, 4),  -- Data Scientist -> Data Science & Analytics
+(13, 4),  -- Data Engineer -> Data Science & Analytics
+(13, 10), -- Data Engineer -> Database Engineering
 
--- Proyecto 15 (Digital Banking)
-(15, 'Java Microservices Architect', 'Design banking microservices architecture', NULL),
-(15, 'Angular Developer', 'Develop banking portal frontend', NULL),
-(15, 'Database Specialist', 'Optimize and secure financial databases', NULL),
+-- Mobile Banking App positions
+(19, 5),  -- Flutter Developer -> Mobile Development
+(21, 7),  -- UX Designer -> UX/UI Design
 
--- Proyecto 16 (ERP)
-(16, 'Full Stack Java Developer', 'Develop ERP modules end-to-end', NULL),
-(16, 'UI/UX Designer', 'Design intuitive ERP interfaces', NULL),
-(16, 'Scrum Master', 'Facilitate Agile development process', NULL);
+-- New positions
+(25, 1),  -- Lead Java Developer -> Java Development
+(26, 2),  -- Senior Frontend Developer -> Frontend Development
+(27, 3),  -- DevOps Engineer -> Cloud & DevOps
+(29, 1),  -- Java Microservices Architect -> Java Development
+(29, 3),  -- Java Microservices Architect -> Cloud & DevOps
+(32, 1),  -- Full Stack Java Developer -> Java Development
+(32, 2);  -- Full Stack Java Developer -> Frontend Development
 
--- Asumiendo que estas posiciones obtienen los IDs 25 al 33
+-- 33) User_Area_Score - Assigning area scores to users
+INSERT INTO "User_Area_Score" ("user_id", "area_id", "score") VALUES
+-- John Doe - strong in Java, moderate in others
+(1, 1, 90), (1, 3, 75), (1, 6, 80),
 
--- 3. Agregar habilidades requeridas para estas posiciones (enfocadas en Java/Spring/React)
-INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
--- Lead Java Developer
-(25, 1), (25, 8), (25, 20),
+-- Jane Smith - Project Management focus
+(2, 8, 85), (2, 2, 65),
 
--- Senior Frontend Developer
-(26, 4), (26, 5), (26, 6),
+-- Emily Wilson - Data Science expert
+(4, 4, 95), (4, 10, 85),
 
--- DevOps Engineer
-(27, 9), (27, 10), (27, 17),
+-- David Brown - Project Management
+(5, 8, 90), (5, 1, 70),
 
--- QA Automation Engineer
-(28, 13), (28, 16), (28, 25),
+-- Sarah Miller - Project Management
+(6, 8, 88), (6, 2, 72),
 
--- Java Microservices Architect
-(29, 1), (29, 8), (29, 19),
+-- Anna Schmidt - Cybersecurity
+(8, 9, 92), (8, 3, 85),
 
--- Angular Developer
-(30, 4), (30, 6), (30, 20),
+-- Thomas Müller - Java and Frontend
+(9, 1, 85), (9, 2, 80),
 
--- Database Specialist
-(31, 13), (31, 14), (31, 25),
+-- Claudia Fischer - UX/UI Design
+(10, 7, 94), (10, 2, 88),
 
--- Full Stack Java Developer
-(32, 1), (32, 4), (32, 8),
+-- Raj Patel - Data Science
+(11, 4, 89), (11, 10, 78),
 
--- UI/UX Designer
-(33, 5), (33, 30), (33, 33),
+-- Amit Singh - Cloud & DevOps
+(12, 3, 93), (12, 9, 82),
 
--- Scrum Master
-(34, 27), (34, 28), (34, 23);
+-- Priya Sharma - Cloud & DevOps
+(13, 3, 91), (13, 1, 75),
+
+-- Olivia Wilson - Cloud & Java
+(14, 3, 96), (14, 1, 85),
+
+-- Liam Taylor - Java and Frontend
+(15, 1, 88), (15, 2, 82);
+
