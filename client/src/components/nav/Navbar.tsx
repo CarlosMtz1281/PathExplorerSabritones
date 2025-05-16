@@ -96,7 +96,6 @@ export default function Navbar() {
             )}
           </a>
         </li>
-<<<<<<< HEAD
         <li className="w-full">
           <a
             href="/dashboard/repo-empleados"
@@ -110,8 +109,6 @@ export default function Navbar() {
         </li>
 
         
-=======
->>>>>>> main
       </ul>
 
       {/* Logout Button */}
