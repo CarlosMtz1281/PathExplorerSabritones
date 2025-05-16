@@ -46,14 +46,19 @@ const fetchAllSkills = async () => {
   }
 };
 
-const fetchUserSkills = async (sessionKey: string) => {
+const fetchUserSkills = async (sessionKey?: string, userId?: number) => {
   try {
+    if (userId) {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE}/employee/getsSkillsId/${userId}`
+      );
+      return response.data;
+    }
+
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_BASE}/employee/skills`,
       {
-        headers: {
-          "session-key": sessionKey,
-        },
+        headers: { "session-key": sessionKey },
       }
     );
     return response.data;
@@ -62,6 +67,7 @@ const fetchUserSkills = async (sessionKey: string) => {
     return [];
   }
 };
+
 
 const postUserSkills = async (sessionKey: string, skills: number[]) => {
   try {
@@ -81,7 +87,8 @@ const postUserSkills = async (sessionKey: string, skills: number[]) => {
   }
 };
 
-const WidgetHabilidades = () => {
+const WidgetHabilidades = ({ userId }: { userId?: number }) => {
+
   const { data: status } = useSession();
   const [render, setRender] = useState(false);
   const [technicalSkills, setTechnicalSkills] = useState<string[]>();
@@ -90,7 +97,7 @@ const WidgetHabilidades = () => {
 
   useEffect(() => {
     const fetchSkills = async () => {
-      const userSkills = await fetchUserSkills(status?.sessionId || "");
+      const userSkills = await fetchUserSkills(status?.sessionId || "", userId);
       setTechnicalSkills(
         userSkills
           .filter((skill: SkillAPI) => skill.skill_technical === true)

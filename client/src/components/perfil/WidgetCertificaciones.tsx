@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaArrowDown } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { PiCertificate } from "react-icons/pi";
-import { FaArrowUp } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -19,14 +18,18 @@ interface Certificate {
   skills: string[];
   provider: string;
 }
-export default function WidgetCertificaciones() {
+
+interface Props {
+  userId?: number; // Nuevo: opcional para uso en perfil
+}
+
+export default function WidgetCertificaciones({ userId }: Props) {
   const { data: session } = useSession();
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCertificate, setSelectedCertificate] =
     useState<Certificate | null>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [addModalIsOpen, setAddModalIsOpen] = useState(false);
-
   const [certificates, setCertificates] = useState<Certificate[]>([]);
 
   const toggleAccordion = () => {
@@ -35,40 +38,50 @@ export default function WidgetCertificaciones() {
 
   const fetchCertificates = async () => {
     try {
-      const sessionId = session?.sessionId; // Retrieve sessionId from localStorage
+      if (userId) {
+        // ✅ Forzar fetch por ID si viene desde el perfil
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user`, {
+          headers: { "user-id": userId.toString() },
+        });
+  
+        const certs = res.data.Certificate_Users?.map((cu: any) => ({
+          certificate_id: cu.certificate_id,
+          user_id: cu.user_id,
+          certificate_name: cu.Certificates?.certificate_name || "Sin nombre",
+          certificate_desc: cu.Certificates?.certificate_desc || "",
+          certificate_date: cu.certificate_date,
+          certificate_expiration_date: cu.certificate_expiration_date,
+          certificate_link: cu.certificate_link,
+          skills: [],
+          provider: cu.Certificates?.provider || "",
+        })) || [];
+  
+        setCertificates(certs);
+        return; // 👈 IMPORTANTE: no continuar a lógica de sesión
+      }
+  
+      // 🔁 Solo si no hay userId, usar la sesión
+      const sessionId = session?.sessionId;
       if (!sessionId) {
         console.error("Session ID is missing");
         return;
       }
-
-      console.log("Session ID:", sessionId);
-
+  
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_BASE}/course/certificates`,
-        {
-          headers: {
-            "session-key": sessionId,
-          },
-        }
+        { headers: { "session-key": sessionId } }
       );
-
-      if (res.status === 401) {
-        console.error("Session expired or invalid. Redirecting to login...");
-        localStorage.removeItem("sessionId");
-        window.location.href = "/login";
-        return;
-      }
-
-      setCertificates(res.data); // Save certificates in state
-      console.log("Fetched Certificates:", res.data); // Log certificates to the console
+  
+      setCertificates(res.data);
     } catch (error) {
       console.error("Error fetching certificates:", error);
     }
   };
+  
 
   useEffect(() => {
-    fetchCertificates(); // Fetch certificates when the component is rendered
-  }, []);
+    fetchCertificates();
+  }, [userId]);
 
   return (
     <div className="card bg-base-100 shadow-xl col-span-2">
@@ -78,20 +91,16 @@ export default function WidgetCertificaciones() {
             <PiCertificate />
             Certificaciones
           </h2>
-          <div>
-            <button
-              className="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"
-              onClick={() => setAddModalIsOpen(true)}
-            >
-              <IoMdAdd className="text-lg md:text-xl" />
-            </button>
-          </div>
+          <button
+            className="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"
+            onClick={() => setAddModalIsOpen(true)}
+          >
+            <IoMdAdd className="text-lg md:text-xl" />
+          </button>
+
         </div>
 
-        {/* Certificaciones Destacadas */}
-        <p className="text-secondary text-lg mt-2">
-          Certificaciones Destacadas
-        </p>
+        <p className="text-secondary text-lg mt-2">Certificaciones Destacadas</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
           {certificates.slice(0, 4).map((certificate) => (
             <div
@@ -105,29 +114,22 @@ export default function WidgetCertificaciones() {
               <p className="font-bold">{certificate.certificate_name}</p>
               <p className="text-sm text-secondary">
                 Completado:{" "}
-                {new Date(certificate.certificate_date).toLocaleDateString(
-                  "es-MX",
-                  {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  }
-                )}
+                {new Date(certificate.certificate_date).toLocaleDateString("es-MX", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Conditionally Rendered Rows with Animation */}
         <div
           className={`transition-all duration-500 ease-in-out overflow-hidden ${
             isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          {/* Additional Certificates */}
-          <p className="text-secondary text-lg mt-2">
-            Certificaciones en Curso
-          </p>
+          <p className="text-secondary text-lg mt-2">Certificaciones en Curso</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             {certificates.slice(4).map((certificate) => (
               <div
@@ -141,14 +143,11 @@ export default function WidgetCertificaciones() {
                 <p className="font-bold">{certificate.certificate_name}</p>
                 <p className="text-sm text-secondary">
                   Completado:{" "}
-                  {new Date(certificate.certificate_date).toLocaleDateString(
-                    "es-MX",
-                    {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }
-                  )}
+                  {new Date(certificate.certificate_date).toLocaleDateString("es-MX", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
                 </p>
               </div>
             ))}
@@ -160,14 +159,12 @@ export default function WidgetCertificaciones() {
             isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          {/* Additional Certificates */}
-          <p className="text-secondary text-lg mt-2">
-            Certificaciones Recomendada
-          </p>
+          <p className="text-secondary text-lg mt-2">Certificaciones Recomendadas</p>
           <div className="flex justify-center items-center h-32 bg-base-200 border border-primary rounded-lg mt-4">
-            <h2 className="text-xl color-base-200">Proximamente...</h2>
+            <h2 className="text-xl color-base-200">Próximamente...</h2>
           </div>
         </div>
+
         {modalIsOpen && selectedCertificate && (
           <CertificateModal
             certificate={selectedCertificate}
@@ -175,21 +172,17 @@ export default function WidgetCertificaciones() {
           />
         )}
 
-        {addModalIsOpen && (
+        {addModalIsOpen && !userId && (
           <AddCertificateModal
             onClose={() => {
               setAddModalIsOpen(false);
-              fetchCertificates(); // Refresh the data of certifications
+              fetchCertificates(); // Refresca
             }}
           />
         )}
 
-        {/* Toggle Button */}
         <div className="flex justify-center items-center mt-6">
-          <button
-            className="btn btn-circle btn-accent"
-            onClick={toggleAccordion}
-          >
+          <button className="btn btn-circle btn-accent" onClick={toggleAccordion}>
             {isExpanded ? <FaArrowUp /> : <FaArrowDown />}
           </button>
         </div>

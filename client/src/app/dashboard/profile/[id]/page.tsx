@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import { useState, useEffect } from "react";
+
+import React, { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
@@ -10,10 +10,11 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 
 const Profile = () => {
-  const { id } = useParams();
-  console.log("Profile ID:", id);
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [userData, setUserData] = useState<User | null>(null);
+
   const fetchUserData = async () => {
     try {
       const res = await fetch(
@@ -31,7 +32,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [id]);
 
   if (!userData) {
     return <div>Loading...</div>;
@@ -68,7 +69,7 @@ const Profile = () => {
             <Cargabilidad userId={userData.user_id} />
           </div>
 
-          {/* Additional Info - Removed flex-1 and added overflow control */}
+          {/* Additional Info */}
           <div className="mt-6 bg-accent text-base-100 p-4 rounded-lg w-full border border-black max-h-[40%] overflow-y-auto">
             <div className="flex flex-col gap-4">
               <div className="justify-between">
