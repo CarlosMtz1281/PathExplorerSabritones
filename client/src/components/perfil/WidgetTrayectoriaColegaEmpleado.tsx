@@ -109,22 +109,7 @@
                 )}
               </div>
               
-              {/* Right Column */}
-              <div className="w-1/2 pl-4">
-                {project.feedbackDesc && (
-                  <p className="text-base-content mb-2">
-                    "{project.feedbackDesc}"
-                  </p>
-                )}
-                <p className="font-bold text-base-content text-sm">
-                  - {project.deliveryLeadName}
-                </p>
-                {project.feedbackScore && (
-                  <div className="mt-2">
-                    {renderStars(project.feedbackScore)}
-                  </div>
-                )}
-              </div>
+              
             </div>
           </div>
         )}

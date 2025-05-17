@@ -4,10 +4,9 @@ import React, { useState, useEffect } from "react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificacionesColegas from "@/components/perfil/WidgetCertificacionesColegas";
 import WidgetTrayectoriaColegas from "@/components/perfil/WidgetTrayectoriaColegas";
+import WidgetTrayectoriaColegasEmpleado from "@/components/perfil/WidgetTrayectoriaColegaEmpleado";
 import WidgetHabilidadesColegas from "@/components/perfil/WidgetHabilidadesColegas";
 import WidgetFeedbackColegas from "@/components/perfil/WidgetFeedbackColegas";
-
-
 
 import { User } from "@/interfaces/User";
 import Image from "next/image";
@@ -18,24 +17,24 @@ const InfoColegas = () => {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [userData, setUserData] = useState<User | null>(null);
-
-  const fetchUserData = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`
-      );
-      if (!res.ok) throw new Error("Failed to fetch user data");
-
-      const data: User = await res.json();
-      setUserData(data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
+  const [roleId, setRoleId] = useState<number | null>(null);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`
+        );
+        const data = await res.json();
+        setUserData(data);
+        setRoleId(data.role_id);
+      } catch (error) {
+        console.error("Error fetching user data", error);
+      }
+    };
+
     fetchUserData();
-  }, [id]);
+  }, [params.id]);
 
   if (!userData) {
     return <div>Loading...</div>;
@@ -64,10 +63,7 @@ const InfoColegas = () => {
             </p>
           </div>
 
-          
-
           <div className="mt-6 bg-accent text-base-100 p-4 rounded-lg w-full border border-black min-w-[220px]">
-
             <div className="flex flex-col gap-4">
               <div className="text-left">
                 <p className="text-base font-semibold">
@@ -120,13 +116,69 @@ const InfoColegas = () => {
 
       {/* Right Column - Widgets */}
       <div className="w-full flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] overflow-y-auto">
-        <WidgetCertificacionesColegas userId={userData.user_id} />
-        <WidgetTrayectoriaColegas userId={userData.user_id} />
-        <WidgetHabilidadesColegas userId={userData.user_id} />
-        <WidgetFeedbackColegas userId={userData.user_id} />
+        
+        {/* Empleado */}
+        {[1].includes(roleId || 0) && (
+          <div className="alert alert-info text-sm">
+            <WidgetCertificacionesColegas userId={userData.user_id} />
+            <WidgetTrayectoriaColegas userId={userData.user_id} />
+            
+          </div>
+        )}
 
+        {/* 2. People lead */}
+        {[2].includes(roleId || 0) && (
+          <div className="alert alert-info text-sm">
+            <WidgetCertificacionesColegas userId={userData.user_id} />
+            <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
+            <WidgetHabilidadesColegas userId={userData.user_id} />
+            <WidgetFeedbackColegas userId={userData.user_id} />
+          </div>
+        )}
 
+        {/* 3. Capability */}
+        {[3].includes(roleId || 0) && (
+          <div className="alert alert-info text-sm">
+            <WidgetCertificacionesColegas userId={userData.user_id} />
+            <WidgetTrayectoriaColegas userId={userData.user_id} />
+            <WidgetHabilidadesColegas userId={userData.user_id} />
+            <WidgetFeedbackColegas userId={userData.user_id} />
+            
+          </div>
+        )}
+
+        {/* 4. Delivery */}
+        {[4].includes(roleId || 0) && (
+          <div className="alert alert-info text-sm">
+            <WidgetCertificacionesColegas userId={userData.user_id} />
+            <WidgetTrayectoriaColegas userId={userData.user_id} />
+            <WidgetHabilidadesColegas userId={userData.user_id} />
+            <WidgetFeedbackColegas userId={userData.user_id} />
+          </div>
+        )}
+
+        {/* 5. Admin */}
+        {[5].includes(roleId || 0) && (
+          <div className="alert alert-info text-sm">
+            Este widget solo lo ven líderes y admin (ejemplo)
+          </div>
+        )}
+
+        {/* 6. Delivery y PL*/}
+        {[6].includes(roleId || 0) && (
+          <div className="alert alert-info text-sm">
+            Este widget solo lo ven líderes y admin (ejemplo)
+          </div>
+        )}
+
+        {/* 7. Capabilty y PL */}
+        {[7].includes(roleId || 0) && (
+          <div className="alert alert-info text-sm">
+            Este widget solo lo ven líderes y admin (ejemplo)
+          </div>
+        )}
       </div>
+
     </div>
   );
 };
