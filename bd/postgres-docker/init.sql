@@ -159,6 +159,7 @@ CREATE TABLE "Work_Position" (
 CREATE TABLE "Employee_Position" (
   "position_id" integer,
   "user_id" integer,
+  "level" integer,
   "start_date" timestamp,
   "end_date" timestamp,
   PRIMARY KEY ("position_id", "user_id")
@@ -478,7 +479,40 @@ INSERT INTO "Work_Position" (
 ('Scrum Master', 'Facilitates Agile processes and removes impediments', 'Agile Transformations'),
 ('Data Engineer', 'Builds and maintains data pipelines', 'Big Data Technologies'),
 ('Security Analyst', 'Protects systems from cyber threats', 'Cyber Security Experts'),
-('Senior Software Engineer', 'Leads development of enterprise applications', 'Accenture');
+('Senior Software Engineer', 'Leads development of enterprise applications', 'Accenture'),
+
+-- SAoftware Development related positions
+('Senior Software Developer', 'Develops complex software solutions at Accenture', 'Accenture'),
+('Software Development Lead', 'Leads a team of software developers at Accenture', 'Accenture'),
+('Principal Software Engineer', 'Highest technical level for software engineers at Accenture', 'Accenture'),
+
+-- Project Management related positions
+('Senior Project Manager', 'Manages large-scale projects at Accenture', 'Accenture'),
+('Delivery Lead', 'Oversees project delivery at Accenture', 'Accenture'),
+
+-- Data Science related positions
+('Data Science Lead', 'Leads data science initiatives at Accenture', 'Accenture'),
+('Senior Data Scientist', 'Advanced data analysis and modeling at Accenture', 'Accenture'),
+
+-- DevOps related positions
+('DevOps Lead', 'Leads DevOps practices at Accenture', 'Accenture'),
+('Cloud Infrastructure Engineer', 'Manages cloud infrastructure at Accenture', 'Accenture'),
+
+-- Cloud Architecture related positions
+('Cloud Solutions Architect', 'Designs cloud solutions at Accenture', 'Accenture'),
+('Senior Cloud Architect', 'Advanced cloud architecture at Accenture', 'Accenture'),
+
+-- Quality Assurance related positions
+('QA Automation Lead', 'Leads test automation at Accenture', 'Accenture'),
+('Senior Test Engineer', 'Advanced testing at Accenture', 'Accenture'),
+
+-- UX Design related positions
+('UX Design Lead', 'Leads UX design at Accenture', 'Accenture'),
+('Senior UX Designer', 'Advanced UX design at Accenture', 'Accenture'),
+
+-- Product Management related positions
+('Product Strategy Lead', 'Leads product strategy at Accenture', 'Accenture'),
+('Senior Product Manager', 'Manages product development at Accenture', 'Accenture');
 
 -- 7) Goals - Expanded with more development goals
 INSERT INTO "Goals" ("goal_name", "goal_desc") VALUES
@@ -1079,29 +1113,80 @@ INSERT INTO "Course_Skills" ("course_id", "skill_id") VALUES
 (21, 10), (21, 17), (21, 19);   -- Cloud-Native
 
 -- 25) Employee_Position - Expanded with more position assignments
-INSERT INTO "Employee_Position" (
+ INSERT INTO "Employee_Position" (
     "position_id",
     "user_id",
+    "level",
     "start_date",
     "end_date"
 ) VALUES
-(1, 1, '2022-01-15', '2023-12-31'),-- John Doe - Software Engineer
-(2, 4, '2020-06-01', NULL),       -- Emily Wilson - Senior Software Engineer
-(3, 13, '2021-07-01', NULL),      -- Priya Sharma - DevOps Engineer
-(4, 11, '2020-05-15', NULL),      -- Raj Patel - Data Scientist
-(5, 6, '2019-03-10', NULL),       -- Sarah Miller - Project Manager
-(6, 5, '2018-07-22', NULL),       -- David Brown - Product Owner
-(7, 3, '2021-02-15', NULL),       -- Robert Johnson - QA Engineer
-(8, 10, '2022-03-25', NULL),      -- Claudia Fischer - UX Designer
-(9, 14, '2018-04-12', NULL),      -- Olivia Wilson - Technical Architect
-(10, 6, '2020-09-14', NULL),      -- Sarah Miller - Scrum Master
-(11, 12, '2021-07-01', NULL),     -- Amit Singh - Data Engineer
-(12, 8, '2019-08-19', NULL),      -- Anna Schmidt - Security Analyst
-(1, 7, '2017-11-03', NULL),       -- Michael Davis - Software Engineer
-(1, 9, '2021-01-10', NULL),       -- Thomas Müller - Software Engineer
-(1, 11, '2020-05-15', NULL),      -- Raj Patel - Software Engineer
-(2, 14, '2020-02-18', NULL),      -- Liam Taylor - Senior Software Engineer
-(13, 1, '2024-01-01', NULL);      -- John Doe current position at Accenture
+(1, 1, NULL, '2021-01-15', '2022-12-31'), -- John Doe - Software Engineer
+(2, 4, NULL, '2020-06-01', '2022-12-31'), -- Emily Wilson - Senior Software Engineer
+(3, 12, NULL, '2021-07-01', '2022-12-31'), -- Priya Sharma - DevOps Engineer
+(4, 11, NULL, '2020-05-15', '2022-12-31'), -- Raj Patel - Data Scientist
+(5, 6, NULL, '2019-03-10', '2022-12-31'), -- Sarah Miller - Project Manager
+(6, 5, NULL, '2018-07-22', '2022-12-31'), -- David Brown - Product Owner
+(7, 3, NULL, '2021-02-15', '2022-12-31'), -- Robert Johnson - QA Engineer
+(8, 10, NULL, '2021-03-25', '2022-12-31'), -- Claudia Fischer - UX Designer
+(9, 11, NULL, '2018-04-12', '2022-12-31'), -- Olivia Wilson - Technical Architect
+(10, 6, NULL, '2020-09-14', '2022-12-31'), -- Sarah Miller - Scrum Master
+(11, 12, NULL, '2021-07-01', '2022-12-31'), -- Amit Singh - Data Engineer
+(12, 8, NULL, '2019-08-19', '2022-12-31'), -- Anna Schmidt - Security Analyst
+(1, 7, NULL, '2017-11-03', '2022-12-31'), -- Michael Davis - Software Engineer
+(1, 9, NULL, '2021-01-10', '2022-12-31'), -- Thomas Müller - Software Engineer
+(1, 11, NULL, '2020-05-15', '2022-12-31'), -- Raj Patel - Software Engineer
+(2, 12, NULL, '2020-02-18', '2022-12-31'), -- Liam Taylor - Senior Software Engineer
+
+-- John Doe
+(13, 1, 3, '2024-01-01', NULL),
+
+-- Jane Smith - QA Automation Lead (related to Quality Assurance capability)
+(23, 2, 2, '2023-01-01', NULL),
+
+-- Robert Johnson - Senior Test Engineer (related to Quality Assurance capability)
+(24, 3, 3, '2023-01-01', NULL),
+
+-- Emily Wilson - Principal Software Engineer (related to Software Development capability)
+(15, 4, 4, '2023-01-01', NULL),
+
+-- David Brown - Product Strategy Lead (related to Product Management capability)
+(29, 5, 3, '2023-01-01', NULL),
+
+-- Sarah Miller - Delivery Lead (related to Project Management capability)
+(18, 6, 3, '2023-01-01', NULL),
+
+-- Michael Davis - Software Development Lead (related to Software Development capability)
+(14, 7, 3, '2023-01-01', NULL),
+
+-- Anna Schmidt - Data Science Lead (related to Data Science capability)
+(19, 8, 3, '2023-01-01', NULL),
+
+-- Thomas Müller - Senior UX Designer (related to UX Design capability)
+(26, 9, 3, '2023-01-01', NULL),
+
+-- Claudia Fischer - UX Design Lead (related to UX Design capability)
+(25, 10, 3, '2023-01-01', NULL),
+
+-- Raj Patel - Senior Data Scientist (related to Data Science capability)
+(20, 11, 3, '2023-01-01', NULL),
+
+-- Amit Singh - DevOps Lead (related to DevOps Engineering capability)
+(21, 12, 3, '2023-01-01', NULL),
+
+-- Priya Sharma - Cloud Infrastructure Engineer (related to DevOps Engineering capability)
+(22, 13, 2, '2023-01-01', NULL),
+
+-- Olivia Wilson - Senior Cloud Architect (related to Cloud Architecture capability)
+(28, 14, 3, '2023-01-01', NULL),
+
+-- Liam Taylor - Cloud Solutions Architect (related to Cloud Architecture capability)
+(27, 15, 3, '2023-01-01', NULL),
+
+-- Admin users (generic positions)
+(14, 16, 4, '2023-01-01', NULL),  -- US Admin - Software Development Lead
+(14, 17, 4, '2023-01-01', NULL),  -- UK Admin - Software Development Lead
+(14, 18, 5, '2023-01-01', NULL);  -- Global Admin - Software Development Lead (highest level)
+
 
 -- 26) Goal_Skills - Expanded with more goal-skill relationships
 INSERT INTO "Goal_Skills" ("goal_id", "skill_id") VALUES
