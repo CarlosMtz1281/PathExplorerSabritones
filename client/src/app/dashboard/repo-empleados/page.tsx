@@ -178,7 +178,7 @@ export default function RepoEmpleados() {
                           <button
                             className="btn btn-primary btn-sm"
                             onClick={() =>
-                              window.location.href = `/dashboard/profile/${emp.user_id}`
+                              window.location.href = `/dashboard/info-colegas/${emp.user_id}`
                             }
                           >
                             Ir a Perfil

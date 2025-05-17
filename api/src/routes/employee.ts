@@ -27,7 +27,6 @@ router.get("/user/:userId", async (req, res) => {
         Country: true,
         Permits: true,
 
-        // 🔥 AÑADE ESTO:
         Certificate_Users: {
           include: {
             Certificates: true,
