@@ -7,6 +7,7 @@ import projectRoutes from "./routes/project";
 import employeeRoutes from "./routes/employee";
 import courseRoutes from "./routes/course";
 import mlUserDataRoutes from "./routesML/mlUserData";
+import pathExplorerRoutes from "./routes/pathexplorer";
 import fs from "fs";
 import cookieParser from "cookie-parser";
 
@@ -28,6 +29,7 @@ app.use("/project", projectRoutes);
 app.use("/employee", employeeRoutes);
 app.use("/course", courseRoutes);
 app.use("/ml-user-data", mlUserDataRoutes);
+app.use("/path-explorer", pathExplorerRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello, World! 🌍");

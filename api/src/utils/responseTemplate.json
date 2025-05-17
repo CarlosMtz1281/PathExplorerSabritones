@@ -1,0 +1,54 @@
+{
+  "recommendations": {
+    "introduction": "Based on your experience in Java and AWS, we have tailored some recommendations to help you advance your career. These suggestions include certifications and job positions that align with your skills and interests. We believe these recommendations will enhance your qualifications and open up new opportunities for you. We encourage you to consider pursuing these certifications and exploring the suggested job positions to further develop your expertise in Java and AWS.",
+    "area": {
+      "area_name": "Java Development",
+      "area_desc": "Backend development using Java and Spring ecosystem",
+      "user_area_score": 4017,
+      "previous_certificates": "You've completed the following certifications: AWS Certified Solutions Architect - Associate, AWS Certified Developer - Associate, AWS Certified DevOps Engineer - Professional, AWS Certified Cloud Practitioner. These certifications demonstrate your expertise in AWS and cloud technologies, which are highly relevant to your career in Java development and backend development. They showcase your ability to design, develop, and deploy applications on AWS, making you a valuable asset in the job market.",
+      "previous_positions": "You've held the following positions: Java Developer, AWS Cloud Engineer, DevOps Engineer. These roles have provided you with hands-on experience in Java development, cloud engineering, and DevOps practices. Your background in these positions has equipped you with a strong foundation in backend development and cloud technologies, making you well-suited for advanced roles in the industry.",
+      "recommendations": {
+        "certification": [
+          {
+            "certification_id": 1,
+            "name": "AWS Certified Solutions Architect - Associate",
+            "description": "Advanced Java features and frameworks",
+            "reason": "This certification is highly regarded in the industry and demonstrates your ability to design and deploy scalable systems on AWS. It is a great addition to your resume and can help you stand out in the job market. It also aligns well with your experience in Java and AWS, making it a valuable credential for your career granting 600 points.",
+            "skills": "The skills you will learn in this certification include AWS architecture best practices, designing highly available and fault-tolerant systems, and understanding AWS services such as EC2, S3, and RDS. These skills are essential for a Java developer working with cloud technologies.",
+            "points": 600,
+            "recommendation_percentage": 0.8
+          },
+          {
+            "certification_id": 2,
+            "name": "AWS Certified Solutions Architect - Associate",
+            "description": "Advanced Java features and frameworks",
+            "reason": "This certification is highly regarded in the industry and demonstrates your ability to design and deploy scalable systems on AWS. It is a great addition to your resume and can help you stand out in the job market. It also aligns well with your experience in Java and AWS, making it a valuable credential for your career granting 600 points.",
+            "skills": "The skills you will learn in this certification include AWS architecture best practices, designing highly available and fault-tolerant systems, and understanding AWS services such as EC2, S3, and RDS. These skills are essential for a Java developer working with cloud technologies.",
+            "points": 600,
+            "recommendation_percentage": 0.8
+          }
+        ],
+        "positions": [
+          {
+            "position_id": 1,
+            "name": "Cloud Solutions Architect",
+            "description": "Design and implement cloud solutions using AWS services.",
+            "reason": "This position aligns well with your experience in Java and AWS, allowing you to leverage your skills in a cloud environment. It also offers opportunities for growth and advancement in the field of cloud computing granting 700 points.",
+            "skills": "The skills you will obtain in this position include cloud architecture design, knowledge of AWS services, and experience with Java development. These skills are essential for a Cloud Solutions Architect to effectively design and implement cloud solutions.",
+            "points": 700,
+            "recommendation_percentage": 0.75
+          },
+          {
+            "position_id": 2,
+            "name": "Cloud Solutions Architect",
+            "description": "Design and implement cloud solutions using AWS services.",
+            "reason": "This position aligns well with your experience in Java and AWS, allowing you to leverage your skills in a cloud environment. It also offers opportunities for growth and advancement in the field of cloud computing granting 700 points.",
+            "skills": "The skills you will obtain in this position include cloud architecture design, knowledge of AWS services, and experience with Java development. These skills are essential for a Cloud Solutions Architect to effectively design and implement cloud solutions.",
+            "points": 700,
+            "recommendation_percentage": 0.75
+          }
+        ]
+      }
+    }
+  }
+}
