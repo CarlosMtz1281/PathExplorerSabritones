@@ -438,7 +438,9 @@ const DashboardPL = () => {
 
         {/* Subordinados */}
         <div className="w-full mb-10 mt-4">
-            <h2 className="text-3xl font-bold mb-6">Tus Subordinados</h2>
+            <div className="flex w-full items-center bg-base-100 p-5 text-3xl font-bold rounded-md border border-base-300 mb-8 mt-2 text-secondary">
+                <p>Tus Subordinados</p>
+            </div>
             
             {loading ? (
                 <div className="flex justify-center items-center h-40">
