@@ -962,7 +962,40 @@ INSERT INTO "Certificate_Users" (
 (3, 12, '2022-08-05', '2024-08-05', 'https://certs.example.com/aws2', 'completed'),
 (4, 5, '2022-10-12', '2024-10-12', 'https://certs.example.com/scrum2', 'completed'),
 (7, 12, '2023-01-15', '2026-01-15', 'https://certs.example.com/k8s2', 'completed'),
-(10, 14, '2023-02-28', '2026-02-28', 'https://certs.example.com/cissp2', 'completed');
+(10, 14, '2023-02-28', '2026-02-28', 'https://certs.example.com/cissp2', 'completed'),
+
+-- default certs for users 7, 9, 11 (test PL Dashboard)
+(1, 7, '2024-06-15', '2026-06-15', 'https://certs.example.com/java1', 'completed'),
+(5, 7, '2024-07-10', '2026-07-10', 'https://certs.example.com/aws1', 'completed'),
+(7, 7, '2024-08-22', '2026-08-22', 'https://certs.example.com/k8s1', 'completed'),
+(9, 7, '2024-09-05', '2026-09-05', 'https://certs.example.com/istqb1', 'completed'),
+(12, 7, '2024-10-18', '2026-10-18', 'https://certs.example.com/devops1', 'completed'),
+(15, 7, '2024-11-30', '2026-11-30', 'https://certs.example.com/cloud1', 'completed'),
+(18, 7, '2024-12-15', '2026-12-15', 'https://certs.example.com/ml1', 'completed'),
+(21, 7, '2025-01-20', '2027-01-20', 'https://certs.example.com/ccna1', 'completed'),
+(25, 7, '2025-02-10', '2027-02-10', 'https://certs.example.com/tf1', 'completed'),
+(28, 7, '2025-03-05', '2027-03-05', 'https://certs.example.com/terraform1', 'completed'),
+(2, 9, '2025-05-10', '2026-05-20', 'https://certs.example.com/sql1', 'completed'),
+(4, 9, '2024-06-10', '2026-06-10', 'https://certs.example.com/javaee1', 'completed'),
+(6, 9, '2024-07-15', '2026-07-15', 'https://certs.example.com/awsdev1', 'completed'),
+(8, 9, '2024-08-25', '2026-08-25', 'https://certs.example.com/awsml1', 'completed'),
+(10, 9, '2024-09-30', '2026-09-30', 'https://certs.example.com/cissp1', 'completed'),
+(13, 9, '2024-10-15', '2026-10-15', 'https://certs.example.com/data1', 'completed'),
+(16, 9, '2024-11-20', '2026-11-20', 'https://certs.example.com/cloud2', 'completed'),
+(19, 9, '2024-12-10', '2026-12-10', 'https://certs.example.com/python1', 'completed'),
+(22, 9, '2025-01-25', '2027-01-25', 'https://certs.example.com/cyber1', 'completed'),
+(26, 9, '2025-02-15', '2027-02-15', 'https://certs.example.com/ceh1', 'completed'),
+(29, 9, '2025-03-01', '2027-03-01', 'https://certs.example.com/k8ssec1', 'completed'),
+(30, 9, '2025-03-20', '2027-03-20', 'https://certs.example.com/azureai1', 'completed'),
+(3, 11, '2024-07-01', '2026-07-01', 'https://certs.example.com/oci1', 'completed'),
+(11, 11, '2024-08-15', '2026-08-15', 'https://certs.example.com/powerbi1', 'completed'),
+(14, 11, '2024-09-20', '2026-09-20', 'https://certs.example.com/gcp1', 'completed'),
+(17, 11, '2024-10-10', '2026-10-10', 'https://certs.example.com/datasci1', 'completed'),
+(20, 11, '2024-11-25', '2026-11-25', 'https://certs.example.com/dl1', 'completed'),
+(23, 11, '2025-01-05', '2027-01-05', 'https://certs.example.com/devnet1', 'completed'),
+(27, 11, '2025-02-20', '2027-02-20', 'https://certs.example.com/blockchain1', 'completed'),
+(31, 11, '2025-03-10', '2027-03-10', 'https://certs.example.com/quantum1', 'completed');
+
 
 -- 22) Certificate_Skills - Expanded with more certificate-skill relationships
 INSERT INTO "Certificate_Skills" ("certificate_id", "skill_id") VALUES
