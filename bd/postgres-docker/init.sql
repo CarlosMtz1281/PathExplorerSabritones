@@ -208,7 +208,7 @@ CREATE TABLE "Project_Position_Areas" (
 CREATE TABLE "User_Area_Score" (
   "user_id" integer,
   "area_id" integer,
-  "score" integer,
+  "score" numeric,
   PRIMARY KEY ("user_id", "area_id")
 );
 CREATE TABLE "Session" (
@@ -1409,44 +1409,142 @@ INSERT INTO "Project_Position_Areas" ("position_id", "area_id") VALUES
 (32, 1),  -- Full Stack Java Developer -> Java Development
 (32, 2);  -- Full Stack Java Developer -> Frontend Development
 
--- 33) User_Area_Score - Assigning area scores to users
-INSERT INTO "User_Area_Score" ("user_id", "area_id", "score") VALUES
--- John Doe - strong in Java, moderate in others
-(1, 1, 90), (1, 3, 75), (1, 6, 80),
+WITH cert_points AS (
+    SELECT
+        cu.user_id,
+        ac.area_id,
+        COUNT(*) * 250 AS points
+    FROM
+        "Certificate_Users" cu
+    JOIN
+        "Area_Certificates" ac ON cu.certificate_id = ac.certificate_id
+    WHERE
+        cu.status = 'completed'
+    GROUP BY
+        cu.user_id, ac.area_id
+),
 
--- Jane Smith - Project Management focus
-(2, 8, 85), (2, 2, 65),
+course_points AS (
+    SELECT
+        cu.user_id,
+        ac.area_id,
+        SUM(
+            CAST(SUBSTRING(c.estimated_time FROM '(\d+\.?\d*)') AS NUMERIC) *
+            CASE
+                WHEN cu.finished THEN 10
+                ELSE (cu.progress / 100.0) * 10
+            END
+        ) AS points
+    FROM
+        "Course_Users" cu
+    JOIN
+        "Courses" c ON c.course_id = cu.course_id
+    JOIN
+        "Area_Courses" ac ON ac.course_id = c.course_id
+    GROUP BY
+        cu.user_id, ac.area_id
+),
 
--- Emily Wilson - Data Science expert
-(4, 4, 95), (4, 10, 85),
+position_points AS (
+    SELECT
+        pp.user_id,
+        ppa.area_id,
+        ROUND(SUM((
+            EXTRACT(EPOCH FROM COALESCE(p.end_date, CURRENT_DATE)) - 
+            EXTRACT(EPOCH FROM p.start_date)) / 
+            (60 * 60 * 24 * 30) * 250)) AS points
+    FROM
+        "Project_Positions" pp
+    JOIN
+        "Projects" p ON p.project_id = pp.project_id
+    JOIN
+        "Project_Position_Areas" ppa ON ppa.position_id = pp.position_id
+    WHERE
+        pp.user_id IS NOT NULL
+    GROUP BY
+        pp.user_id, ppa.area_id
+),
 
--- David Brown - Project Management
-(5, 8, 90), (5, 1, 70),
+total_points AS (
+    SELECT 
+        user_id,
+        area_id,
+        SUM(points) AS total_score
+    FROM (
+        SELECT user_id, area_id, points FROM cert_points
+        UNION ALL
+        SELECT user_id, area_id, points FROM course_points
+        UNION ALL
+        SELECT user_id, area_id, points FROM position_points
+    ) AS combined
+    GROUP BY user_id, area_id
+)
 
--- Sarah Miller - Project Management
-(6, 8, 88), (6, 2, 72),
+INSERT INTO "User_Area_Score" (user_id, area_id, score)
+SELECT user_id, area_id, total_score
+FROM total_points
+ON CONFLICT (user_id, area_id)
+DO UPDATE SET score = EXCLUDED.score;
 
--- Anna Schmidt - Cybersecurity
-(8, 9, 92), (8, 3, 85),
+CREATE OR REPLACE FUNCTION update_user_area_score_from_certificate()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'completed' THEN
+        INSERT INTO pathexplorer."User_Area_Score" ("user_id", "area_id", "score")
+        SELECT
+        NEW.user_id,
+        ac.area_id,
+        250
+        FROM pathexplorer."Area_Certificates" ac
+        WHERE ac.certificate_id = NEW.certificate_id
+        ON CONFLICT ("user_id", "area_id") DO UPDATE
+        SET score = pathexplorer."User_Area_Score".score + 250;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Thomas Müller - Java and Frontend
-(9, 1, 85), (9, 2, 80),
+CREATE TRIGGER update_user_area_score_from_certificate_trigger
+AFTER INSERT OR UPDATE ON "Certificate_Users"
+FOR EACH ROW
+EXECUTE FUNCTION update_user_area_score_from_certificate();
 
--- Claudia Fischer - UX/UI Design
-(10, 7, 94), (10, 2, 88),
+CREATE OR REPLACE FUNCTION update_user_area_score_from_course()
+RETURNS TRIGGER AS $$
+DECLARE
+    course_hours NUMERIC;
+    earned_points NUMERIC;
+BEGIN
+    -- Fetch estimated_time from Courses table
+    SELECT CAST(SUBSTRING(estimated_time FROM '(\d+\.?\d*)') AS NUMERIC)
+    INTO course_hours
+    FROM pathexplorer."Courses"
+    WHERE course_id = NEW.course_id;
 
--- Raj Patel - Data Science
-(11, 4, 89), (11, 10, 78),
+    -- Compute points
+    earned_points := course_hours *
+                    CASE
+                        WHEN NEW.finished THEN 10
+                        ELSE (NEW.progress / 100.0) * 10
+                    END;
 
--- Amit Singh - Cloud & DevOps
-(12, 3, 93), (12, 9, 82),
+    -- Insert or update User_Area_Score
+    INSERT INTO pathexplorer."User_Area_Score" ("user_id", "area_id", "score")
+    SELECT
+        NEW.user_id,
+        ac.area_id,
+        earned_points
+    FROM pathexplorer."Area_Courses" ac
+    WHERE ac.course_id = NEW.course_id
+    ON CONFLICT ("user_id", "area_id") DO UPDATE
+    SET score = pathexplorer."User_Area_Score".score + EXCLUDED.score;
 
--- Priya Sharma - Cloud & DevOps
-(13, 3, 91), (13, 1, 75),
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Olivia Wilson - Cloud & Java
-(14, 3, 96), (14, 1, 85),
-
--- Liam Taylor - Java and Frontend
-(15, 1, 88), (15, 2, 82);
+CREATE TRIGGER trg_update_score_on_course
+AFTER INSERT OR UPDATE ON "Course_Users"
+FOR EACH ROW
+EXECUTE FUNCTION update_user_area_score_from_course();
 

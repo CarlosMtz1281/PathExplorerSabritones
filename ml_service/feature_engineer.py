@@ -8,9 +8,8 @@ class RecommenderFeaturizer:
     def __init__(self, data_fetcher: DataFetcher):
         self.skill_weights = {
             "current_skills": 0.5,
-            "goal_skills": 1.0,
+            "goal_skills": 2.0,
             "position_skills": 1.0,
-            "course_skills": 0.5,
             "certificate_skills": 0.7,
         }
         self.repetition_bonus = 0.15
@@ -103,24 +102,6 @@ class RecommenderFeaturizer:
                 skill_index,
                 position_skills,
                 self.skill_weights["position_skills"],
-            )
-
-        # Courses
-        if isinstance(user_data.get("goals"), dict):
-            course_data = user_data.get("courses", {})
-            course_skills = (
-                course_data.get("skills_id", [])
-                if isinstance(course_data, dict)
-                else []
-            )
-            if not course_skills:
-                for course in course_data:
-                    course_skills.extend(course.get("skills_id", []))
-            self._add_skills(
-                skill_vector,
-                skill_index,
-                course_skills,
-                self.skill_weights["course_skills"],
             )
 
         # Certificates
