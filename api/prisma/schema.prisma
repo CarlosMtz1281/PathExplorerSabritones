@@ -66,6 +66,8 @@ model Certificates {
   certificate_id                Int                             @id @default(autoincrement())
   certificate_name              String?                         @db.VarChar
   certificate_desc              String?
+  certificate_estimated_time    Int?
+  certificate_level             Int?
   provider                      String?                         @db.VarChar
   Area_Certificates             Area_Certificates[]
   Certificate_Skills            Certificate_Skills[]
@@ -141,6 +143,7 @@ model Goal_Users {
   user_id       Int
   create_date   DateTime? @db.Timestamp(6)
   finished_date DateTime? @db.Timestamp(6)
+  priority      String?   @db.VarChar
   completed     Boolean?
   Goals         Goals     @relation(fields: [goal_id], references: [goal_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_users_goal")
   Users         Users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_users_user")
