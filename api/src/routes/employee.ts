@@ -23,19 +23,28 @@ router.get("/user/:userId", async (req, res) => {
 
     const user = await prisma.users.findUnique({
       where: { user_id: userId },
-            include: {
-      Country: {
-        select: {
-          country_name: true,
-          timezone: true,
+      include: {
+        Country: {
+          select: {
+            country_name: true,
+            timezone: true,
+          },
         },
-      },
-      Permits: true,
-      Certificate_Users: {
-        include: {
-        Certificates: true,
+        Permits: true,
+        Certificate_Users: {
+          include: {
+            Certificates: true,
+          },
         },
-      },
+        Employee_Position: {
+          include: {
+            Work_Position: true,
+          },
+          orderBy: {
+            start_date: "desc", // Fetch the most recent position
+          },
+          take: 1, // Limit to the most recent position
+        },
       },
     });
 
@@ -43,7 +52,19 @@ router.get("/user/:userId", async (req, res) => {
       return res.status(404).json({ error: "User not found." });
     }
 
-    res.status(200).json(user);
+    // Extract level and position name from the most recent employee position
+    const currentPosition = user.Employee_Position[0];
+    const level = currentPosition?.level || null;
+    const positionName = currentPosition?.Work_Position?.position_name || "Sin posición";
+
+    // Format the response
+    const formattedUser = {
+      ...user,
+      level,
+      position_name: positionName,
+    };
+
+    res.status(200).json(formattedUser);
   } catch (error) {
     console.error("Error fetching user data:", error);
     res.status(500).json({ error: "Internal server error." });

@@ -26,4 +26,6 @@ export interface User {
   region_id: number;
   Country: Country;
   Permits: Permits;
+  level: number;
+  position_name: string;
 }
