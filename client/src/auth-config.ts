@@ -11,6 +11,7 @@ interface User {
   name: string; // User's name
   region_id: number; // Region ID associated with the user
   in_project: boolean; // Whether the user is part of a project
+  role_id: number;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -48,6 +49,7 @@ export const authOptions: NextAuthOptions = {
               name: data.name,
               region_id: data.region_id,
               in_project: data.in_project,
+              role_id: data.role_id
             };
           }
           return null;
@@ -67,6 +69,7 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name;
         token.region_id = user.region_id;
         token.in_project = user.in_project;
+        token.role_id = user.role_id;
       }
       return token;
     },
@@ -79,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         name: token.name as string,
         region_id: token.region_id as number,
         in_project: token.in_project as boolean,
+        role_id: token.role_id as number
       };
       return session;
     },
