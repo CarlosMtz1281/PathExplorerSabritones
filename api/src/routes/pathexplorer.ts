@@ -2,7 +2,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import prisma from "../db/prisma";
-import responseTemplate from "../utils/responseTemplate.json";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
@@ -16,17 +15,155 @@ const gemma3 = {
   system_start: "<start_of_turn>system\n",
   system_end: "<end_of_turn>\n",
   system_instructions:
-    "Eres un sistema de recursos humanos que da recomendaciones de certificados y puestos basado en la información proporcionada las certificaciones, puestos y un área de especialización de este usuario. Además de contexto general de las certificaciones, cursos y puestos que ofrecemos a los empleados. Quiero que generes un JSON, en espanol, que proporcione las recomendaciones que darías a este usuario en concreto sobre cómo crecer en el área de especialización especificada.\n",
+    "Genera recomendaciones de certificaciones y puestos laborales en español. Usa solo los IDs existentes y máximo 3 de cada tipo. Basado en:\n",
   system_instructions_empty:
-    "Eres un sistema de recursos humanos que da recomendaciones de certificados y puestos, en este caso el usuario no tiene ningun expertiz en esta area. Te proporciono un contexto general de las certificaciones, cursos y puestos que ofrecemos a los empleados. Quiero que generes un JSON, en espanol, que proporcione las recomendaciones que darías a este usuario en concreto sobre cómo crecer en el área de especialización especificada. Asegúrate de que el JSON es correcto y no tiene errores.\n",
+    "El usuario no tiene experiencia en esta área. Genera recomendaciones básicas en español usando máximo 3 certificaciones y 3 puestos disponibles:\n",
   system_response_template:
-    "FORMATO DE RESPUESTA JSON, asegurarse absolutamente de que los ids son correctos, hacer la respuesta en español y máximo de 3 certificaciones y 3 posiciones\n" +
-    JSON.stringify(responseTemplate),
+    "SOLO JSON. Estructura requerida:\n" +
+    `{
+      "recommendations": {
+        "introduction": "texto breve",
+        "area": {
+          "area_id": int,
+          "previous_certificates": "texto breve",
+          "previous_positions": "texto breve",
+          "recommendations": {
+            "certification": [{certificate_id, reason: "texto extendido", skills: array[string], recommendation_percentage, points: int}],
+            "positions": [{position_id, reason: "texto extendido", skils: array[string], recommendation_percentage}]
+          }
+        }
+      }
+    }`,
   user_start: "<start_of_turn>user\n",
   user_end: "<end_of_turn>\n",
   model_start: "<start_of_turn>model\n",
   model_end: "<end_of_turn>\n",
 };
+
+async function enrichRecommendations(rawRecommendation: any, user_id?: number) {
+  const areaId = rawRecommendation.recommendations.area.area_id;
+  const certIds =
+    rawRecommendation.recommendations.area.recommendations.certification.map(
+      (c: any) => c.certificate_id
+    );
+  const positionIds =
+    rawRecommendation.recommendations.area.recommendations.positions.map(
+      (p: any) => p.position_id
+    );
+
+  const areaInfo = await prisma.areas.findUnique({
+    where: { area_id: areaId },
+    select: {
+      area_name: true,
+      area_desc: true,
+    },
+  });
+
+  const certificateInfos = await prisma.certificates.findMany({
+    where: { certificate_id: { in: certIds } },
+    select: {
+      certificate_id: true,
+      certificate_name: true,
+      certificate_desc: true,
+    },
+  });
+
+  const positionInfos = await prisma.project_Positions.findMany({
+    where: { position_id: { in: positionIds } },
+    include: {
+      Projects: {
+        select: {
+          start_date: true,
+          end_date: true,
+        },
+      },
+    },
+  });
+
+  const enrichedCerts =
+    rawRecommendation.recommendations.area.recommendations.certification.map(
+      (cert: any) => {
+        const info = certificateInfos.find(
+          (c) => c.certificate_id === cert.certificate_id
+        );
+        return { ...cert, ...info };
+      }
+    );
+
+  const enrichedPositions =
+    rawRecommendation.recommendations.area.recommendations.positions.map(
+      (pos: any) => {
+        const info = positionInfos.find(
+          (p) => p.position_id === pos.position_id
+        );
+        const points = calculatePositionPoints(
+          info.Projects.start_date,
+          info.Projects.end_date
+        );
+        const infoWithPoints = {
+          ...info,
+          points: points,
+        };
+
+        return { ...pos, ...infoWithPoints };
+      }
+    );
+
+  if (!user_id) {
+    return {
+      ...rawRecommendation,
+      recommendations: {
+        ...rawRecommendation.recommendations,
+        area: {
+          ...rawRecommendation.recommendations.area,
+          area_name: areaInfo?.area_name || "",
+          area_desc: areaInfo?.area_desc || "",
+          recommendations: {
+            certification: enrichedCerts,
+            positions: enrichedPositions,
+          },
+          user_area_score: 0,
+          top_percentage: 0,
+        },
+      },
+    };
+  }
+
+  const getAreasUsers = await prisma.user_Area_Score.findMany({
+    where: { area_id: areaId },
+    orderBy: { score: "desc" },
+  });
+
+  const userAreaScore = getAreasUsers.find((area) => area.user_id === user_id);
+
+  const percentage =
+    Math.round(
+      (1 -
+        (getAreasUsers.length - getAreasUsers.indexOf(userAreaScore)) /
+          getAreasUsers.length) *
+        1000
+    ) / 10;
+
+  const top_percentage = percentage > 0 ? percentage : 0.1;
+
+  return {
+    ...rawRecommendation,
+    recommendations: {
+      ...rawRecommendation.recommendations,
+      area: {
+        ...rawRecommendation.recommendations.area,
+        area_name: areaInfo?.area_name || "",
+        area_desc: areaInfo?.area_desc || "",
+        recommendations: {
+          certification: enrichedCerts,
+          positions: enrichedPositions,
+        },
+        user_top_percentage: top_percentage,
+        user_points: userAreaScore?.score || 0,
+      },
+    },
+  };
+}
 
 const getTimeBetweenInDays = (
   start_date: Date,
@@ -142,6 +279,7 @@ const getAllCertificates = async () => {
 
 const getAllPositions = async () => {
   const positions = await prisma.project_Positions.findMany({
+    where: { user_id: null },
     include: {
       Project_Position_Skills: {
         include: {
@@ -237,17 +375,33 @@ router.get("/get-top-areas/:user_id", async (req, res) => {
 router.get("/get-recommendation/:user_id/:area_id", async (req, res) => {
   try {
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemma-3-12b-it" });
+    const model = genAI.getGenerativeModel({
+      model: "gemma-3-12b-it",
+      generationConfig: { temperature: 0.7, maxOutputTokens: 1000 },
+    });
 
     const all_positions = await getAllPositions();
     const all_certificates = await getAllCertificates();
+    const all_areas = await prisma.areas.findMany({
+      select: {
+        area_id: true,
+        area_name: true,
+        area_desc: true,
+      },
+    });
 
     const context = {
+      all_areas: all_areas.map((area) => ({
+        area_id: area.area_id,
+        area_name: area.area_name,
+      })),
       all_certificates: all_certificates.map((cert) => ({
         certificate_id: cert.certificate_id,
         name: cert.certificate_name,
         description: cert.certificate_desc,
         provider: cert.provider,
+        //difficulty: cert.difficulty,
+        //estimated_time: cert.estimated_time,
         skills: cert.Certificate_Skills.map((skill) => ({
           skill_name: skill.Skills.name,
         })),
@@ -311,11 +465,10 @@ router.get("/get-recommendation/:user_id/:area_id", async (req, res) => {
           .replace(/```/g, "")
           .trim();
 
-        const recommendations = JSON.parse(cleanedJson);
+        const sanitizedJson = cleanedJson.replace(/,\s*([\]}])/g, "$1");
+        const parsedResponse = JSON.parse(sanitizedJson);
 
-        if (recommendations) {
-          recommendations.recommendations.area.user_area_score = 0;
-        }
+        const recommendations = await enrichRecommendations(parsedResponse);
 
         return res.json(recommendations);
       } catch (parseError) {
@@ -338,6 +491,8 @@ router.get("/get-recommendation/:user_id/:area_id", async (req, res) => {
           name: cert.Certificates.certificate_name,
           description: cert.Certificates.certificate_desc,
           provider: cert.Certificates.provider,
+          //difficulty: cert.Certificates.difficulty,
+          //estimated_time: cert.Certificates.estimated_time,
           skills: cert.Certificates.Certificate_Skills.map((skill) => ({
             skill_name: skill.Skills.name,
           })),
@@ -397,7 +552,14 @@ router.get("/get-recommendation/:user_id/:area_id", async (req, res) => {
         .replace(/```/g, "")
         .trim();
 
-      const recommendations = JSON.parse(cleanedJson);
+      const sanitizedJson = cleanedJson.replace(/,\s*([\]}])/g, "$1");
+
+      const parsedResponse = JSON.parse(sanitizedJson);
+
+      const recommendations = await enrichRecommendations(
+        parsedResponse,
+        userInfo.user_info.user_id
+      );
 
       return res.json(recommendations);
     } catch (parseError) {
