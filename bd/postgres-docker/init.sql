@@ -114,6 +114,8 @@ CREATE TABLE "Certificates" (
   "certificate_id" SERIAL PRIMARY KEY,
   "certificate_name" varchar,
   "certificate_desc" text,
+  "certificate_estimated_time" integer,
+  "certificate_level" integer,
   "provider" varchar
 );
 CREATE TABLE "Certificate_Users" (
@@ -179,6 +181,7 @@ CREATE TABLE "Goal_Users" (
   "user_id" integer,
   "create_date" timestamp,
   "finished_date" timestamp,
+  "priority" varchar,
   "completed" boolean,
   PRIMARY KEY ("goal_id", "user_id")
 );
@@ -398,40 +401,42 @@ INSERT INTO "Skills" ("name", "technical") VALUES
 INSERT INTO "Certificates" (
     "certificate_name",
     "certificate_desc",
+    "certificate_estimated_time",
+    "certificate_level",
     "provider"
 ) VALUES
-('Oracle Certified Professional: Java SE 11 Developer', 'Advanced Java programming certification', 'Oracle'),
-('Oracle Database SQL Certified Associate', 'SQL and database management certification', 'Oracle'),
-('Oracle Cloud Infrastructure Foundations Associate', 'Cloud infrastructure basics certification', 'Oracle'),
-('Oracle Certified Master, Java EE Enterprise Architect', 'Enterprise-level Java architecture certification', 'Oracle'),
-('AWS Certified Solutions Architect - Associate', 'Cloud architecture certification', 'Amazon'),
-('AWS Certified Developer - Associate', 'Developing applications on AWS certification', 'Amazon'),
-('AWS Certified SysOps Administrator - Associate', 'System operations on AWS certification', 'Amazon'),
-('AWS Certified Machine Learning - Specialty', 'Machine learning on AWS certification', 'Amazon'),
-('Microsoft Certified: Azure Administrator Associate', 'Azure administration certification', 'Microsoft'),
-('Microsoft Certified: Azure Solutions Architect Expert', 'Advanced Azure architecture certification', 'Microsoft'),
-('Microsoft Certified: Power BI Data Analyst Associate', 'Data analysis and visualization certification', 'Microsoft'),
-('Microsoft Certified: DevOps Engineer Expert', 'DevOps practices on Azure certification', 'Microsoft'),
-('Google Professional Data Engineer', 'Data engineering certification', 'Google'),
-('Google Associate Cloud Engineer', 'Cloud engineering basics certification', 'Google'),
-('Google Professional Cloud Architect', 'Cloud architecture certification', 'Google'),
-('Google Professional Machine Learning Engineer', 'Machine learning engineering certification', 'Google'),
-('Coursera Data Science Professional Certificate', 'Comprehensive data science certification', 'Coursera'),
-('Coursera Machine Learning Specialization', 'Machine learning certification by Andrew Ng', 'Coursera'),
-('Coursera Python for Everybody Specialization', 'Python programming certification', 'Coursera'),
-('Coursera Deep Learning Specialization', 'Deep learning certification by Andrew Ng', 'Coursera'),
-('Cisco Certified Network Associate (CCNA)', 'Networking fundamentals certification', 'Cisco'),
-('Cisco Certified CyberOps Associate', 'Cybersecurity operations certification', 'Cisco'),
-('Cisco Certified DevNet Associate', 'DevOps and network automation certification', 'Cisco'),
-('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 'Cisco'),
-('TensorFlow Developer Certificate', 'Build and train ML models using TensorFlow', 'Google'),
-('Certified Ethical Hacker (CEH)', 'Identify vulnerabilities and secure systems', 'EC-Council'),
-('Blockchain Developer Certification', 'Build decentralized applications and smart contracts', 'Blockchain Council'),
-('HashiCorp Certified Terraform Associate', 'Infrastructure automation using Terraform', 'HashiCorp'),
-('Certified Kubernetes Security Specialist', 'Secure containerized applications', 'CNCF'),
-('Azure AI Engineer Associate', 'Implement AI solutions on Microsoft Azure', 'Microsoft'),
-('Quantum Computing Fundamentals', 'Introduction to quantum computing concepts', 'IBM'),
-('Serverless Architecture Certification', 'Build and deploy serverless applications', 'AWS');
+('Oracle Certified Professional: Java SE 11 Developer', 'Advanced Java programming certification', 120, 3, 'Oracle'),
+('Oracle Database SQL Certified Associate', 'SQL and database management certification', 80, 2, 'Oracle'),
+('Oracle Cloud Infrastructure Foundations Associate', 'Cloud infrastructure basics certification', 60, 1, 'Oracle'),
+('Oracle Certified Master, Java EE Enterprise Architect', 'Enterprise-level Java architecture certification', 150, 4, 'Oracle'),
+('AWS Certified Solutions Architect - Associate', 'Cloud architecture certification', 100, 2, 'Amazon'),
+('AWS Certified Developer - Associate', 'Developing applications on AWS certification', 90, 2, 'Amazon'),
+('AWS Certified SysOps Administrator - Associate', 'System operations on AWS certification', 95, 2, 'Amazon'),
+('AWS Certified Machine Learning - Specialty', 'Machine learning on AWS certification', 110, 3, 'Amazon'),
+('Microsoft Certified: Azure Administrator Associate', 'Azure administration certification', 85, 2, 'Microsoft'),
+('Microsoft Certified: Azure Solutions Architect Expert', 'Advanced Azure architecture certification', 130, 3, 'Microsoft'),
+('Microsoft Certified: Power BI Data Analyst Associate', 'Data analysis and visualization certification', 70, 2, 'Microsoft'),
+('Microsoft Certified: DevOps Engineer Expert', 'DevOps practices on Azure certification', 120, 3, 'Microsoft'),
+('Google Professional Data Engineer', 'Data engineering certification', 110, 3, 'Google'),
+('Google Associate Cloud Engineer', 'Cloud engineering basics certification', 75, 1, 'Google'),
+('Google Professional Cloud Architect', 'Cloud architecture certification', 125, 3, 'Google'),
+('Google Professional Machine Learning Engineer', 'Machine learning engineering certification', 115, 3, 'Google'),
+('Coursera Data Science Professional Certificate', 'Comprehensive data science certification', 180, 2, 'Coursera'),
+('Coursera Machine Learning Specialization', 'Machine learning certification by Andrew Ng', 90, 2, 'Coursera'),
+('Coursera Python for Everybody Specialization', 'Python programming certification', 60, 1, 'Coursera'),
+('Coursera Deep Learning Specialization', 'Deep learning certification by Andrew Ng', 100, 3, 'Coursera'),
+('Cisco Certified Network Associate (CCNA)', 'Networking fundamentals certification', 95, 2, 'Cisco'),
+('Cisco Certified CyberOps Associate', 'Cybersecurity operations certification', 85, 2, 'Cisco'),
+('Cisco Certified DevNet Associate', 'DevOps and network automation certification', 90, 2, 'Cisco'),
+('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 140, 3, 'Cisco'),
+('TensorFlow Developer Certificate', 'Build and train ML models using TensorFlow', 80, 2, 'Google'),
+('Certified Ethical Hacker (CEH)', 'Identify vulnerabilities and secure systems', 100, 3, 'EC-Council'),
+('Blockchain Developer Certification', 'Build decentralized applications and smart contracts', 90, 2, 'Blockchain Council'),
+('HashiCorp Certified Terraform Associate', 'Infrastructure automation using Terraform', 70, 2, 'HashiCorp'),
+('Certified Kubernetes Security Specialist', 'Secure containerized applications', 85, 3, 'CNCF'),
+('Azure AI Engineer Associate', 'Implement AI solutions on Microsoft Azure', 95, 2, 'Microsoft'),
+('Quantum Computing Fundamentals', 'Introduction to quantum computing concepts', 50, 1, 'IBM'),
+('Serverless Architecture Certification', 'Build and deploy serverless applications', 65, 2, 'AWS');
 
 -- 5) Courses - Expanded with more learning paths
 INSERT INTO "Courses" (
@@ -1219,23 +1224,24 @@ INSERT INTO "Goal_Users" (
     "user_id",
     "create_date",
     "finished_date",
+    "priority",
     "completed"
 ) VALUES
-(1, 1, '2023-01-10', NULL, FALSE),    -- John: Master Java
-(2, 2, '2023-01-15', NULL, FALSE),    -- Jane: Improve PM
-(3, 14, '2023-02-01', NULL, FALSE),   -- Olivia: AWS Cert
-(4, 5, '2023-02-10', NULL, FALSE),    -- David: Leadership
-(5, 4, '2023-03-05', NULL, FALSE),    -- Emily: Learn ML
-(6, 10, '2023-03-15', NULL, FALSE),   -- Claudia: Public Speaking
-(7, 9, '2023-04-01', NULL, FALSE),    -- Thomas: Full-Stack
-(8, 13, '2023-04-10', NULL, FALSE),   -- Priya: DevOps
-(9, 11, '2023-05-01', NULL, FALSE),   -- Raj: Data Analysis
-(10, 7, '2023-05-15', NULL, FALSE),   -- Michael: Time Mgmt
-(11, 8, '2023-06-01', NULL, FALSE),   -- Anna: Cloud Security
-(12, 12, '2023-06-10', NULL, FALSE),  -- Amit: Kubernetes
-(1, 3, '2023-01-20', NULL, FALSE),    -- Robert: Master Java
-(3, 12, '2023-02-05', NULL, FALSE),   -- Amit: AWS Cert
-(7, 1, '2023-04-05', NULL, FALSE);    -- John: Full-Stack
+(1, 1, '2023-01-10', NULL, 'High', FALSE),    -- John: Master Java
+(2, 2, '2023-01-15', NULL, 'Medium', FALSE),  -- Jane: Improve PM
+(3, 14, '2023-02-01', NULL, 'High', FALSE),   -- Olivia: AWS Cert
+(4, 5, '2023-02-10', NULL, 'Low', FALSE),     -- David: Leadership
+(5, 4, '2023-03-05', NULL, 'High', FALSE),    -- Emily: Learn ML
+(6, 10, '2023-03-15', NULL, 'Medium', FALSE), -- Claudia: Public Speaking
+(7, 9, '2023-04-01', NULL, 'High', FALSE),    -- Thomas: Full-Stack
+(8, 13, '2023-04-10', NULL, 'Medium', FALSE), -- Priya: DevOps
+(9, 11, '2023-05-01', NULL, 'High', FALSE),   -- Raj: Data Analysis
+(10, 7, '2023-05-15', NULL, 'Low', FALSE),    -- Michael: Time Mgmt
+(11, 8, '2023-06-01', NULL, 'High', FALSE),   -- Anna: Cloud Security
+(12, 12, '2023-06-10', NULL, 'Medium', FALSE),-- Amit: Kubernetes
+(1, 3, '2023-01-20', NULL, 'Medium', FALSE),  -- Robert: Master Java
+(3, 12, '2023-02-05', NULL, 'High', FALSE),  -- Amit: AWS Cert
+(7, 1, '2023-04-05', NULL, 'High', FALSE);    -- John: Full-Stack
 
 -- 28) User_Skills - Expanded with more skill assignments
 INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
