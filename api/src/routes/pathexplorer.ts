@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import prisma from "../db/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getUserIdFromSession } from "../utils/session";
 
 dotenv.config();
 
@@ -349,9 +350,22 @@ router.post("/update-position-area-scores", async (req, res) => {
   }
 });
 
-router.get("/get-top-areas/:user_id", async (req, res) => {
+router.get("/get-top-areas", async (req, res) => {
+  const sessionId = req.headers.authorization;
+
+  if (!sessionId) {
+    console.log("Session ID not provided");
+    return res.status(401).json({ error: "Session ID required" });
+  }
+
   try {
-    const user_id = parseInt(req.params.user_id);
+    const user_id = await getUserIdFromSession(sessionId);
+
+    if (user_id === "timeout") {
+      console.log("Invalid session");
+      return res.status(404).json({ error: "Timeout" });
+    }
+
     const areas = await getUserAreas(user_id);
 
     const formattedResponse = areas.map((area) => ({
@@ -372,7 +386,14 @@ router.get("/get-top-areas/:user_id", async (req, res) => {
   }
 });
 
-router.get("/get-recommendation/:user_id/:area_id", async (req, res) => {
+router.get("/get-recommendation/:area_id", async (req, res) => {
+  const sessionId = req.headers.authorization;
+
+  if (!sessionId) {
+    console.log("Session ID not provided");
+    return res.status(401).json({ error: "Session ID required" });
+  }
+
   try {
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY);
     const model = genAI.getGenerativeModel({
@@ -435,7 +456,12 @@ router.get("/get-recommendation/:user_id/:area_id", async (req, res) => {
       })),
     };
 
-    const user_id = parseInt(req.params.user_id);
+    const user_id = await getUserIdFromSession(sessionId);
+    if (user_id === "timeout") {
+      console.log("Invalid session");
+      return res.status(404).json({ error: "Timeout" });
+    }
+
     const areas = await getUserAreas(user_id);
 
     const selectedArea = areas.find(
