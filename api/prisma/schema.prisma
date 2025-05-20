@@ -367,9 +367,9 @@ model Project_Position_Areas {
 model User_Area_Score {
   user_id Int
   area_id Int
-  score   Int?
-  Areas   Areas @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_area")
-  Users   Users @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_user")
+  score   Decimal? @db.Decimal
+  Areas   Areas    @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_area")
+  Users   Users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_user")
 
   @@id([user_id, area_id])
 }
