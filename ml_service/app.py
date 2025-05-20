@@ -145,9 +145,25 @@ def recommend_certificates(user_id: int):
                     )
                     if skill["skill_id"] in user_skill_ids
                 ],
+                "certificate_estimated_time": next(
+                    (
+                        cert_data["certificate_estimated_time"]
+                        for cert_data in certificatesDict
+                        if cert_data["certificate_id"] == cert["certificate_id"]
+                    ),
+                    None,
+                ),
+                "certificate_level": next(
+                    (
+                        cert_data["certificate_level"]
+                        for cert_data in certificatesDict
+                        if cert_data["certificate_id"] == cert["certificate_id"]
+                    ),
+                    None,
+                ),
             }
             for cert in recommendations
-        ]
+        ][:5]
 
         return jsonify(
             {
