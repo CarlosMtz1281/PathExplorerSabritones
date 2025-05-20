@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link"
 import React from "react";
@@ -28,6 +30,9 @@ export default function RepoEmpleados() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const { data: session } = useSession();
+  const router = useRouter();
+
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -175,14 +180,19 @@ export default function RepoEmpleados() {
                           </div>
                         </div>
                         <div className="md:col-span-2 text-right">
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={() =>
-                              window.location.href = `/dashboard/info-colegas/${emp.user_id}`
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            if (parseInt(session?.user?.id || "") === emp.user_id){
+                              router.push(`/dashboard/profile/${session.user.id}`);
+                            } else {
+                              router.push(`/dashboard/info-colegas/${emp.user_id}`);
                             }
-                          >
-                            Ir a Perfil
-                          </button>
+                          }}                          
+                        >
+                          Ir a Perfil
+                        </button>
+
                         </div>
                       </div>
                     </td>

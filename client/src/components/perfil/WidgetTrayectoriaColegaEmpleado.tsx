@@ -408,71 +408,7 @@
       }
     };
 
-    const handleEditExperience = (job: Job) => {
-      setCurrentJob(job);
-      setExperienceForm({
-        company: job.company,
-        position_name: job.position,
-        position_desc: job.positionDesc,
-        start_date: job.startDate,
-        end_date: job.endDate,
-      });
-      setIsEditExperienceModalOpen(true);
-    };
-
-    const handleEditSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      
-      if (!currentJob) return;
-      
-      if (validateForm()) {
-        await updateExperience(currentJob.positionId);
-      }
-    };
     
-    const handleDeleteExperience = async (positionId: number) => {
-      if (!confirm("¿Estás seguro de que deseas eliminar esta experiencia?")) {
-        return;
-      }
-    
-      setIsSubmitting(true);
-      setSubmitError("");
-      setSubmitSuccess(false);
-    
-      try {
-        const sessionId = session?.sessionId;
-        if (!sessionId) {
-          throw new Error("Session ID is missing");
-        }
-    
-        const response = await axios.delete(
-          `${process.env.NEXT_PUBLIC_API_BASE}/employee/deleteExperience/${positionId}`,
-          {
-            headers: { "session-key": sessionId },
-          }
-        );
-    
-        if (response.status === 200) {
-          setSubmitSuccess(true);
-          setSubmitError("");
-          // Update the jobs list
-          fetchAll();
-          // Close the modal after 1.5 seconds
-          setTimeout(() => {
-            setIsEditExperienceModalOpen(false);
-            setSubmitSuccess(false);
-          }, 1500);
-        }
-      } catch (error) {
-        console.error("Error deleting experience:", error);
-        setSubmitError(
-          error.response?.data?.message || 
-          "Error al eliminar la experiencia. Por favor, inténtalo de nuevo."
-        );
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
 
 
     useEffect(() => {
