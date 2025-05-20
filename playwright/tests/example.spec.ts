@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
-test('successful login', async ({ page }) => {
+async function login(page: Page) {
   await page.goto('http://localhost:3000/login');
 
   // Finds log in button on title-page
@@ -19,6 +19,4 @@ test('successful login', async ({ page }) => {
 
   await expect(page).toHaveURL('http://localhost:3000/dashboard/profile');
 
-});
-
-
+}
