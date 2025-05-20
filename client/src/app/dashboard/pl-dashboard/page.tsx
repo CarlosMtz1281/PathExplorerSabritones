@@ -130,9 +130,16 @@ const CertificatesTimeline = ({ data }: { data: any[] }) => {
         };
     });
 
-    const colors = [
+    // Use bg- classes directly for the legend
+    const bgColors = [
+        'bg-primary', 'bg-accent', 'bg-secondary',
+        'bg-yellow-500', 'bg-blue-500', 'bg-indigo-500'
+    ];
+
+    // Keep text- classes for the chart lines
+    const textColors = [
         'text-primary', 'text-accent', 'text-secondary',
-        'text-green-500', 'text-blue-500', 'text-indigo-500'
+        'text-yellow-500', 'text-blue-500', 'text-indigo-500'
     ];
 
     const maxValue = Math.max(...data.flatMap(user => user.monthlyCounts), 1);
@@ -199,7 +206,7 @@ const CertificatesTimeline = ({ data }: { data: any[] }) => {
                                             <polyline
                                                 fill="none"
                                                 stroke="currentColor"
-                                                className={colors[userIdx % colors.length]}
+                                                className={textColors[userIdx % textColors.length]}
                                                 strokeWidth="2"
                                                 points={points.map(p => `${p.x},${p.y}`).join(' ')}
                                             />
@@ -211,7 +218,7 @@ const CertificatesTimeline = ({ data }: { data: any[] }) => {
                                                     cy={point.y}
                                                     r="4"
                                                     fill="currentColor"
-                                                    className={colors[userIdx % colors.length]}
+                                                    className={textColors[userIdx % textColors.length]}
                                                 />
                                             ))}
                                         </g>
@@ -241,7 +248,7 @@ const CertificatesTimeline = ({ data }: { data: any[] }) => {
             <div className="mt-4 flex flex-wrap gap-4">
                 {data.map((user, idx) => (
                     <div key={idx} className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full ${colors[idx % colors.length].replace('text', 'bg')} mr-2`} />
+                        <div className={`w-3 h-3 rounded-full ${bgColors[idx % bgColors.length]} mr-2`} />
                         <span className="text-sm">{user.employeeName}</span>
                     </div>
                 ))}
@@ -256,7 +263,7 @@ const SubordinadoCard = ({ subordinado }: { subordinado: any }) => {
     const router = useRouter();
 
     const handleClick = () => {
-        router.push(`/dashboard/profile/${subordinado.id}`);
+        router.push(`/dashboard/info-colegas/${subordinado.id}`);
     };
 
     return (
@@ -360,7 +367,7 @@ const DashboardPL = () => {
             // console.log("Alertas:", data.alertas);
             // console.log("Timeline Certs:", data.timelineCerts);
             // console.log("Subordinados:", data.subordinados);
-            // console.log("Data Subordinados:", data.dataSubordinados);
+            console.log("Data Subordinados:", data.dataSubordinados);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -447,7 +454,7 @@ const DashboardPL = () => {
                     <span className="loading loading-spinner loading-lg text-primary"></span>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-28">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-24 gap-y-10 mx-6">
                     {dataSubordinados.map((subordinado) => (
                         <SubordinadoCard 
                             key={subordinado.id} 

@@ -712,7 +712,7 @@ INSERT INTO "Projects" (
 (5, 'E-Commerce Platform', 'Retail Solutions Inc.', 'Development of a modern e-commerce platform with AI recommendations', '2025-01-15', '2025-12-31', 1),
 (5, 'Banking System Modernization', 'Global Finance Corp', 'Migration of legacy banking systems to microservices architecture', '2025-03-01', '2026-06-30', 3),
 (14, 'Healthcare Analytics', 'MediData Solutions', 'Big data analytics platform for healthcare providers', '2025-02-10', '2025-11-30', 4),
-(13, 'IoT Fleet Management', 'LogiTech', 'IoT solution for real-time fleet tracking and management', '2025-04-01', '2026-03-31', 6),
+(14, 'IoT Fleet Management', 'LogiTech', 'IoT solution for real-time fleet tracking and management', '2025-04-01', '2026-03-31', 6),
 (14, 'Mobile Banking App', 'FinTech Innovations', 'Cross-platform mobile application for banking services', '2025-05-26', '2026-02-28', 7),
 (14, 'E-Learning Platform', 'EduTech Solutions', 'Development of an interactive e-learning platform', '2025-05-01', '2026-03-31', 7),
 (14, 'Smart Home Automation', 'HomeTech Inc.', 'IoT-based smart home automation system', '2025-05-02', '2026-04-30', 7),
@@ -745,8 +745,8 @@ INSERT INTO "Projects" (
 (14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2024-05-15', '2025-01-31', 1),
 
 -- John Doe projects
-(5, 'Financial Analytics Platform', 'Accenture', 'Development of analytics platform for financial services', '2024-02-01', '2024-08-31', 1),
-(5, 'Client Portal Modernization', 'Accenture', 'Modernization of legacy client portal system', '2024-05-01', '2024-11-30', 1);
+(5, 'Financial Analytics Platform', 'Empresa1', 'Development of analytics platform for financial services', '2024-02-01', '2024-08-31', 1),
+(5, 'Client Portal Modernization', 'Empresa2', 'Modernization of legacy client portal system', '2024-05-01', '2024-11-30', 1);
 
 
 -- 14) Meeting - Expanded with more meetings
@@ -1072,7 +1072,41 @@ INSERT INTO "Certificate_Users" (
 (20, 11, '2024-11-25', '2026-11-25', 'https://certs.example.com/dl1', 'completed'),
 (23, 11, '2025-01-05', '2027-01-05', 'https://certs.example.com/devnet1', 'completed'),
 (27, 11, '2025-02-20', '2027-02-20', 'https://certs.example.com/blockchain1', 'completed'),
-(31, 11, '2025-03-10', '2027-03-10', 'https://certs.example.com/quantum1', 'completed');
+(31, 11, '2025-03-10', '2027-03-10', 'https://certs.example.com/quantum1', 'completed'),
+
+-- default certs for users 35, 36, 37 (test PL Dashboard)
+(1, 35, '2024-06-15', '2026-06-15', 'https://certs.example.com/java1', 'completed'),
+(5, 35, '2024-07-10', '2026-07-10', 'https://certs.example.com/aws1', 'completed'),
+(7, 35, '2024-08-22', '2026-08-22', 'https://certs.example.com/k8s1', 'completed'),
+(9, 35, '2024-09-05', '2026-09-05', 'https://certs.example.com/istqb1', 'completed'),
+(12, 35, '2024-10-18', '2026-10-18', 'https://certs.example.com/devops1', 'completed'),
+(15, 35, '2024-11-30', '2026-11-30', 'https://certs.example.com/cloud1', 'completed'),
+(18, 35, '2024-12-15', '2026-12-15', 'https://certs.example.com/ml1', 'completed'),
+(21, 35, '2025-01-20', '2027-01-20', 'https://certs.example.com/ccna1', 'completed'),
+(25, 35, '2025-02-10', '2027-02-10', 'https://certs.example.com/tf1', 'completed'),
+(28, 35, '2025-03-05', '2027-03-05', 'https://certs.example.com/terraform1', 'completed'),
+(2, 36, '2025-05-10', '2026-05-20', 'https://certs.example.com/sql1', 'completed'),
+(4, 36, '2024-06-10', '2026-06-10', 'https://certs.example.com/javaee1', 'completed'),
+(6, 36, '2024-07-15', '2026-07-15', 'https://certs.example.com/awsdev1', 'completed'),
+(8, 36, '2024-08-25', '2026-08-25', 'https://certs.example.com/awsml1', 'completed'),
+(10, 36, '2024-09-30', '2026-09-30', 'https://certs.example.com/cissp1', 'completed'),
+(13, 36, '2024-10-15', '2026-10-15', 'https://certs.example.com/data1', 'completed'),
+(16, 36, '2024-11-20', '2026-11-20', 'https://certs.example.com/cloud2', 'completed'),
+(19, 36, '2024-12-10', '2026-12-10', 'https://certs.example.com/python1', 'completed'),
+(22, 36, '2025-01-25', '2027-01-25', 'https://certs.example.com/cyber1', 'completed'),
+(26, 36, '2025-02-15', '2027-02-15', 'https://certs.example.com/ceh1', 'completed'),
+(29, 36, '2025-03-01', '2027-03-01', 'https://certs.example.com/k8ssec1', 'completed'),
+(30, 36, '2025-03-20', '2027-03-20', 'https://certs.example.com/azureai1', 'completed'),
+(3, 37, '2024-07-01', '2026-07-01', 'https://certs.example.com/oci1', 'completed'),
+(11, 37, '2024-08-15', '2026-08-15', 'https://certs.example.com/powerbi1', 'completed'),
+(14, 37, '2024-09-20', '2026-09-20', 'https://certs.example.com/gcp1', 'completed'),
+(17, 37, '2024-10-10', '2026-10-10', 'https://certs.example.com/datasci1', 'completed'),
+(20, 37, '2024-11-25', '2026-11-25', 'https://certs.example.com/dl1', 'completed'),
+(23, 37, '2025-01-05', '2027-01-05', 'https://certs.example.com/devnet1', 'completed'),
+(27, 37, '2025-02-20', '2027-02-20', 'https://certs.example.com/blockchain1', 'completed'),
+(31, 37, '2025-03-10', '2027-03-10', 'https://certs.example.com/quantum1', 'completed'),
+
+(31, 38, '2025-03-10', '2027-03-10', 'https://certs.example.com/quantum1', 'completed');
 
 
 -- 22) Certificate_Skills - Expanded with more certificate-skill relationships
@@ -1692,3 +1726,45 @@ AFTER INSERT OR UPDATE ON "Course_Users"
 FOR EACH ROW
 EXECUTE FUNCTION update_user_area_score_from_course();
 
+
+
+
+
+-- Add positions to the recently completed project (ID 14 - "NextGen E-Commerce")
+INSERT INTO "Project_Positions" (
+    "project_id", 
+    "position_name",
+    "position_desc",
+    "user_id"
+) VALUES
+(14, 'Senior Java Developer', 'Developed core e-commerce backend services using Spring Boot', 35),
+(14, 'Frontend Developer', 'Implemented React-based user interfaces for the e-commerce platform', 36),
+(14, 'QA Engineer', 'Performed automated testing and quality assurance for the platform', NULL),
+(14, 'DevOps Specialist', 'Managed CI/CD pipelines and cloud deployment', NULL);
+
+-- Add required skills for these positions
+INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
+(35, 1), (35, 8), (35, 20),  -- Senior Java Developer: Java, Spring Boot, REST API
+(36, 4), (36, 5), (36, 6),   -- Frontend Developer: JavaScript, React, Angular
+(37, 16), (37, 25), (37, 30), -- QA Engineer: Data Analysis, Problem Solving, Testing
+(38, 9), (38, 10), (38, 17); -- DevOps Specialist: Docker, Kubernetes, DevOps
+
+-- Assign employees 35 and 36 to the project
+INSERT INTO "Project_User" ("user_id", "project_id") VALUES
+(35, 14),
+(36, 14);
+
+-- Add feedback for employees 35 and 36 on this project
+INSERT INTO "Feedback" (
+    "project_id",
+    "user_id",
+    "desc",
+    "score"
+) VALUES
+(14, 35, 'Exceptional work on the backend services. Delivered high-quality code with excellent performance optimizations.', 5),
+(14, 35, 'Showed strong leadership in code reviews and mentoring junior team members.', 4),
+(14, 36, 'Created responsive and user-friendly interfaces that significantly improved customer experience.', 5),
+(14, 36, 'Needs to improve documentation of frontend components for better maintainability.', 3);
+
+-- Update the employees' in_project status since the project is completed
+UPDATE "Users" SET "in_project" = FALSE WHERE "user_id" IN (35, 36);
