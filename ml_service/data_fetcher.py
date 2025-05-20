@@ -15,7 +15,7 @@ class DataFetcher:
 
     def get_user_data(self, user_id: int) -> Dict:
         """Fetch all relevant user data from Express API"""
-        endpoints = ["skills", "certificates", "courses", "positions", "goals"]
+        endpoints = ["skills", "certificates", "positions", "goals"]
 
         data = {}
         for endpoint in endpoints:

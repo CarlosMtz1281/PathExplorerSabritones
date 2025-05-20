@@ -12,6 +12,11 @@ class RecommenderFeaturizer:
             "position_skills": 1.0,
             "certificate_skills": 0.7,
         }
+        self.priority_bonus = {
+            "High": 2.0,
+            "Medium": 1.5,
+            "Low": 1.0,
+        }
         self.repetition_bonus = 0.15
         self.data_fetcher = data_fetcher
         self.skill_name_to_id = self._load_skill_mappings()
@@ -73,19 +78,23 @@ class RecommenderFeaturizer:
 
         # Goal skills: only add if nested "skills" are provided
         goal_skills = []
-        if isinstance(user_data.get("goals"), dict):
+        if isinstance(user_data.get("goals"), list):
             for goal in user_data.get("goals", []):
                 desc_skills = self._extract_skills_from_text(goal.get("goal_desc", ""))
                 goal_skills.extend(desc_skills)
-            self._add_skills(
-                skill_vector,
-                skill_index,
-                goal_skills,
-                self.skill_weights["goal_skills"],
-            )
+                priority = goal.get("priority", goal.get("goal_priority", "Low"))
+                multiplier = self.priority_bonus.get(priority, 1.0)
+                adjusted_weight = self.skill_weights["goal_skills"] * multiplier
+
+                self._add_skills(
+                    skill_vector,
+                    skill_index,
+                    goal_skills,
+                    adjusted_weight,
+                )
 
         # Positions
-        if isinstance(user_data.get("goals"), dict):
+        if isinstance(user_data.get("positions"), dict):
             position_data = user_data.get("positions", {})
             position_skills = (
                 position_data.get("skills_id", [])
@@ -105,7 +114,7 @@ class RecommenderFeaturizer:
             )
 
         # Certificates
-        if isinstance(user_data.get("goals"), dict):
+        if isinstance(user_data.get("certificates"), dict):
             cert_data = user_data.get("certificates", {})
             cert_skills = (
                 cert_data.get("skills_id", []) if isinstance(cert_data, dict) else []

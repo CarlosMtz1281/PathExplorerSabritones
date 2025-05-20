@@ -156,7 +156,7 @@ router.get("/goals/:user_id", async (req, res) => {
   const { user_id } = req.params;
   try {
     const goals = await prisma.goal_Users.findMany({
-      where: { user_id: Number(user_id) },
+      where: { AND: { user_id: Number(user_id) }, completed: false },
       include: {
         Goals: true,
       },
@@ -166,6 +166,7 @@ router.get("/goals/:user_id", async (req, res) => {
       goal_id: goal.goal_id,
       goal_name: goal.Goals.goal_name,
       goal_desc: goal.Goals.goal_desc,
+      goal_priority: goal.priority,
     }));
 
     res.status(200).json(formattedGoals);
