@@ -323,7 +323,7 @@ async function getDataSub(subordinados: any[]) {
     // Obtener cargabilidad para cada usuario
     const cargabilidadPromises = usersWithPositions.map(async (user) => {
         const cargabilidad = await getCargabilidad(user.user_id);
-        return cargabilidad;
+        return isNaN(cargabilidad) ? 0 : cargabilidad;
     });
     const cargabilidadResults = await Promise.all(cargabilidadPromises);
 
