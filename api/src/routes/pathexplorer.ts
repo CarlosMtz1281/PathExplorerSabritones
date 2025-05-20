@@ -9,7 +9,8 @@ dotenv.config();
 
 const router = express.Router();
 
-const CERTIFICATE_POINTS = 250;
+const CERTIFICATE_POINTS_HOUR = 5;
+const CERTIFICATE_POINTS_DIFFICULTY = 20;
 const POSITION_POINTS_PER_MONTH = 250;
 
 const gemma3 = {
@@ -66,6 +67,9 @@ async function enrichRecommendations(rawRecommendation: any, user_id?: number) {
       certificate_id: true,
       certificate_name: true,
       certificate_desc: true,
+      provider: true,
+      certificate_level: true,
+      certificate_estimated_time: true,
     },
   });
 
@@ -87,7 +91,17 @@ async function enrichRecommendations(rawRecommendation: any, user_id?: number) {
         const info = certificateInfos.find(
           (c) => c.certificate_id === cert.certificate_id
         );
-        return { ...cert, ...info };
+
+        const points = calculateCertificatePoints(
+          info.certificate_estimated_time,
+          info.certificate_level
+        );
+        const infoWithMore = {
+          ...info,
+          points: points,
+        };
+
+        return { ...cert, ...infoWithMore };
       }
     );
 
@@ -97,6 +111,7 @@ async function enrichRecommendations(rawRecommendation: any, user_id?: number) {
         const info = positionInfos.find(
           (p) => p.position_id === pos.position_id
         );
+        console.log("infoP", info);
         const points = calculatePositionPoints(
           info.Projects.start_date,
           info.Projects.end_date
@@ -166,20 +181,6 @@ async function enrichRecommendations(rawRecommendation: any, user_id?: number) {
   };
 }
 
-const getTimeBetweenInDays = (
-  start_date: Date,
-  end_date: Date | null
-): number => {
-  const start = new Date(start_date);
-  const end = end_date ? new Date(end_date) : new Date();
-
-  const diffMs = end.getTime() - start.getTime();
-
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-  return diffDays;
-};
-
 const calculatePositionPoints = (
   start_date: Date,
   end_date: Date | null
@@ -192,6 +193,17 @@ const calculatePositionPoints = (
   const diffMonths = diffMs / (1000 * 60 * 60 * 24 * 30);
 
   return diffMonths * POSITION_POINTS_PER_MONTH;
+};
+
+const calculateCertificatePoints = (
+  estimated_time: number,
+  difficulty: number
+): number => {
+  const points = Math.round(
+    estimated_time * CERTIFICATE_POINTS_HOUR +
+      difficulty * CERTIFICATE_POINTS_DIFFICULTY
+  );
+  return points;
 };
 
 const getUserAreas = async (user_id: number) => {
@@ -421,8 +433,7 @@ router.get("/get-recommendation/:area_id", async (req, res) => {
         name: cert.certificate_name,
         description: cert.certificate_desc,
         provider: cert.provider,
-        //difficulty: cert.difficulty,
-        //estimated_time: cert.estimated_time,
+        difficulty: cert.certificate_level,
         skills: cert.Certificate_Skills.map((skill) => ({
           skill_name: skill.Skills.name,
         })),
@@ -430,7 +441,6 @@ router.get("/get-recommendation/:area_id", async (req, res) => {
           area_name: area.Areas.area_name,
           area_desc: area.Areas.area_desc,
         })),
-        points: CERTIFICATE_POINTS,
       })),
       all_positions: all_positions.map((pos) => ({
         position_id: pos.position_id,
@@ -443,16 +453,6 @@ router.get("/get-recommendation/:area_id", async (req, res) => {
           area_name: area.Areas.area_name,
           area_desc: area.Areas.area_desc,
         })),
-        start_date: pos.Projects.start_date,
-        end_date: pos.Projects.end_date,
-        durationDays: getTimeBetweenInDays(
-          pos.Projects.start_date,
-          pos.Projects.end_date
-        ),
-        points: calculatePositionPoints(
-          pos.Projects.start_date,
-          pos.Projects.end_date
-        ),
       })),
     };
 
@@ -517,8 +517,7 @@ router.get("/get-recommendation/:area_id", async (req, res) => {
           name: cert.Certificates.certificate_name,
           description: cert.Certificates.certificate_desc,
           provider: cert.Certificates.provider,
-          //difficulty: cert.Certificates.difficulty,
-          //estimated_time: cert.Certificates.estimated_time,
+          difficulty: cert.Certificates.certificate_level,
           skills: cert.Certificates.Certificate_Skills.map((skill) => ({
             skill_name: skill.Skills.name,
           })),
