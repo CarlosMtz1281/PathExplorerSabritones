@@ -98,40 +98,38 @@ router.get("/cargabilidad", async (req, res) => {
   }
 });
 
-router.get("/getMe", async (req: Request, res: Response) => {
+router.get("/getMe", async (req, res) => {
   try {
-    // Get the session ID from the cookies
-    const user_id = req.cookies?.sessionId.user_id;
-    console.log("sessionId:", user_id);
+    const sessionKey = req.headers["session-key"];
+    const userId = await getUserIdFromSession(sessionKey);
 
-    if (!user_id) {
-      return res
-        .status(401)
-        .json({ error: "Unauthorized: No session ID provided" });
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or missing session" });
     }
 
-    // Find the user associated with the session
     const user = await prisma.users.findUnique({
-      where: { user_id: user_id },
+      where: { user_id: userId },
+      select: {
+        user_id: true,
+        name: true,
+        mail: true,
+        role_id: true, 
+        country_id: true,
+        in_project: true,
+      },
     });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Return the user data
-    res.status(200).json({
-      id: user.user_id,
-      mail: user.mail,
-      country_id: user.country_id,
-      name: user.name,
-      in_project: user.in_project,
-    });
-  } catch (error: any) {
-    console.error("Error in getMe controller:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error in /getMe:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 // Get all existent skills in database
 router.get("/skills", async (req, res) => {

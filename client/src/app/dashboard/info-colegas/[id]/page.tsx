@@ -1,33 +1,32 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificacionesColegas from "@/components/perfil/WidgetCertificacionesColegas";
 import WidgetTrayectoriaColegas from "@/components/perfil/WidgetTrayectoriaColegas";
 import WidgetTrayectoriaColegasEmpleado from "@/components/perfil/WidgetTrayectoriaColegaEmpleado";
 import WidgetHabilidadesColegas from "@/components/perfil/WidgetHabilidadesColegas";
 import WidgetFeedbackColegas from "@/components/perfil/WidgetFeedbackColegas";
-
-import { User } from "@/interfaces/User";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { User } from "@/interfaces/User";
 
 const InfoColegas = () => {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
+  const { data: session } = useSession();
+  const viewerRoleId = session?.user?.role_id || 0;
+
   const [userData, setUserData] = useState<User | null>(null);
-  const [roleId, setRoleId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`);
         const data = await res.json();
         setUserData(data);
-        setRoleId(data.role_id);
       } catch (error) {
         console.error("Error fetching user data", error);
       }
@@ -36,9 +35,7 @@ const InfoColegas = () => {
     fetchUserData();
   }, [params.id]);
 
-  if (!userData) {
-    return <div>Loading...</div>;
-  }
+  if (!userData) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col h-[calc(100vh)] bg-base-200 px-4 md:px-8 py-8 gap-8">
@@ -104,14 +101,14 @@ const InfoColegas = () => {
           className="flex flex-col gap-10 pr-5 overflow-y-auto"
           style={{ width: "68vw", marginLeft: "2vw" }}
         >
-          {[1].includes(roleId || 0) && (
+          {[1].includes(viewerRoleId) && (
             <>
               <WidgetCertificacionesColegas userId={userData.user_id} />
               <WidgetTrayectoriaColegas userId={userData.user_id} />
             </>
           )}
 
-          {[2].includes(roleId || 0) && (
+          {[2].includes(viewerRoleId) && (
             <>
               <WidgetCertificacionesColegas userId={userData.user_id} />
               <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
@@ -120,7 +117,7 @@ const InfoColegas = () => {
             </>
           )}
 
-          {[3, 4].includes(roleId || 0) && (
+          {[3, 4].includes(viewerRoleId) && (
             <>
               <WidgetCertificacionesColegas userId={userData.user_id} />
               <WidgetTrayectoriaColegas userId={userData.user_id} />
@@ -129,15 +126,13 @@ const InfoColegas = () => {
             </>
           )}
 
-          {[5, 6, 7].includes(roleId || 0) && (
+          {[5, 6, 7].includes(viewerRoleId) && (
             <div className="alert alert-info text-sm">
               Este widget solo lo ven líderes y admin (ejemplo)
             </div>
           )}
         </div>
       </div>
-
-
     </div>
   );
 };

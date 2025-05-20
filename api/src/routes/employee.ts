@@ -41,10 +41,11 @@ router.get("/user/:userId", async (req, res) => {
             Work_Position: true,
           },
           orderBy: {
-            start_date: "desc", // Fetch the most recent position
+            start_date: "desc",
           },
-          take: 1, // Limit to the most recent position
-        },
+          take: 1,
+        }
+        
       },
     });
 
