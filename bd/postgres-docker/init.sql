@@ -1446,7 +1446,7 @@ INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
 
 -- 29) Areas - Inserting 10 different technology areas
 INSERT INTO "Areas" ("area_name", "area_desc") VALUES
-('Java Development', 'Backend development using Java and Spring ecosystem'),
+('BackEnd Development', 'Backend development using different ecosystems'),
 ('Frontend Development', 'Building user interfaces with modern frameworks'),
 ('Cloud & DevOps', 'Cloud infrastructure and DevOps practices'),
 ('Data Science & Analytics', 'Data analysis, machine learning and AI'),
@@ -1459,7 +1459,7 @@ INSERT INTO "Areas" ("area_name", "area_desc") VALUES
 
 -- 30) Area_Certificates - Associating relevant certificates with each area
 INSERT INTO "Area_Certificates" ("area_id", "certificate_id") VALUES
--- Java Development
+-- Backend Development
 (1, 1), (1, 4), 
 
 -- Frontend Development
@@ -1491,7 +1491,7 @@ INSERT INTO "Area_Certificates" ("area_id", "certificate_id") VALUES
 
 -- 31) Area_Courses - Associating relevant courses with each area
 INSERT INTO "Area_Courses" ("area_id", "course_id") VALUES
--- Java Development
+-- Backend Development
 (1, 1), (1, 2),
 
 -- Frontend Development
@@ -1524,13 +1524,13 @@ INSERT INTO "Area_Courses" ("area_id", "course_id") VALUES
 -- 32) Project_Position_Areas - Associating project positions with relevant areas
 INSERT INTO "Project_Position_Areas" ("position_id", "area_id") VALUES
 -- E-Commerce Platform positions
-(1, 1),   -- Java Backend Developer -> Java Development
+(1, 1),   -- Java Backend Developer -> Backend Development
 (2, 2),   -- Frontend Developer -> Frontend Development
 (3, 3),   -- DevOps Engineer -> Cloud & DevOps
 (5, 6),   -- QA Engineer -> Quality Assurance
 
 -- Banking System Modernization positions
-(6, 1),   -- Solution Architect -> Java Development
+(6, 1),   -- Solution Architect -> Backend Development
 (6, 3),   -- Solution Architect -> Cloud & DevOps
 (8, 10),  -- Database Specialist -> Database Engineering
 (10, 9),  -- Security Specialist -> Cybersecurity
@@ -1545,10 +1545,10 @@ INSERT INTO "Project_Position_Areas" ("position_id", "area_id") VALUES
 (21, 7),  -- UX Designer -> UX/UI Design
 
 -- New positions
-(25, 1),  -- Lead Java Developer -> Java Development
+(25, 1),  -- Lead Java Developer -> Backend Development
 (26, 2),  -- Senior Frontend Developer -> Frontend Development
 (27, 3),  -- DevOps Engineer -> Cloud & DevOps
-(29, 1),  -- Java Microservices Architect -> Java Development
+(29, 1),  -- Java Microservices Architect -> Backend Development
 (29, 3),  -- Java Microservices Architect -> Cloud & DevOps
 (32, 1),  -- Full Stack Java Developer -> Java Development
 (32, 2);  -- Full Stack Java Developer -> Frontend Development
