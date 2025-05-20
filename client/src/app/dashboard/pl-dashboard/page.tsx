@@ -374,7 +374,7 @@ const DashboardPL = () => {
   return (
     <div className="flex flex-col h-full bg-base-200 px-22 py-10">
         {/*  Título de la pantalla */}
-        <div className="flex w-full items-center bg-base-100 p-5 text-3xl font-bold rounded-md border border-base-300 mb-6 text-secondary">
+        <div className="flex w-full items-center bg-base-100 p-5 text-4xl font-bold rounded-md border border-base-300 mb-6 text-secondary">
             <p>Dashboard (cambiar)</p>
         </div>
         {/* Primeros dashbaords */}

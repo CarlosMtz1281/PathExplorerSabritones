@@ -122,6 +122,18 @@ export default function Navbar() {
           </a>
         </li>
 
+        <li className="w-full">
+          <a
+            href="/dashboard/cl-dashboard"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-300 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaUserTie className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold">Dashboard de CL</h3>
+            )}
+          </a>
+        </li>
+
         
       </ul>
 

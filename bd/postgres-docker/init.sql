@@ -114,6 +114,8 @@ CREATE TABLE "Certificates" (
   "certificate_id" SERIAL PRIMARY KEY,
   "certificate_name" varchar,
   "certificate_desc" text,
+  "certificate_estimated_time" integer,
+  "certificate_level" integer,
   "provider" varchar
 );
 CREATE TABLE "Certificate_Users" (
@@ -179,6 +181,7 @@ CREATE TABLE "Goal_Users" (
   "user_id" integer,
   "create_date" timestamp,
   "finished_date" timestamp,
+  "priority" varchar,
   "completed" boolean,
   PRIMARY KEY ("goal_id", "user_id")
 );
@@ -205,7 +208,7 @@ CREATE TABLE "Project_Position_Areas" (
 CREATE TABLE "User_Area_Score" (
   "user_id" integer,
   "area_id" integer,
-  "score" integer,
+  "score" numeric,
   PRIMARY KEY ("user_id", "area_id")
 );
 CREATE TABLE "Session" (
@@ -325,13 +328,7 @@ INSERT INTO "Permits" (
 -- Delivery lead
 (TRUE, FALSE, FALSE, TRUE, FALSE),
 -- Admin
-(FALSE, FALSE, FALSE, FALSE, TRUE),
--- People Lead + Delivery Lead
-(TRUE, TRUE, FALSE, TRUE, FALSE),
--- Capability Lead + People Lead
-(TRUE, TRUE, TRUE, FALSE, FALSE),
--- Senior Employee with no lead roles
-(TRUE, FALSE, FALSE, FALSE, FALSE);
+(FALSE, FALSE, FALSE, FALSE, TRUE);
 
 -- 3) Skills - Expanded with more technical and soft skills
 INSERT INTO "Skills" ("name", "technical") VALUES
@@ -398,40 +395,42 @@ INSERT INTO "Skills" ("name", "technical") VALUES
 INSERT INTO "Certificates" (
     "certificate_name",
     "certificate_desc",
+    "certificate_estimated_time",
+    "certificate_level",
     "provider"
 ) VALUES
-('Oracle Certified Professional: Java SE 11 Developer', 'Advanced Java programming certification', 'Oracle'),
-('Oracle Database SQL Certified Associate', 'SQL and database management certification', 'Oracle'),
-('Oracle Cloud Infrastructure Foundations Associate', 'Cloud infrastructure basics certification', 'Oracle'),
-('Oracle Certified Master, Java EE Enterprise Architect', 'Enterprise-level Java architecture certification', 'Oracle'),
-('AWS Certified Solutions Architect - Associate', 'Cloud architecture certification', 'Amazon'),
-('AWS Certified Developer - Associate', 'Developing applications on AWS certification', 'Amazon'),
-('AWS Certified SysOps Administrator - Associate', 'System operations on AWS certification', 'Amazon'),
-('AWS Certified Machine Learning - Specialty', 'Machine learning on AWS certification', 'Amazon'),
-('Microsoft Certified: Azure Administrator Associate', 'Azure administration certification', 'Microsoft'),
-('Microsoft Certified: Azure Solutions Architect Expert', 'Advanced Azure architecture certification', 'Microsoft'),
-('Microsoft Certified: Power BI Data Analyst Associate', 'Data analysis and visualization certification', 'Microsoft'),
-('Microsoft Certified: DevOps Engineer Expert', 'DevOps practices on Azure certification', 'Microsoft'),
-('Google Professional Data Engineer', 'Data engineering certification', 'Google'),
-('Google Associate Cloud Engineer', 'Cloud engineering basics certification', 'Google'),
-('Google Professional Cloud Architect', 'Cloud architecture certification', 'Google'),
-('Google Professional Machine Learning Engineer', 'Machine learning engineering certification', 'Google'),
-('Coursera Data Science Professional Certificate', 'Comprehensive data science certification', 'Coursera'),
-('Coursera Machine Learning Specialization', 'Machine learning certification by Andrew Ng', 'Coursera'),
-('Coursera Python for Everybody Specialization', 'Python programming certification', 'Coursera'),
-('Coursera Deep Learning Specialization', 'Deep learning certification by Andrew Ng', 'Coursera'),
-('Cisco Certified Network Associate (CCNA)', 'Networking fundamentals certification', 'Cisco'),
-('Cisco Certified CyberOps Associate', 'Cybersecurity operations certification', 'Cisco'),
-('Cisco Certified DevNet Associate', 'DevOps and network automation certification', 'Cisco'),
-('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 'Cisco'),
-('TensorFlow Developer Certificate', 'Build and train ML models using TensorFlow', 'Google'),
-('Certified Ethical Hacker (CEH)', 'Identify vulnerabilities and secure systems', 'EC-Council'),
-('Blockchain Developer Certification', 'Build decentralized applications and smart contracts', 'Blockchain Council'),
-('HashiCorp Certified Terraform Associate', 'Infrastructure automation using Terraform', 'HashiCorp'),
-('Certified Kubernetes Security Specialist', 'Secure containerized applications', 'CNCF'),
-('Azure AI Engineer Associate', 'Implement AI solutions on Microsoft Azure', 'Microsoft'),
-('Quantum Computing Fundamentals', 'Introduction to quantum computing concepts', 'IBM'),
-('Serverless Architecture Certification', 'Build and deploy serverless applications', 'AWS');
+('Oracle Certified Professional: Java SE 11 Developer', 'Advanced Java programming certification', 120, 3, 'Oracle'),
+('Oracle Database SQL Certified Associate', 'SQL and database management certification', 80, 2, 'Oracle'),
+('Oracle Cloud Infrastructure Foundations Associate', 'Cloud infrastructure basics certification', 60, 1, 'Oracle'),
+('Oracle Certified Master, Java EE Enterprise Architect', 'Enterprise-level Java architecture certification', 150, 4, 'Oracle'),
+('AWS Certified Solutions Architect - Associate', 'Cloud architecture certification', 100, 2, 'Amazon'),
+('AWS Certified Developer - Associate', 'Developing applications on AWS certification', 90, 2, 'Amazon'),
+('AWS Certified SysOps Administrator - Associate', 'System operations on AWS certification', 95, 2, 'Amazon'),
+('AWS Certified Machine Learning - Specialty', 'Machine learning on AWS certification', 110, 3, 'Amazon'),
+('Microsoft Certified: Azure Administrator Associate', 'Azure administration certification', 85, 2, 'Microsoft'),
+('Microsoft Certified: Azure Solutions Architect Expert', 'Advanced Azure architecture certification', 130, 3, 'Microsoft'),
+('Microsoft Certified: Power BI Data Analyst Associate', 'Data analysis and visualization certification', 70, 2, 'Microsoft'),
+('Microsoft Certified: DevOps Engineer Expert', 'DevOps practices on Azure certification', 120, 3, 'Microsoft'),
+('Google Professional Data Engineer', 'Data engineering certification', 110, 3, 'Google'),
+('Google Associate Cloud Engineer', 'Cloud engineering basics certification', 75, 1, 'Google'),
+('Google Professional Cloud Architect', 'Cloud architecture certification', 125, 3, 'Google'),
+('Google Professional Machine Learning Engineer', 'Machine learning engineering certification', 115, 3, 'Google'),
+('Coursera Data Science Professional Certificate', 'Comprehensive data science certification', 180, 2, 'Coursera'),
+('Coursera Machine Learning Specialization', 'Machine learning certification by Andrew Ng', 90, 2, 'Coursera'),
+('Coursera Python for Everybody Specialization', 'Python programming certification', 60, 1, 'Coursera'),
+('Coursera Deep Learning Specialization', 'Deep learning certification by Andrew Ng', 100, 3, 'Coursera'),
+('Cisco Certified Network Associate (CCNA)', 'Networking fundamentals certification', 95, 2, 'Cisco'),
+('Cisco Certified CyberOps Associate', 'Cybersecurity operations certification', 85, 2, 'Cisco'),
+('Cisco Certified DevNet Associate', 'DevOps and network automation certification', 90, 2, 'Cisco'),
+('Cisco Certified Network Professional (CCNP)', 'Advanced networking certification', 140, 3, 'Cisco'),
+('TensorFlow Developer Certificate', 'Build and train ML models using TensorFlow', 80, 2, 'Google'),
+('Certified Ethical Hacker (CEH)', 'Identify vulnerabilities and secure systems', 100, 3, 'EC-Council'),
+('Blockchain Developer Certification', 'Build decentralized applications and smart contracts', 90, 2, 'Blockchain Council'),
+('HashiCorp Certified Terraform Associate', 'Infrastructure automation using Terraform', 70, 2, 'HashiCorp'),
+('Certified Kubernetes Security Specialist', 'Secure containerized applications', 85, 3, 'CNCF'),
+('Azure AI Engineer Associate', 'Implement AI solutions on Microsoft Azure', 95, 2, 'Microsoft'),
+('Quantum Computing Fundamentals', 'Introduction to quantum computing concepts', 50, 1, 'IBM'),
+('Serverless Architecture Certification', 'Build and deploy serverless applications', 65, 2, 'AWS');
 
 -- 5) Courses - Expanded with more learning paths
 INSERT INTO "Courses" (
@@ -578,14 +577,51 @@ INSERT INTO "Users" (
 -- Admin users
 ('admin.us@example.com', crypt('adminpass1', gen_salt('bf')), 'US Admin', '1980-01-01', '2015-01-01', 5, FALSE, 1),
 ('admin.uk@example.com', crypt('adminpass2', gen_salt('bf')), 'UK Admin', '1982-02-02', '2016-02-02', 5, FALSE, 3),
-('admin.global@example.com', crypt('adminpass3', gen_salt('bf')), 'Global Admin', '1975-03-03', '2010-03-03', 5, FALSE, 1);
+('admin.global@example.com', crypt('adminpass3', gen_salt('bf')), 'Global Admin', '1975-03-03', '2010-03-03', 5, FALSE, 1),
+
+-- new CL
+('sophia.chen@example.com', crypt('password123', gen_salt('bf')), 'Sophia Chen', '1986-08-14', '2019-05-10', 3, FALSE, 7),
+('daniel.kim@example.com', crypt('password123', gen_salt('bf')), 'Daniel Kim', '1984-11-25', '2018-09-15', 3, FALSE, 1),
+('elena.petrova@example.com', crypt('password123', gen_salt('bf')), 'Elena Petrova', '1989-02-18', '2020-03-22', 3, FALSE, 4),
+('carlos.mendez@example.com', crypt('password123', gen_salt('bf')), 'Carlos Mendez', '1987-07-30', '2019-11-05', 3, FALSE, 3),
+
+-- new PL
+('alex.wong@example.com', crypt('password123', gen_salt('bf')), 'Alex Wong', '1990-04-12', '2020-06-15', 2, FALSE, 1),
+('lisa.nguyen@example.com', crypt('password123', gen_salt('bf')), 'Lisa Nguyen', '1991-09-08', '2021-01-20', 2, FALSE, 6),
+('james.smith@example.com', crypt('password123', gen_salt('bf')), 'James Smith', '1988-12-05', '2019-07-10', 2, FALSE, 7),
+('maria.garcia@example.com', crypt('password123', gen_salt('bf')), 'Maria Garcia', '1992-03-25', '2021-04-15', 2, FALSE, 4),
+('david.wilson@example.com', crypt('password123', gen_salt('bf')), 'David Wilson', '1989-06-18', '2020-08-22', 2, FALSE, 3),
+('sara.johnson@example.com', crypt('password123', gen_salt('bf')), 'Sara Johnson', '1990-10-30', '2021-02-10', 2, FALSE, 1),
+
+-- new Emp
+('michael.brown@example.com', crypt('password123', gen_salt('bf')), 'Michael Brown', '1993-01-15', '2021-09-05', 1, TRUE, 1),
+('emma.davis@example.com', crypt('password123', gen_salt('bf')), 'Emma Davis', '1994-05-20', '2022-03-12', 1, TRUE, 6),
+('ryan.miller@example.com', crypt('password123', gen_salt('bf')), 'Ryan Miller', '1992-08-25', '2021-11-18', 1, TRUE, 7),
+('olivia.wilson@example.com', crypt('password123', gen_salt('bf')), 'Olivia Wilson', '1993-07-08', '2022-01-22', 1, TRUE, 4),
+('william.moore@example.com', crypt('password123', gen_salt('bf')), 'William Moore', '1991-12-10', '2021-06-15', 1, TRUE, 3),
+('ava.taylor@example.com', crypt('password123', gen_salt('bf')), 'Ava Taylor', '1994-02-28', '2022-04-05', 1, TRUE, 1),
+('lucas.anderson@example.com', crypt('password123', gen_salt('bf')), 'Lucas Anderson', '1995-03-14', '2022-07-19', 1, FALSE, 2),
+('mia.thomas@example.com', crypt('password123', gen_salt('bf')), 'Mia Thomas', '1993-10-09', '2021-10-30', 1, FALSE, 5),
+('ethan.jackson@example.com', crypt('password123', gen_salt('bf')), 'Ethan Jackson', '1990-06-21', '2021-08-12', 1, FALSE, 4),
+('sophia.white@example.com', crypt('password123', gen_salt('bf')), 'Sophia White', '1996-01-05', '2022-05-28', 1, FALSE, 6),
+('james.harris@example.com', crypt('password123', gen_salt('bf')), 'James Harris', '1992-09-17', '2021-12-03', 1, FALSE, 7),
+('isabella.martin@example.com', crypt('password123', gen_salt('bf')), 'Isabella Martin', '1995-11-22', '2022-06-10', 1, FALSE, 3),
+
+-- otros PL
+('eric.sanchez@example.com', crypt('password123', gen_salt('bf')), 'Eric Sanchez', '1990-04-12', '2020-06-15', 2, FALSE, 1),
+('david.connor@example.com', crypt('password123', gen_salt('bf')), 'David Connor', '1990-04-12', '2020-06-15', 2, FALSE, 1);
+
+
 
 -- 9) User_Score - Expanded with more scores
 INSERT INTO "User_Score" ("user_id", "score") VALUES
 (1, 85), (2, 92), (3, 78), (4, 88), (5, 90), 
 (6, 82), (7, 75), (8, 95), (9, 80), (10, 87),
 (11, 83), (12, 79), (13, 91), (14, 84), (15, 89),
-(16, 96), (17, 97), (18, 98);
+(16, 96), (17, 97), (18, 98), (19, 87), (20, 89), (21, 85), (22, 88),
+(23, 83), (24, 82), (25, 84), (26, 86), (27, 85), (28, 87),
+(29, 78), (30, 82), (31, 79), (32, 81), (33, 80), (34, 83), (35, 82), (36, 79), (37, 81), (38, 80), (39, 83), (40,80), (41,82), (42,70);
+
 
 -- 10) Capability - Expanded with more capabilities
 INSERT INTO "Capability" (
@@ -593,66 +629,74 @@ INSERT INTO "Capability" (
     "capability_lead_id",
     "country_id"
 ) VALUES
-('Software Development', 4, 1),   -- Led by Emily Wilson (US)
-('Project Management', 6, 3),     -- Led by Sarah Miller (UK)
-('Data Science', 8, 4),           -- Led by Anna Schmidt (Germany)
-('DevOps Engineering', 13, 6),    -- Led by Priya Sharma (India)
-('Cloud Architecture', 14, 7),    -- Led by Olivia Wilson (Australia)
-('Quality Assurance', 2, 1),      -- Led by Jane Smith (US)
-('UX Design', 10, 4),             -- Led by Claudia Fischer (Germany)
-('Product Management', 5, 3);     -- Led by David Brown (UK)
+('Software Development', 4, 1),   -- Emily Wilson (US)
+('Data Science', 12, 6),         -- Priya Sharma (India)
+('Cloud Architecture', 19, 7),    -- Sophia Chen (Australia)
+('Quality Assurance', 20, 1),     -- Daniel Kim (US)
+('UX Design', 21, 4),             -- Elena Petrova (Germany)
+('DevOps Engineering', 22, 3);    -- Carlos Mendez (UK)
+
 
 -- 11) Capability_People_Lead - Expanded
 INSERT INTO "Capability_People_Lead" ("capability_id", "capability_pl_id") VALUES
-(1, 2),  -- Software Development PL: Jane Smith
-(1, 6),  -- Software Development PL: Sarah Miller
-(2, 5),  -- Project Management PL: David Brown
-(3, 10), -- Data Science PL: Claudia Fischer
-(4, 12), -- DevOps Engineering PL: Amit Singh
-(5, 15), -- Cloud Architecture PL: Liam Taylor
-(6, 3),  -- Quality Assurance PL: Robert Johnson
-(7, 9),  -- UX Design PL: Thomas Müller
-(8, 7);  -- Product Management PL: Michael Davis
+-- Software Development
+(1, 2),   -- Jane Smith
+(1, 6), -- Sarah Miller
+(1, 23),  -- Alex Wong
+(1, 41), -- Eric Sanchez
+(1, 42), -- David Connor
+
+-- Data Science
+(2, 24),  -- Lisa Nguyen
+(2, 15), -- Liam Taylor
+
+-- Cloud Architecture
+(3, 25),  -- James Smith
+
+-- Quality Assurance
+(4, 26),  -- Maria Garcia
+
+-- UX Design
+(5, 10),  -- Claudia Fischer
+(5, 27),  -- David Wilson
+
+-- DevOps Engineering
+(6, 28);  -- Sara Johnson
+
 
 -- 12) Capability_Employee - Expanded with more team assignments
 INSERT INTO "Capability_Employee" ("capability_id", "people_lead_id", "employee_id") VALUES
--- Software Development team
-(1, 2, 1),   -- John Doe under Jane Smith
-(1, 2, 3),   -- Robert Johnson under Jane Smith
-(1, 6, 7),   -- Michael Davis under Sarah Miller
-(1, 6, 9),   -- Thomas Müller under Sarah Miller
-(1, 6, 11),  -- Raj Patel under Sarah Miller
+-- Software Development
+(1, 2, 1),    -- John Doe under Jane Smith
+(1, 2, 3),    -- Robert Johnson under Jane Smith
+(1, 23, 29),  -- Michael Brown under Alex Wong
+(1, 23, 34),  -- Ava Taylor under Alex Wong
+(1, 6, 35),    -- Sarah Millers
+(1, 6, 36),   
+(1, 6, 37), 
+(1, 6, 38), 
 
--- Project Management team
-(2, 5, 2),   -- Jane Smith under David Brown
-(2, 5, 6),   -- Sarah Miller under David Brown
-(2, 5, 10),  -- Claudia Fischer under David Brown
 
--- Data Science team
-(3, 10, 4),  -- Emily Wilson under Claudia Fischer
-(3, 10, 8),  -- Anna Schmidt under Claudia Fischer
-(3, 10, 12), -- Amit Singh under Claudia Fischer
+-- Data Science
+(2, 24, 11),  -- Raj Patel under Lisa Nguyen
+(2, 24, 30),  -- Emma Davis under Lisa Nguyen
+(2, 15, 39),
+(2,15,40),
 
--- DevOps Engineering team
-(4, 12, 5),  -- David Brown under Amit Singh
-(4, 12, 13), -- Priya Sharma under Amit Singh
-(4, 12, 14), -- Olivia Wilson under Amit Singh
+-- Cloud Architecture
+(3, 25, 31),  -- Ryan Miller under James Smith
 
--- Cloud Architecture team
-(5, 15, 15), -- Liam Taylor under himself (as capability lead)
-(5, 15, 16), -- US Admin under Liam Taylor
+-- Quality Assurance
+(4, 26, 32),  -- Olivia Wilson under Maria Garcia
 
--- Quality Assurance team
-(6, 3, 1),   -- John Doe under Robert Johnson
-(6, 3, 7),   -- Michael Davis under Robert Johnson
+-- UX Design
+(5, 10, 9),   -- Thomas Müller under Claudia Fischer
+(5, 27, 33),  -- William Moore under David Wilson
 
--- UX Design team
-(7, 9, 9),   -- Thomas Müller under himself
-(7, 9, 10),  -- Claudia Fischer under Thomas Müller
+-- DevOps Engineering
+(6, 28, 7),   -- Michael Davis under Sara Johnson
+(6, 28, 13);  -- Amit Singh under Sara Johnson
 
--- Product Management team
-(8, 7, 5),   -- David Brown under Michael Davis
-(8, 7, 14);  -- Olivia Wilson under Michael Davis
 
 -- 13) Projects - Expanded with more projects
 INSERT INTO "Projects" (
@@ -692,12 +736,12 @@ INSERT INTO "Projects" (
 
 -- Upcoming projects
 (5, 'AI Customer Support', 'ServiceFirst', 'AI-powered chatbot for customer support services', '2025-09-01', '2026-05-31', 1),
-(13, 'Blockchain Supply Chain', 'ChainLogistics', 'Blockchain-based supply chain transparency solution', '2025-10-01', '2026-08-31', 6),
+(5, 'Blockchain Supply Chain', 'ChainLogistics', 'Blockchain-based supply chain transparency solution', '2025-10-01', '2026-08-31', 6),
 (14, 'AR Retail Experience', 'ShopFuture', 'Augmented reality shopping experience for retail', '2025-11-01', '2026-07-31', 7),
 
 -- Completed projects
 (5, 'Legacy System Migration', 'Enterprise Systems Ltd', 'Migration from mainframe to cloud-based systems', '2024-01-10', '2024-12-15', 3),
-(13, 'Data Warehouse Implementation', 'Analytics Corp', 'Enterprise data warehouse with BI capabilities', '2024-03-01', '2024-11-30', 4),
+(14, 'Data Warehouse Implementation', 'Analytics Corp', 'Enterprise data warehouse with BI capabilities', '2024-03-01', '2024-11-30', 4),
 (14, 'Cybersecurity Upgrade', 'SecureNet', 'Company-wide cybersecurity infrastructure upgrade', '2024-05-15', '2025-01-31', 1),
 
 -- John Doe projects
@@ -1137,55 +1181,160 @@ INSERT INTO "Course_Skills" ("course_id", "skill_id") VALUES
 (1, 11, NULL, '2020-05-15', '2022-12-31'), -- Raj Patel - Software Engineer
 (2, 12, NULL, '2020-02-18', '2022-12-31'), -- Liam Taylor - Senior Software Engineer
 
--- John Doe
-(13, 1, 3, '2024-01-01', NULL),
-
--- Jane Smith - QA Automation Lead (related to Quality Assurance capability)
-(23, 2, 2, '2023-01-01', NULL),
-
--- Robert Johnson - Senior Test Engineer (related to Quality Assurance capability)
-(24, 3, 3, '2023-01-01', NULL),
-
--- Emily Wilson - Principal Software Engineer (related to Software Development capability)
-(15, 4, 4, '2023-01-01', NULL),
-
--- David Brown - Product Strategy Lead (related to Product Management capability)
-(29, 5, 3, '2023-01-01', NULL),
-
--- Sarah Miller - Delivery Lead (related to Project Management capability)
-(18, 6, 3, '2023-01-01', NULL),
-
--- Michael Davis - Software Development Lead (related to Software Development capability)
-(14, 7, 3, '2023-01-01', NULL),
-
--- Anna Schmidt - Data Science Lead (related to Data Science capability)
-(19, 8, 3, '2023-01-01', NULL),
-
--- Thomas Müller - Senior UX Designer (related to UX Design capability)
-(26, 9, 3, '2023-01-01', NULL),
-
--- Claudia Fischer - UX Design Lead (related to UX Design capability)
-(25, 10, 3, '2023-01-01', NULL),
-
--- Raj Patel - Senior Data Scientist (related to Data Science capability)
-(20, 11, 3, '2023-01-01', NULL),
-
--- Amit Singh - DevOps Lead (related to DevOps Engineering capability)
-(21, 12, 3, '2023-01-01', NULL),
-
--- Priya Sharma - Cloud Infrastructure Engineer (related to DevOps Engineering capability)
-(22, 13, 2, '2023-01-01', NULL),
-
--- Olivia Wilson - Senior Cloud Architect (related to Cloud Architecture capability)
-(28, 14, 3, '2023-01-01', NULL),
-
--- Liam Taylor - Cloud Solutions Architect (related to Cloud Architecture capability)
-(27, 15, 3, '2023-01-01', NULL),
-
 -- Admin users (generic positions)
+(14, 8, 4, '2023-01-01', NULL),  -- 
 (14, 16, 4, '2023-01-01', NULL),  -- US Admin - Software Development Lead
 (14, 17, 4, '2023-01-01', NULL),  -- UK Admin - Software Development Lead
 (14, 18, 5, '2023-01-01', NULL);  -- Global Admin - Software Development Lead (highest level)
+
+-- 1. Capability Leads (Principal/Senior positions)
+INSERT INTO "Employee_Position" ("position_id", "user_id", "level", "start_date", "end_date")
+SELECT 
+    CASE 
+        WHEN c.capability_name = 'Software Development' THEN 15 -- Principal Software Engineer
+        WHEN c.capability_name = 'Data Science' THEN 19 -- Data Science Lead
+        WHEN c.capability_name = 'Cloud Architecture' THEN 28 -- Senior Cloud Architect
+        WHEN c.capability_name = 'Quality Assurance' THEN 24 -- Senior Test Engineer
+        WHEN c.capability_name = 'UX Design' THEN 25 -- UX Design Lead
+        WHEN c.capability_name = 'DevOps Engineering' THEN 21 -- DevOps Lead
+    END,
+    c.capability_lead_id,
+    4, -- High level for leads
+    CURRENT_DATE,
+    NULL
+FROM "Capability" c
+WHERE c.capability_lead_id NOT IN (16, 17, 18); -- Exclude admins
+
+-- 2. People Leads (Senior/Lead positions)
+INSERT INTO "Employee_Position" ("position_id", "user_id", "level", "start_date", "end_date")
+SELECT 
+    CASE 
+        WHEN c.capability_name = 'Software Development' THEN 14 -- Software Development Lead
+        WHEN c.capability_name = 'Data Science' THEN 19 -- Data Science Lead
+        WHEN c.capability_name = 'Cloud Architecture' THEN 27 -- Cloud Solutions Architect
+        WHEN c.capability_name = 'Quality Assurance' THEN 23 -- QA Automation Lead
+        WHEN c.capability_name = 'UX Design' THEN 26 -- Senior UX Designer
+        WHEN c.capability_name = 'DevOps Engineering' THEN 21 -- DevOps Lead
+    END,
+    cpl.capability_pl_id,
+    3, -- Mid-high level for people leads
+    CURRENT_DATE,
+    NULL
+FROM "Capability_People_Lead" cpl
+JOIN "Capability" c ON cpl.capability_id = c.capability_id
+WHERE cpl.capability_pl_id NOT IN (16, 17, 18); -- Exclude admins
+
+-- 3. Regular Employees (Associate/Senior positions)
+INSERT INTO "Employee_Position" ("position_id", "user_id", "level", "start_date", "end_date")
+SELECT 
+    CASE 
+        WHEN c.capability_name = 'Software Development' THEN 13 -- Senior Software Developer
+        WHEN c.capability_name = 'Data Science' THEN 20 -- Senior Data Scientist
+        WHEN c.capability_name = 'Cloud Architecture' THEN 22 -- Cloud Infrastructure Engineer
+        WHEN c.capability_name = 'Quality Assurance' THEN 24 -- Senior Test Engineer
+        WHEN c.capability_name = 'UX Design' THEN 26 -- Senior UX Designer
+        WHEN c.capability_name = 'DevOps Engineering' THEN 21 -- DevOps Lead
+    END,
+    ce.employee_id,
+    CASE 
+        WHEN EXTRACT(YEAR FROM AGE(u.hire_date)) > 3 THEN 3 -- Senior
+        ELSE 2 -- Associate
+    END,
+    CURRENT_DATE,
+    NULL
+FROM "Capability_Employee" ce
+JOIN "Capability" c ON ce.capability_id = c.capability_id
+JOIN "Users" u ON ce.employee_id = u.user_id
+WHERE ce.employee_id NOT IN (16, 17, 18) -- Exclude admins
+AND NOT EXISTS (
+    SELECT 1 FROM "Employee_Position" ep 
+    WHERE ep.user_id = ce.employee_id 
+    AND ep.end_date IS NULL
+);
+
+-- 4. Users who aren't in any capability (assign default positions based on their role_id)
+INSERT INTO "Employee_Position" ("position_id", "user_id", "level", "start_date", "end_date")
+SELECT 
+    CASE 
+        WHEN p.is_people_lead THEN 14 -- Software Development Lead (default for PLs)
+        WHEN p.is_capability_lead THEN 15 -- Principal Software Engineer (default for CLs)
+        WHEN p.is_delivery_lead THEN 18 -- Delivery Lead
+        WHEN p.is_employee THEN 13 -- Senior Software Developer (default for employees)
+        ELSE NULL -- Shouldn't happen as we're excluding admins
+    END,
+    u.user_id,
+    CASE 
+        WHEN EXTRACT(YEAR FROM AGE(u.hire_date)) > 3 THEN 3 -- Senior
+        ELSE 2 -- Associate
+    END,
+    CURRENT_DATE,
+    NULL
+FROM "Users" u
+JOIN "Permits" p ON u.role_id = p.role_id
+WHERE u.user_id NOT IN (16, 17, 18) -- Exclude admins
+AND NOT EXISTS (
+    SELECT 1 FROM "Employee_Position" ep 
+    WHERE ep.user_id = u.user_id 
+    AND ep.end_date IS NULL
+)
+AND NOT EXISTS (
+    SELECT 1 FROM "Capability" c 
+    WHERE c.capability_lead_id = u.user_id
+)
+AND NOT EXISTS (
+    SELECT 1 FROM "Capability_People_Lead" cpl 
+    WHERE cpl.capability_pl_id = u.user_id
+)
+AND NOT EXISTS (
+    SELECT 1 FROM "Capability_Employee" ce 
+    WHERE ce.employee_id = u.user_id
+);
+
+
+-- -- John Doe
+-- (13, 1, 3, '2024-01-01', NULL),
+
+-- -- Jane Smith - QA Automation Lead (related to Quality Assurance capability)
+-- (23, 2, 2, '2023-01-01', NULL),
+
+-- -- Robert Johnson - Senior Test Engineer (related to Quality Assurance capability)
+-- (24, 3, 3, '2023-01-01', NULL),
+
+-- -- Emily Wilson - Principal Software Engineer (related to Software Development capability)
+-- (15, 4, 4, '2023-01-01', NULL),
+
+-- -- David Brown - Product Strategy Lead (related to Product Management capability)
+-- (29, 5, 3, '2023-01-01', NULL),
+
+-- -- Sarah Miller - Delivery Lead (related to Project Management capability)
+-- (18, 6, 3, '2023-01-01', NULL),
+
+-- -- Michael Davis - Software Development Lead (related to Software Development capability)
+-- (14, 7, 3, '2023-01-01', NULL),
+
+-- -- Anna Schmidt - Data Science Lead (related to Data Science capability)
+-- (19, 8, 3, '2023-01-01', NULL),
+
+-- -- Thomas Müller - Senior UX Designer (related to UX Design capability)
+-- (26, 9, 3, '2023-01-01', NULL),
+
+-- -- Claudia Fischer - UX Design Lead (related to UX Design capability)
+-- (25, 10, 3, '2023-01-01', NULL),
+
+-- -- Raj Patel - Senior Data Scientist (related to Data Science capability)
+-- (20, 11, 3, '2023-01-01', NULL),
+
+-- -- Amit Singh - DevOps Lead (related to DevOps Engineering capability)
+-- (21, 12, 3, '2023-01-01', NULL),
+
+-- -- Priya Sharma - Cloud Infrastructure Engineer (related to DevOps Engineering capability)
+-- (22, 13, 2, '2023-01-01', NULL),
+
+-- -- Olivia Wilson - Senior Cloud Architect (related to Cloud Architecture capability)
+-- (28, 14, 3, '2023-01-01', NULL),
+
+-- -- Liam Taylor - Cloud Solutions Architect (related to Cloud Architecture capability)
+-- (27, 15, 3, '2023-01-01', NULL);
 
 
 -- 26) Goal_Skills - Expanded with more goal-skill relationships
@@ -1219,23 +1368,24 @@ INSERT INTO "Goal_Users" (
     "user_id",
     "create_date",
     "finished_date",
+    "priority",
     "completed"
 ) VALUES
-(1, 1, '2023-01-10', NULL, FALSE),    -- John: Master Java
-(2, 2, '2023-01-15', NULL, FALSE),    -- Jane: Improve PM
-(3, 14, '2023-02-01', NULL, FALSE),   -- Olivia: AWS Cert
-(4, 5, '2023-02-10', NULL, FALSE),    -- David: Leadership
-(5, 4, '2023-03-05', NULL, FALSE),    -- Emily: Learn ML
-(6, 10, '2023-03-15', NULL, FALSE),   -- Claudia: Public Speaking
-(7, 9, '2023-04-01', NULL, FALSE),    -- Thomas: Full-Stack
-(8, 13, '2023-04-10', NULL, FALSE),   -- Priya: DevOps
-(9, 11, '2023-05-01', NULL, FALSE),   -- Raj: Data Analysis
-(10, 7, '2023-05-15', NULL, FALSE),   -- Michael: Time Mgmt
-(11, 8, '2023-06-01', NULL, FALSE),   -- Anna: Cloud Security
-(12, 12, '2023-06-10', NULL, FALSE),  -- Amit: Kubernetes
-(1, 3, '2023-01-20', NULL, FALSE),    -- Robert: Master Java
-(3, 12, '2023-02-05', NULL, FALSE),   -- Amit: AWS Cert
-(7, 1, '2023-04-05', NULL, FALSE);    -- John: Full-Stack
+(1, 1, '2023-01-10', NULL, 'High', FALSE),    -- John: Master Java
+(2, 2, '2023-01-15', NULL, 'Medium', FALSE),  -- Jane: Improve PM
+(3, 14, '2023-02-01', NULL, 'High', FALSE),   -- Olivia: AWS Cert
+(4, 5, '2023-02-10', NULL, 'Low', FALSE),     -- David: Leadership
+(5, 4, '2023-03-05', NULL, 'High', FALSE),    -- Emily: Learn ML
+(6, 10, '2023-03-15', NULL, 'Medium', FALSE), -- Claudia: Public Speaking
+(7, 9, '2023-04-01', NULL, 'High', FALSE),    -- Thomas: Full-Stack
+(8, 13, '2023-04-10', NULL, 'Medium', FALSE), -- Priya: DevOps
+(9, 11, '2023-05-01', NULL, 'High', FALSE),   -- Raj: Data Analysis
+(10, 7, '2023-05-15', NULL, 'Low', FALSE),    -- Michael: Time Mgmt
+(11, 8, '2023-06-01', NULL, 'High', FALSE),   -- Anna: Cloud Security
+(12, 12, '2023-06-10', NULL, 'Medium', FALSE),-- Amit: Kubernetes
+(1, 3, '2023-01-20', NULL, 'Medium', FALSE),  -- Robert: Master Java
+(3, 12, '2023-02-05', NULL, 'High', FALSE),  -- Amit: AWS Cert
+(7, 1, '2023-04-05', NULL, 'High', FALSE);    -- John: Full-Stack
 
 -- 28) User_Skills - Expanded with more skill assignments
 INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
@@ -1296,7 +1446,7 @@ INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
 
 -- 29) Areas - Inserting 10 different technology areas
 INSERT INTO "Areas" ("area_name", "area_desc") VALUES
-('Java Development', 'Backend development using Java and Spring ecosystem'),
+('BackEnd Development', 'Backend development using different ecosystems'),
 ('Frontend Development', 'Building user interfaces with modern frameworks'),
 ('Cloud & DevOps', 'Cloud infrastructure and DevOps practices'),
 ('Data Science & Analytics', 'Data analysis, machine learning and AI'),
@@ -1309,7 +1459,7 @@ INSERT INTO "Areas" ("area_name", "area_desc") VALUES
 
 -- 30) Area_Certificates - Associating relevant certificates with each area
 INSERT INTO "Area_Certificates" ("area_id", "certificate_id") VALUES
--- Java Development
+-- Backend Development
 (1, 1), (1, 4), 
 
 -- Frontend Development
@@ -1341,7 +1491,7 @@ INSERT INTO "Area_Certificates" ("area_id", "certificate_id") VALUES
 
 -- 31) Area_Courses - Associating relevant courses with each area
 INSERT INTO "Area_Courses" ("area_id", "course_id") VALUES
--- Java Development
+-- Backend Development
 (1, 1), (1, 2),
 
 -- Frontend Development
@@ -1374,13 +1524,13 @@ INSERT INTO "Area_Courses" ("area_id", "course_id") VALUES
 -- 32) Project_Position_Areas - Associating project positions with relevant areas
 INSERT INTO "Project_Position_Areas" ("position_id", "area_id") VALUES
 -- E-Commerce Platform positions
-(1, 1),   -- Java Backend Developer -> Java Development
+(1, 1),   -- Java Backend Developer -> Backend Development
 (2, 2),   -- Frontend Developer -> Frontend Development
 (3, 3),   -- DevOps Engineer -> Cloud & DevOps
 (5, 6),   -- QA Engineer -> Quality Assurance
 
 -- Banking System Modernization positions
-(6, 1),   -- Solution Architect -> Java Development
+(6, 1),   -- Solution Architect -> Backend Development
 (6, 3),   -- Solution Architect -> Cloud & DevOps
 (8, 10),  -- Database Specialist -> Database Engineering
 (10, 9),  -- Security Specialist -> Cybersecurity
@@ -1395,52 +1545,150 @@ INSERT INTO "Project_Position_Areas" ("position_id", "area_id") VALUES
 (21, 7),  -- UX Designer -> UX/UI Design
 
 -- New positions
-(25, 1),  -- Lead Java Developer -> Java Development
+(25, 1),  -- Lead Java Developer -> Backend Development
 (26, 2),  -- Senior Frontend Developer -> Frontend Development
 (27, 3),  -- DevOps Engineer -> Cloud & DevOps
-(29, 1),  -- Java Microservices Architect -> Java Development
+(29, 1),  -- Java Microservices Architect -> Backend Development
 (29, 3),  -- Java Microservices Architect -> Cloud & DevOps
 (32, 1),  -- Full Stack Java Developer -> Java Development
 (32, 2);  -- Full Stack Java Developer -> Frontend Development
 
--- 33) User_Area_Score - Assigning area scores to users
-INSERT INTO "User_Area_Score" ("user_id", "area_id", "score") VALUES
--- John Doe - strong in Java, moderate in others
-(1, 1, 90), (1, 3, 75), (1, 6, 80),
+WITH cert_points AS (
+    SELECT
+        cu.user_id,
+        ac.area_id,
+        COUNT(*) * 250 AS points
+    FROM
+        "Certificate_Users" cu
+    JOIN
+        "Area_Certificates" ac ON cu.certificate_id = ac.certificate_id
+    WHERE
+        cu.status = 'completed'
+    GROUP BY
+        cu.user_id, ac.area_id
+),
 
--- Jane Smith - Project Management focus
-(2, 8, 85), (2, 2, 65),
+course_points AS (
+    SELECT
+        cu.user_id,
+        ac.area_id,
+        SUM(
+            CAST(SUBSTRING(c.estimated_time FROM '(\d+\.?\d*)') AS NUMERIC) *
+            CASE
+                WHEN cu.finished THEN 10
+                ELSE (cu.progress / 100.0) * 10
+            END
+        ) AS points
+    FROM
+        "Course_Users" cu
+    JOIN
+        "Courses" c ON c.course_id = cu.course_id
+    JOIN
+        "Area_Courses" ac ON ac.course_id = c.course_id
+    GROUP BY
+        cu.user_id, ac.area_id
+),
 
--- Emily Wilson - Data Science expert
-(4, 4, 95), (4, 10, 85),
+position_points AS (
+    SELECT
+        pp.user_id,
+        ppa.area_id,
+        ROUND(SUM((
+            EXTRACT(EPOCH FROM COALESCE(p.end_date, CURRENT_DATE)) - 
+            EXTRACT(EPOCH FROM p.start_date)) / 
+            (60 * 60 * 24 * 30) * 250)) AS points
+    FROM
+        "Project_Positions" pp
+    JOIN
+        "Projects" p ON p.project_id = pp.project_id
+    JOIN
+        "Project_Position_Areas" ppa ON ppa.position_id = pp.position_id
+    WHERE
+        pp.user_id IS NOT NULL
+    GROUP BY
+        pp.user_id, ppa.area_id
+),
 
--- David Brown - Project Management
-(5, 8, 90), (5, 1, 70),
+total_points AS (
+    SELECT 
+        user_id,
+        area_id,
+        SUM(points) AS total_score
+    FROM (
+        SELECT user_id, area_id, points FROM cert_points
+        UNION ALL
+        SELECT user_id, area_id, points FROM course_points
+        UNION ALL
+        SELECT user_id, area_id, points FROM position_points
+    ) AS combined
+    GROUP BY user_id, area_id
+)
 
--- Sarah Miller - Project Management
-(6, 8, 88), (6, 2, 72),
+INSERT INTO "User_Area_Score" (user_id, area_id, score)
+SELECT user_id, area_id, total_score
+FROM total_points
+ON CONFLICT (user_id, area_id)
+DO UPDATE SET score = EXCLUDED.score;
 
--- Anna Schmidt - Cybersecurity
-(8, 9, 92), (8, 3, 85),
+CREATE OR REPLACE FUNCTION update_user_area_score_from_certificate()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'completed' THEN
+        INSERT INTO pathexplorer."User_Area_Score" ("user_id", "area_id", "score")
+        SELECT
+        NEW.user_id,
+        ac.area_id,
+        250
+        FROM pathexplorer."Area_Certificates" ac
+        WHERE ac.certificate_id = NEW.certificate_id
+        ON CONFLICT ("user_id", "area_id") DO UPDATE
+        SET score = pathexplorer."User_Area_Score".score + 250;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Thomas Müller - Java and Frontend
-(9, 1, 85), (9, 2, 80),
+CREATE TRIGGER update_user_area_score_from_certificate_trigger
+AFTER INSERT OR UPDATE ON "Certificate_Users"
+FOR EACH ROW
+EXECUTE FUNCTION update_user_area_score_from_certificate();
 
--- Claudia Fischer - UX/UI Design
-(10, 7, 94), (10, 2, 88),
+CREATE OR REPLACE FUNCTION update_user_area_score_from_course()
+RETURNS TRIGGER AS $$
+DECLARE
+    course_hours NUMERIC;
+    earned_points NUMERIC;
+BEGIN
+    -- Fetch estimated_time from Courses table
+    SELECT CAST(SUBSTRING(estimated_time FROM '(\d+\.?\d*)') AS NUMERIC)
+    INTO course_hours
+    FROM pathexplorer."Courses"
+    WHERE course_id = NEW.course_id;
 
--- Raj Patel - Data Science
-(11, 4, 89), (11, 10, 78),
+    -- Compute points
+    earned_points := course_hours *
+                    CASE
+                        WHEN NEW.finished THEN 10
+                        ELSE (NEW.progress / 100.0) * 10
+                    END;
 
--- Amit Singh - Cloud & DevOps
-(12, 3, 93), (12, 9, 82),
+    -- Insert or update User_Area_Score
+    INSERT INTO pathexplorer."User_Area_Score" ("user_id", "area_id", "score")
+    SELECT
+        NEW.user_id,
+        ac.area_id,
+        earned_points
+    FROM pathexplorer."Area_Courses" ac
+    WHERE ac.course_id = NEW.course_id
+    ON CONFLICT ("user_id", "area_id") DO UPDATE
+    SET score = pathexplorer."User_Area_Score".score + EXCLUDED.score;
 
--- Priya Sharma - Cloud & DevOps
-(13, 3, 91), (13, 1, 75),
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Olivia Wilson - Cloud & Java
-(14, 3, 96), (14, 1, 85),
-
--- Liam Taylor - Java and Frontend
-(15, 1, 88), (15, 2, 82);
+CREATE TRIGGER trg_update_score_on_course
+AFTER INSERT OR UPDATE ON "Course_Users"
+FOR EACH ROW
+EXECUTE FUNCTION update_user_area_score_from_course();
 
