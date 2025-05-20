@@ -877,6 +877,80 @@ router.get("/me", async (req, res) => {
   }
 });
 
+router.get("/is-subordinate", async (req, res) => {
+  try {
+    const viewerId = parseInt(req.query.viewer as string);
+    const targetId = parseInt(req.query.target as string);
+
+    if (isNaN(viewerId) || isNaN(targetId)) {
+      return res.status(400).json({ subordinado: false, error: "Invalid parameters" });
+    }
+
+    const viewer = await prisma.users.findUnique({
+      where: { user_id: viewerId },
+      select: { role_id: true },
+    });
+
+    if (!viewer) {
+      return res.status(404).json({ subordinado: false, error: "Viewer not found" });
+    }
+
+    // 👤 People Lead: verifica si el target es su subordinado directo
+    if (viewer.role_id === 2) {
+      const match = await prisma.capability_Employee.findFirst({
+        where: {
+          people_lead_id: viewerId,
+          employee_id: targetId,
+        },
+      });
+
+      return res.json({ subordinado: !!match });
+    }
+
+    // 👑 Capability Lead: busca primero su capability_id como capability_lead
+    if (viewer.role_id === 3) {
+      const capability = await prisma.capability.findFirst({
+        where: { capability_lead_id: viewerId },
+        select: { capability_id: true },
+      });
+
+      if (!capability) {
+        return res.json({ subordinado: false });
+      }
+
+      const capabilityId = capability.capability_id;
+
+      // Buscar todos los registros en capability_Employee con ese capability_id
+      const relations = await prisma.capability_Employee.findMany({
+        where: { capability_id: capabilityId },
+        select: {
+          people_lead_id: true,
+          employee_id: true,
+        },
+      });
+
+      const peopleLeadIds = new Set<number>();
+      const employeeIds = new Set<number>();
+
+      for (const row of relations) {
+        if (row.people_lead_id) peopleLeadIds.add(row.people_lead_id);
+        if (row.employee_id) employeeIds.add(row.employee_id);
+      }
+
+      const isSubordinate =
+        peopleLeadIds.has(targetId) || employeeIds.has(targetId);
+
+      return res.json({ subordinado: isSubordinate });
+    }
+
+    // Otros roles no tienen subalternos por jerarquía
+    return res.json({ subordinado: false });
+  } catch (error) {
+    console.error("Error in /is-subordinate:", error);
+    res.status(500).json({ subordinado: false, error: "Server error" });
+  }
+});
+
 
 // Endpoint para eliminar una experiencia laboral
 router.delete("/deleteExperience/:positionId", async (req, res) => {

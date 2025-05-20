@@ -18,6 +18,7 @@ const InfoColegas = () => {
 
   const { data: session } = useSession();
   const viewerRoleId = session?.user?.role_id || 0;
+  const [subordinado, setSubordinado] = useState(false);
 
   const [userData, setUserData] = useState<User | null>(null);
 
@@ -34,6 +35,25 @@ const InfoColegas = () => {
 
     fetchUserData();
   }, [params.id]);
+
+  useEffect(() => {
+    const checkSubordinado = async () => {
+      if (!session?.user?.id || !userData?.user_id) return;
+  
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/employee/is-subordinate?viewer=${session.user.id}&target=${userData.user_id}`
+        );
+        const data = await res.json();
+        setSubordinado(data.subordinado);
+      } catch (error) {
+        console.error("Error checking subordinado:", error);
+      }
+    };
+  
+    checkSubordinado();
+  }, [session?.user?.id, userData?.user_id]);
+  
 
   if (!userData) return <div>Loading...</div>;
 
@@ -101,36 +121,30 @@ const InfoColegas = () => {
           className="flex flex-col gap-10 pr-5 overflow-y-auto"
           style={{ width: "68vw", marginLeft: "2vw" }}
         >
-          {[1].includes(viewerRoleId) && (
-            <>
-              <WidgetCertificacionesColegas userId={userData.user_id} />
-              <WidgetTrayectoriaColegas userId={userData.user_id} />
-            </>
-          )}
+          {/* Empleado Y DELIVERY Certificaaciones Y trayectoria */}
+          
+            <WidgetCertificacionesColegas userId={userData.user_id} />
+            <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
 
-          {[2].includes(viewerRoleId) && (
-            <>
-              <WidgetCertificacionesColegas userId={userData.user_id} />
-              <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
-              <WidgetHabilidadesColegas userId={userData.user_id} />
-              <WidgetFeedbackColegas userId={userData.user_id} />
-            </>
-          )}
+          {/* People Lead: solo puede ver Habilidades y Feedback si el perfil es subordinado directo */}
+            {viewerRoleId === 2 && subordinado && (
+              <>
+                <WidgetHabilidadesColegas userId={userData.user_id} />
+                <WidgetFeedbackColegas userId={userData.user_id} />
+              </>
+            )}
 
-          {[3, 4].includes(viewerRoleId) && (
-            <>
-              <WidgetCertificacionesColegas userId={userData.user_id} />
-              <WidgetTrayectoriaColegas userId={userData.user_id} />
-              <WidgetHabilidadesColegas userId={userData.user_id} />
-              <WidgetFeedbackColegas userId={userData.user_id} />
-            </>
-          )}
+            {/* Capability Lead: puede ver Habilidades y Feedback si el perfil es subordinado directo o indirecto */}
+            {viewerRoleId === 3 && subordinado && (
+              <>
+                <WidgetHabilidadesColegas userId={userData.user_id} />
+                <WidgetFeedbackColegas userId={userData.user_id} />
+              </>
+            )}
 
-          {[5, 6, 7].includes(viewerRoleId) && (
-            <div className="alert alert-info text-sm">
-              Este widget solo lo ven líderes y admin (ejemplo)
-            </div>
-          )}
+          
+            {/*Admin NADA NO TENDRA ACCESO A ESTA PAGINA*/}
+          
         </div>
       </div>
     </div>
