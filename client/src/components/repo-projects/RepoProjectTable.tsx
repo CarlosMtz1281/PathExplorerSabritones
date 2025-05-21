@@ -17,11 +17,13 @@ type Project = {
 type RepoProjectsTableProps = {
   projects: Project[];
   setProjects?: React.Dispatch<React.SetStateAction<Project[]>>;
+  permission?: string;
 };
 
 export const RepoProjectTable = ({
   projects,
   setProjects,
+  permission,
 }: RepoProjectsTableProps) => {
   const [hoveredRow, setHoveredRow] = useState(0);
 
@@ -108,9 +110,19 @@ export const RepoProjectTable = ({
                           </div>
                         </div>
                         <div className="details-button-container">
-                          <a href={`/dashboard/project-details/${project.id}`}>
-                            <button>Asignar</button>
-                          </a>
+                          {permission === "Delivery" ? (
+                            <a
+                              href={`/dashboard/project-details/delivery/${project.id}`}
+                            >
+                              <button>Asignar</button>
+                            </a>
+                          ) : (
+                            <a
+                              href={`/dashboard/project-details/capability/${project.id}`}
+                            >
+                              <button>Postular</button>
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>

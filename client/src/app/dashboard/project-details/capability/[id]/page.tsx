@@ -449,15 +449,18 @@ const ProjectDetails = () => {
   // Get filled positions (team members)
   const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
-  async function handlePostular(user_id: number, position_id: number): Promise<void> {
+  async function handlePostular(
+    user_id: number,
+    position_id: number
+  ): Promise<void> {
     const project_id = id;
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate/${user_id}/${project_id}/${position_id}`
       );
-      console.log('Postulation successful:', response.data);
-      alert('Postulation submitted successfully!');
-      
+      console.log("Postulation successful:", response.data);
+      alert("Postulation submitted successfully!");
+
       // Update the project state to include the new postulation
       if (project) {
         const updatedProject = { ...project };
@@ -465,35 +468,35 @@ const ProjectDetails = () => {
         const positionIndex = updatedProject.positions.findIndex(
           (pos) => pos.position_id === position_id
         );
-        
+
         if (positionIndex !== -1) {
           // Initialize Postulations array if it doesn't exist
           if (!updatedProject.positions[positionIndex].Postulations) {
             updatedProject.positions[positionIndex].Postulations = [];
           }
-          
+
           // Add the new postulation to the position
           updatedProject.positions[positionIndex].Postulations?.push({
             postulation_id: response.data.postulation_id || Date.now(), // Use response id or fallback
             user_id: user_id,
             Users: {
               user_id: user_id,
-              name: session?.user?.name || '',
-              mail: session?.user?.email || ''
+              name: session?.user?.name || "",
+              mail: session?.user?.email || "",
             },
-            Meeting: null
+            Meeting: null,
           });
-          
+
           // Update the project state
           setProject(updatedProject);
         }
       }
     } catch (error: any) {
-      console.error('Error during postulation:', error);
+      console.error("Error during postulation:", error);
       if (error.response && error.response.data && error.response.data.error) {
         alert(`Error: ${error.response.data.error}`);
       } else {
-        alert('An error occurred during postulation. Please try again.');
+        alert("An error occurred during postulation. Please try again.");
       }
     }
   }
@@ -603,7 +606,7 @@ const ProjectDetails = () => {
                                       (pps) => (
                                         <div
                                           key={pps.Skills.skill_id}
-                                          className="badge badge-outline"
+                                          className="badge badge-outline badge-primary"
                                         >
                                           {pps.Skills.skill_name ||
                                             pps.Skills.name}
@@ -740,9 +743,55 @@ const ProjectDetails = () => {
                     <input type="checkbox" />
                     <div className="collapse-title text-lg font-semibold text-primary flex justify-between items-center">
                       <span>{candidate.name}</span>
-                      <span className="badge badge-primary">
-                        {candidate.totalMatches} coincidencias
-                      </span>
+                      {/* Calculate percentage of matched skills and certificates */}
+                      {(() => {
+                        const totalRequiredSkills =
+                          selectedPosition?.Project_Position_Skills?.length ||
+                          0;
+                        const totalRequiredCerts =
+                          selectedPosition?.Project_Position_Certificates
+                            ?.length || 0;
+                        const totalRequired =
+                          totalRequiredSkills + totalRequiredCerts;
+
+                        const matchedSkillsCount =
+                          candidate.matchedSkills?.length || 0;
+                        const matchedCertsCount =
+                          candidate.matchedCertificates?.length || 0;
+                        const totalMatched =
+                          matchedSkillsCount + matchedCertsCount;
+
+                        const matchPercentage =
+                          totalRequired > 0
+                            ? (totalMatched / totalRequired) * 100
+                            : 0;
+
+                        // Check if user is already submitted
+                        const isSubmitted =
+                          selectedPosition?.Postulations?.some(
+                            (postulation) =>
+                              postulation.user_id === candidate.user_id
+                          );
+
+                        return (
+                          <div className="flex flex-col items-end">
+                            <span
+                              className={`badge ${
+                                matchPercentage >= 20
+                                  ? "badge-success"
+                                  : "badge-error"
+                              }`}
+                            >
+                              {totalMatched} coincidencias
+                            </span>
+                            {isSubmitted && (
+                              <span className="text-xs text-info mt-1">
+                                Usuario ya postulado
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Collapse Content */}
@@ -787,24 +836,57 @@ const ProjectDetails = () => {
                                 )}
                               </div>
                             </div>
-                            {/* Check if user has already postulated for this position */}
-                            {selectedPosition.Postulations?.some(
-                              (postulation) => postulation.user_id === candidate.user_id
-                            ) ? (
-                              <button
-                                className="btn btn-disabled btn-sm"
-                                disabled
-                              >
-                                Postulado
-                              </button>
-                            ) : (
-                              <button
-                                className="btn btn-primary btn-sm"
-                                onClick={() => handlePostular(candidate.user_id, selectedPosition.position_id)}
-                              >
-                                Postular
-                              </button>
-                            )}
+                            {/* Calculate match percentage for postulation eligibility */}
+                            {(() => {
+                              const totalRequiredSkills = selectedPosition?.Project_Position_Skills?.length || 0;
+                              const totalRequiredCerts = selectedPosition?.Project_Position_Certificates?.length || 0;
+                              const totalRequired = totalRequiredSkills + totalRequiredCerts;
+                              
+                              const matchedSkillsCount = candidate.matchedSkills?.length || 0;
+                              const matchedCertsCount = candidate.matchedCertificates?.length || 0;
+                              const totalMatched = matchedSkillsCount + matchedCertsCount;
+                              
+                              const matchPercentage = totalRequired > 0 ? (totalMatched / totalRequired) * 100 : 0;
+                              
+                              // Check if user has already postulated for this position
+                              if (selectedPosition.Postulations?.some(
+                                (postulation) => postulation.user_id === candidate.user_id
+                              )) {
+                                return (
+                                  <button
+                                    className="btn btn-disabled btn-sm"
+                                    disabled
+                                  >
+                                    Postulado
+                                  </button>
+                                );
+                              } else if (matchPercentage < 20) {
+                                // Prevent postulation if match percentage is less than 20%
+                                return (
+                                  <button
+                                    className="btn btn-disabled btn-sm"
+                                    disabled
+                                    title="El candidato debe tener al menos 20% de coincidencias para ser postulado"
+                                  >
+                                    Coincidencia insuficiente
+                                  </button>
+                                );
+                              } else {
+                                return (
+                                  <button
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() =>
+                                      handlePostular(
+                                        candidate.user_id,
+                                        selectedPosition.position_id
+                                      )
+                                    }
+                                  >
+                                    Postular
+                                  </button>
+                                );
+                              }
+                            })()}
                           </div>
                         )}
 

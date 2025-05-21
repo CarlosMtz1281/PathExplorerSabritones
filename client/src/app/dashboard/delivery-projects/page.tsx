@@ -96,6 +96,7 @@ export default function DeliveryProjects() {
         <RepoProjectTable
           projects={filteredProjects}
           setProjects={setProjects}
+          permission="Delivery"
         />
       </div>
     </div>
