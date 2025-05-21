@@ -1,33 +1,33 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificacionesColegas from "@/components/perfil/WidgetCertificacionesColegas";
 import WidgetTrayectoriaColegas from "@/components/perfil/WidgetTrayectoriaColegas";
 import WidgetTrayectoriaColegasEmpleado from "@/components/perfil/WidgetTrayectoriaColegaEmpleado";
 import WidgetHabilidadesColegas from "@/components/perfil/WidgetHabilidadesColegas";
 import WidgetFeedbackColegas from "@/components/perfil/WidgetFeedbackColegas";
-
-import { User } from "@/interfaces/User";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { User } from "@/interfaces/User";
 
 const InfoColegas = () => {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
+  const { data: session } = useSession();
+  const viewerRoleId = session?.user?.role_id || 0;
+  const [subordinado, setSubordinado] = useState(false);
+
   const [userData, setUserData] = useState<User | null>(null);
-  const [roleId, setRoleId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`);
         const data = await res.json();
         setUserData(data);
-        setRoleId(data.role_id);
       } catch (error) {
         console.error("Error fetching user data", error);
       }
@@ -36,9 +36,26 @@ const InfoColegas = () => {
     fetchUserData();
   }, [params.id]);
 
-  if (!userData) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    const checkSubordinado = async () => {
+      if (!session?.user?.id || !userData?.user_id) return;
+  
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/employee/is-subordinate?viewer=${session.user.id}&target=${userData.user_id}`
+        );
+        const data = await res.json();
+        setSubordinado(data.subordinado);
+      } catch (error) {
+        console.error("Error checking subordinado:", error);
+      }
+    };
+  
+    checkSubordinado();
+  }, [session?.user?.id, userData?.user_id]);
+  
+
+  if (!userData) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col h-[calc(100vh)] bg-base-200 px-4 md:px-8 py-8 gap-8">
@@ -104,40 +121,32 @@ const InfoColegas = () => {
           className="flex flex-col gap-10 pr-5 overflow-y-auto"
           style={{ width: "68vw", marginLeft: "2vw" }}
         >
-          {[1].includes(roleId || 0) && (
-            <>
-              <WidgetCertificacionesColegas userId={userData.user_id} />
-              <WidgetTrayectoriaColegas userId={userData.user_id} />
-            </>
-          )}
+          {/* Empleado Y DELIVERY Certificaaciones Y trayectoria */}
+          
+            <WidgetCertificacionesColegas userId={userData.user_id} />
+            <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
 
-          {[2].includes(roleId || 0) && (
-            <>
-              <WidgetCertificacionesColegas userId={userData.user_id} />
-              <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
-              <WidgetHabilidadesColegas userId={userData.user_id} />
-              <WidgetFeedbackColegas userId={userData.user_id} />
-            </>
-          )}
+          {/* People Lead: solo puede ver Habilidades y Feedback si el perfil es subordinado directo */}
+            {viewerRoleId === 2 && subordinado && (
+              <>
+                <WidgetHabilidadesColegas userId={userData.user_id} />
+                <WidgetFeedbackColegas userId={userData.user_id} />
+              </>
+            )}
 
-          {[3, 4].includes(roleId || 0) && (
-            <>
-              <WidgetCertificacionesColegas userId={userData.user_id} />
-              <WidgetTrayectoriaColegas userId={userData.user_id} />
-              <WidgetHabilidadesColegas userId={userData.user_id} />
-              <WidgetFeedbackColegas userId={userData.user_id} />
-            </>
-          )}
+            {/* Capability Lead: puede ver Habilidades y Feedback si el perfil es subordinado directo o indirecto */}
+            {viewerRoleId === 3 && subordinado && (
+              <>
+                <WidgetHabilidadesColegas userId={userData.user_id} />
+                <WidgetFeedbackColegas userId={userData.user_id} />
+              </>
+            )}
 
-          {[5, 6, 7].includes(roleId || 0) && (
-            <div className="alert alert-info text-sm">
-              Este widget solo lo ven líderes y admin (ejemplo)
-            </div>
-          )}
+          
+            {/*Admin NADA NO TENDRA ACCESO A ESTA PAGINA*/}
+          
         </div>
       </div>
-
-
     </div>
   );
 };

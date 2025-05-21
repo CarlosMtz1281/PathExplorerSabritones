@@ -102,23 +102,21 @@ router.get("/getProjectById/:projectId", async (req, res) => {
         },
         Country: true,
         Users: true,
-        Project_User: {
-          include: {
-            Users: {
-              select: {
-                user_id: true,
-                name: true,
-                mail: true,
-              },
-            },
-          },
-        },
       },
     });
 
     if (!project) {
       return res.status(404).json({ error: "Project not found" });
     }
+
+    // Get team members from Project_Positions where user_id is not null
+    const teamMembers = project.Project_Positions
+      .filter(position => position.user_id !== null)
+      .map(position => ({
+        user_id: position.user_id,
+        project_id: projectId,
+        Users: position.Users
+      }));
 
     // Format dates and structure project data
     const formattedProject = {
@@ -148,11 +146,7 @@ router.get("/getProjectById/:projectId", async (req, res) => {
         Project_Position_Certificates: position.Project_Position_Certificates,
         Postulations: position.Postulations,
       })),
-      team_members: project.Project_User.map((member) => ({
-        user_id: member.user_id,
-        project_id: member.project_id,
-        Users: member.Users,
-      })),
+      team_members: teamMembers,
     };
 
     res.status(200).json(formattedProject);
@@ -161,6 +155,7 @@ router.get("/getProjectById/:projectId", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 router.post("/create", async (req, res) => {
   const {
     project_name,

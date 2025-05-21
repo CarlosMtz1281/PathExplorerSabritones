@@ -157,38 +157,21 @@ async function getAlertas(subordinados: any[]) {
     
     // Get all alerts from different sources
     const [projectFeedbacks, recentCerts, goals] = await Promise.all([
-        // 1. Feedback reciente de proyecto (ahora incluye el nombre del usuario)
-        prisma.feedback.findMany({
+        // 1. Feedback reciente de proyecto
+        prisma.project_Positions.findMany({
             where: {
                 user_id: { in: subordinadosIds },
                 Projects: {
-                    end_date: {
-                        gte: new Date(new Date().setMonth(new Date().getMonth() - 3)) // Last 3 months
-                    }
+                end_date: {
+                    gte: new Date(new Date().setMonth(new Date().getMonth() - 3)),
+                }
                 }
             },
             select: {
-                user_id: true,
-                Users: {
-                    select: {
-                        name: true
-                    }
-                },
-                Projects: {
-                    select: {
-                        end_date: true,
-                        project_name: true
-                    }
-                },
-                score: true,
-                desc: true
-            },
-            orderBy: {
-                Projects: {
-                    end_date: 'desc'
-                }
+                user_id: true
             }
         }),
+
         
         // 2. Certificaciones recientes (ahora incluye el nombre del usuario)
         prisma.certificate_Users.findMany({
@@ -250,19 +233,20 @@ async function getAlertas(subordinados: any[]) {
     const alerts = [];
     
     // Process project feedbacks
-    projectFeedbacks.forEach(feedback => {
-        alerts.push({
-            userId: feedback.user_id,
-            userName: feedback.Users?.name || 'Desconocido',
-            type: 'project_feedback',
-            date: feedback.Projects?.end_date,
-            details: {
-                projectName: feedback.Projects?.project_name,
-                score: feedback.score,
-                comment: feedback.desc
-            }
-        });
-    });
+    // projectFeedbacks.forEach(feedback => {
+    // alerts.push({
+    //     userId: feedback.user_id,
+    //     userName: feedback.Users?.name || 'Desconocido',
+    //     type: 'project_feedback',
+    //     date: feedback.Projects?.end_date,
+    //     details: {
+    //     projectName: feedback.Projects?.project_name,
+    //     score: feedback.Feedback?.score,
+    //     comment: feedback.Feedback?.desc
+    //     }
+    // });
+    // });
+
     
     // Process recent certifications
     recentCerts.forEach(cert => {
@@ -323,7 +307,7 @@ async function getDataSub(subordinados: any[]) {
     // Obtener cargabilidad para cada usuario
     const cargabilidadPromises = usersWithPositions.map(async (user) => {
         const cargabilidad = await getCargabilidad(user.user_id);
-        return cargabilidad;
+        return isNaN(cargabilidad) ? 0 : cargabilidad;
     });
     const cargabilidadResults = await Promise.all(cargabilidadPromises);
 

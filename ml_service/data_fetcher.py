@@ -15,7 +15,7 @@ class DataFetcher:
 
     def get_user_data(self, user_id: int) -> Dict:
         """Fetch all relevant user data from Express API"""
-        endpoints = ["skills", "certificates", "courses", "positions", "goals"]
+        endpoints = ["skills", "certificates", "positions", "goals"]
 
         data = {}
         for endpoint in endpoints:
@@ -46,21 +46,6 @@ class DataFetcher:
     def get_all_skills(self) -> List[Dict]:
         """Fetch all skills with names and IDs"""
         response = requests.get(f"{self.base_url}/general/skills", headers=self.headers)
-        return response.json() if response.status_code == 200 else []
-
-    def get_all_courses(self) -> List[Dict]:
-        """Fetch all available courses"""
-        response = requests.get(
-            f"{self.base_url}/ml-user-data/all_courses", headers=self.headers
-        )
-        return response.json() if response.status_code == 200 else []
-
-    def get_course_skills(self, course_id: int) -> List[int]:
-        """Get skills associated with a course"""
-        response = requests.get(
-            f"{self.base_url}/ml-user-data/course/{course_id}",
-            headers=self.headers,
-        )
         return response.json() if response.status_code == 200 else []
 
     def get_all_positions(self) -> List[Dict]:

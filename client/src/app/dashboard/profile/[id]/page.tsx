@@ -84,11 +84,11 @@ const Profile = () => {
                 </p>
               </div>
 
-              <div className="mr-5 mt-5 " style={{ width: "20vw" }}>
+              <div className="mr-5 mt-5 " style={{ width: "25vw" }}>
                 <div className="flex items-center">
-                  <p className="text-primary text-xl font-bold">Senior Azure</p>
+                  <p className="text-primary text-xl font-bold">{userData.position_name}</p>
                   <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-primary ml-4">
-                    <div className="text-2xl font-bold ">6</div>
+                    <div className="text-2xl font-bold ">{userData.level}</div>
                   </div>
                 </div>
 

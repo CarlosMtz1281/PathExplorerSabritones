@@ -66,7 +66,6 @@ router.post("/login", async (req, res) => {
       userId: user.user_id,
       name: user.name,
       country_id: user.country_id, // Changed from region_id to country_id to match your schema
-      in_project: user.in_project,
       role_id: user.role_id, // Added role_id which might be useful for frontend
     });
   } catch (error) {
@@ -87,14 +86,16 @@ router.get("/cargabilidad", async (req, res) => {
 
   try {
     const result = await getCargabilidad(userId);
+
+    //console.log(result);
     if (!result) {
-      return res.status(404).json({ message: "No data found for user" });
+      return res.json(0);
     }
 
-    res.json(result);
+    return res.json(result);
   } catch (error) {
     console.error("Error getting cargabilidad:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -125,7 +126,6 @@ router.get("/getMe", async (req: Request, res: Response) => {
       mail: user.mail,
       country_id: user.country_id,
       name: user.name,
-      in_project: user.in_project,
     });
   } catch (error: any) {
     console.error("Error in getMe controller:", error.message);
