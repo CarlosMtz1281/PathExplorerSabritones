@@ -18,6 +18,7 @@ model Capability {
   Country                Country?                 @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_region")
   Capability_Employee    Capability_Employee[]
   Capability_People_Lead Capability_People_Lead[]
+  Project_Positions      Project_Positions[]
 }
 
 model Capability_Employee {
@@ -25,8 +26,8 @@ model Capability_Employee {
   people_lead_id                                  Int
   employee_id                                     Int
   Capability                                      Capability @relation(fields: [capability_id], references: [capability_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_emp_capability")
-  Users_Capability_Employee_people_lead_idToUsers Users      @relation("Capability_Employee_people_lead_idToUsers", fields: [people_lead_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_emp_lead")
   Users_Capability_Employee_employee_idToUsers    Users      @relation("Capability_Employee_employee_idToUsers", fields: [employee_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_emp_user")
+  Users_Capability_Employee_people_lead_idToUsers Users      @relation("Capability_Employee_people_lead_idToUsers", fields: [people_lead_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_emp_lead")
 
   @@id([capability_id, people_lead_id, employee_id])
 }
@@ -75,58 +76,24 @@ model Certificates {
   Project_Position_Certificates Project_Position_Certificates[]
 }
 
-model Course_Skills {
-  course_id Int
-  skill_id  Int
-  Courses   Courses @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_skills_course")
-  Skills    Skills  @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_skills_skill")
-
-  @@id([course_id, skill_id])
-}
-
-model Course_Users {
-  course_id         Int
-  user_id           Int
-  course_start_date DateTime? @db.Timestamp(6)
-  progress          Int?
-  course_link       String?   @db.VarChar
-  finished          Boolean?
-  Courses           Courses   @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_users_course")
-  Users             Users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_course_users_user")
-
-  @@id([course_id, user_id])
-}
-
-model Courses {
-  course_id      Int             @id @default(autoincrement())
-  course_name    String?         @db.VarChar
-  course_desc    String?
-  estimated_time String?         @db.VarChar
-  Area_Courses   Area_Courses[]
-  Course_Skills  Course_Skills[]
-  Course_Users   Course_Users[]
-}
-
 model Employee_Position {
   position_id   Int
   user_id       Int
   level         Int?
   start_date    DateTime?     @db.Timestamp(6)
   end_date      DateTime?     @db.Timestamp(6)
-  Users         Users         @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_position_user")
   Work_Position Work_Position @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_position_work")
+  Users         Users         @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_position_user")
 
   @@id([position_id, user_id])
 }
 
 model Feedback {
-  feedback_id Int       @id @default(autoincrement())
-  project_id  Int?
-  user_id     Int?
-  desc        String?
-  score       Int?
-  Projects    Projects? @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_feedback_project")
-  Users       Users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_feedback_user")
+  feedback_id       Int                @id @default(autoincrement())
+  position_id       Int?
+  desc              String?
+  score             Int?
+  Project_Positions Project_Positions? @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Goal_Skills {
@@ -160,10 +127,11 @@ model Goals {
 }
 
 model Meeting {
-  meeting_id   Int            @id @default(autoincrement())
-  meeting_date DateTime?      @db.Timestamp(6)
-  meeting_link String?        @db.VarChar
-  Postulations Postulations[]
+  meeting_id     Int           @id @default(autoincrement())
+  meeting_date   DateTime?     @db.Timestamp(6)
+  meeting_link   String?       @db.VarChar
+  postulation_id Int?
+  Postulations   Postulations? @relation(fields: [postulation_id], references: [postulation_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Permits {
@@ -181,8 +149,7 @@ model Postulations {
   project_position_id Int?
   user_id             Int?
   postulation_date    DateTime?          @db.Timestamp(6)
-  meeting_id          Int?
-  Meeting             Meeting?           @relation(fields: [meeting_id], references: [meeting_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_meeting")
+  Meeting             Meeting[]
   Project_Positions   Project_Positions? @relation(fields: [project_position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_project_position")
   Users               Users?             @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_user")
 }
@@ -210,22 +177,16 @@ model Project_Positions {
   project_id                    Int?
   position_name                 String?                         @db.VarChar
   position_desc                 String?
+  capability_id                 Int?
   user_id                       Int?
+  Feedback                      Feedback[]
   Postulations                  Postulations[]
   Project_Position_Areas        Project_Position_Areas[]
   Project_Position_Certificates Project_Position_Certificates[]
   Project_Position_Skills       Project_Position_Skills[]
+  Capability                    Capability?                     @relation(fields: [capability_id], references: [capability_id], onDelete: NoAction, onUpdate: NoAction)
   Projects                      Projects?                       @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_positions_project")
   Users                         Users?                          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_positions_user")
-}
-
-model Project_User {
-  user_id    Int
-  project_id Int
-  Projects   Projects @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_user_project")
-  Users      Users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_project_user_user")
-
-  @@id([user_id, project_id])
 }
 
 model Projects {
@@ -237,11 +198,9 @@ model Projects {
   start_date            DateTime?           @db.Timestamp(6)
   end_date              DateTime?           @db.Timestamp(6)
   country_id            Int?
-  Feedback              Feedback[]
   Project_Positions     Project_Positions[]
-  Project_User          Project_User[]
-  Users                 Users?              @relation(fields: [delivery_lead_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_lead")
   Country               Country?            @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_region")
+  Users                 Users?              @relation(fields: [delivery_lead_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_projects_lead")
 }
 
 model Session {
@@ -256,17 +215,9 @@ model Skills {
   name                    String?                   @db.VarChar
   technical               Boolean?
   Certificate_Skills      Certificate_Skills[]
-  Course_Skills           Course_Skills[]
   Goal_Skills             Goal_Skills[]
   Project_Position_Skills Project_Position_Skills[]
   User_Skills             User_Skills[]
-}
-
-model User_Score {
-  score_id Int    @id @default(autoincrement())
-  user_id  Int?
-  score    Int?
-  Users    Users? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goal_users_user")
 }
 
 model User_Skills {
@@ -286,24 +237,19 @@ model Users {
   birthday                                                      DateTime?                @db.Timestamp(6)
   hire_date                                                     DateTime?                @db.Timestamp(6)
   role_id                                                       Int?
-  in_project                                                    Boolean?
   country_id                                                    Int?
   Capability                                                    Capability[]
-  Capability_Employee_Capability_Employee_people_lead_idToUsers Capability_Employee[]    @relation("Capability_Employee_people_lead_idToUsers")
   Capability_Employee_Capability_Employee_employee_idToUsers    Capability_Employee[]    @relation("Capability_Employee_employee_idToUsers")
+  Capability_Employee_Capability_Employee_people_lead_idToUsers Capability_Employee[]    @relation("Capability_Employee_people_lead_idToUsers")
   Capability_People_Lead                                        Capability_People_Lead[]
   Certificate_Users                                             Certificate_Users[]
-  Course_Users                                                  Course_Users[]
   Employee_Position                                             Employee_Position[]
-  Feedback                                                      Feedback[]
   Goal_Users                                                    Goal_Users[]
   Postulations                                                  Postulations[]
   Project_Positions                                             Project_Positions[]
-  Project_User                                                  Project_User[]
   Projects                                                      Projects[]
   Session                                                       Session[]
   User_Area_Score                                               User_Area_Score[]
-  User_Score                                                    User_Score[]
   User_Skills                                                   User_Skills[]
   Country                                                       Country?                 @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_region")
   Permits                                                       Permits?                 @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
@@ -336,21 +282,11 @@ model Area_Certificates {
   @@id([area_id, certificate_id])
 }
 
-model Area_Courses {
-  area_id   Int
-  course_id Int
-  Areas     Areas   @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_area_courses_area")
-  Courses   Courses @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_area_courses_course")
-
-  @@id([area_id, course_id])
-}
-
 model Areas {
   area_id                Int                      @id @default(autoincrement())
   area_name              String?                  @db.VarChar
   area_desc              String?
   Area_Certificates      Area_Certificates[]
-  Area_Courses           Area_Courses[]
   Project_Position_Areas Project_Position_Areas[]
   User_Area_Score        User_Area_Score[]
 }
@@ -367,9 +303,9 @@ model Project_Position_Areas {
 model User_Area_Score {
   user_id Int
   area_id Int
-  score   Int?
-  Areas   Areas @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_area")
-  Users   Users @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_user")
+  score   Decimal? @db.Decimal
+  Areas   Areas    @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_area")
+  Users   Users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_area_score_user")
 
   @@id([user_id, area_id])
 }

@@ -91,38 +91,6 @@ router.get("/certificates/:user_id", async (req, res) => {
   }
 });
 
-// courses of specific user without session key, in params
-router.get("/courses/:user_id", async (req, res) => {
-  const { user_id } = req.params;
-  try {
-    const courses = await prisma.course_Users.findMany({
-      where: { user_id: Number(user_id) },
-      include: {
-        Courses: {
-          include: {
-            Course_Skills: {
-              include: {
-                Skills: true, // Join with the Skills table
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const formattedCourses = {
-      skills_id: courses.flatMap((course) =>
-        course.Courses.Course_Skills.map((skill) => skill.Skills.skill_id)
-      ),
-    };
-
-    res.status(200).json(formattedCourses);
-  } catch (error) {
-    console.error("Error fetching courses:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
 // skills of the  positions of specific user without session key, in params
 router.get("/positions/:user_id", async (req, res) => {
   const { user_id } = req.params;
@@ -172,47 +140,6 @@ router.get("/goals/:user_id", async (req, res) => {
     res.status(200).json(formattedGoals);
   } catch (error) {
     console.error("Error fetching goals:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// get all courses
-router.get("/all_courses", async (req, res) => {
-  try {
-    const courses = await prisma.courses.findMany({});
-
-    const formattedCourses = courses.map((course) => ({
-      course_id: course.course_id,
-      course_name: course.course_name,
-      course_desc: course.course_desc,
-    }));
-
-    res.status(200).json(formattedCourses);
-  } catch (error) {
-    console.error("Error fetching courses:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// skills related to a specific course
-router.get("/course/:course_id", async (req, res) => {
-  const { course_id } = req.params;
-  try {
-    const course = await prisma.course_Skills.findMany({
-      where: { course_id: Number(course_id) },
-      include: {
-        Skills: true,
-      },
-    });
-
-    const formattedCourse = course.map((c) => ({
-      skill_id: c.skill_id,
-      skill_name: c.Skills.name,
-    }));
-
-    res.status(200).json(formattedCourse);
-  } catch (error) {
-    console.error("Error fetching course:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -13,6 +13,7 @@ router.get("/", async (req, res) => {
   res.json({ message: "Employee base" });
 });
 
+
 router.get("/user/:userId", async (req, res) => {
   try {
     const userId = parseInt(req.params.userId);
@@ -44,14 +45,28 @@ router.get("/user/:userId", async (req, res) => {
             start_date: "desc",
           },
           take: 1,
+        },
+        Project_Positions: {
+          where: {
+            user_id: userId
+          },
+          include: {
+            Projects: true
+          }
         }
-        
       },
     });
 
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
+
+    // Check if user is in any active project
+    const currentDate = new Date();
+    const isInProject = user.Project_Positions.some(position => {
+      return position.Projects.end_date === null || 
+             new Date(position.Projects.end_date) > currentDate;
+    });
 
     // Extract level and position name from the most recent employee position
     const currentPosition = user.Employee_Position[0];
@@ -63,6 +78,7 @@ router.get("/user/:userId", async (req, res) => {
       ...user,
       level,
       position_name: positionName,
+      in_project: isInProject
     };
 
     res.status(200).json(formattedUser);
@@ -166,8 +182,6 @@ router.post("/skills", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
-
-// File: src/routes/user.ts or wherever your user routes are defined
 
 router.get("/getCapabilityTeamMembers/:userId", async (req, res) => {
   const userId = parseInt(req.params.userId);
@@ -307,7 +321,6 @@ router.post("/create", async (req, res) => {
         hire_date: new Date(),
         country_id: parseInt(country_id),
         role_id,
-        in_project: false,
       },
     });
 
@@ -354,101 +367,77 @@ router.patch("/checkstaff", async (req, res) => {
 
     const today = new Date();
 
-    const staff = await prisma.employee_Position.findMany({
-      where: { user_id: userId },
-      select: {
-        user_id: true,
-        end_date: true,
+    // Check if user is assigned to any active project positions
+    const activeProjects = await prisma.project_Positions.findMany({
+      where: { 
+        user_id: userId,
+        Projects: {
+          OR: [
+            { end_date: null },
+            { end_date: { gt: today } }
+          ]
+        }
       },
-    });
-
-    if (!staff) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    const statuses = staff.map((position) => {
-      if (!position.end_date) {
-        return true;
+      select: {
+        project_id: true
       }
-      const endDate = new Date(position.end_date);
-      return endDate > today;
     });
 
-    const isStaff = !statuses.some((status) => status === true);
+    // If user has any active project positions, they're not staff
+    const isStaff = activeProjects.length === 0;
 
-    if (isStaff) {
-      await prisma.users.update({
-        where: { user_id: userId },
-        data: {
-          in_project: false,
-        },
-      });
-    } else {
-      await prisma.users.update({
-        where: { user_id: userId },
-        data: {
-          in_project: true,
-        },
-      });
-    }
-
-    res
-      .status(200)
-      .json({ message: "Validation of staff member done successfully" });
+    res.status(200).json({ 
+      message: "Staff status updated successfully",
+      isStaff: isStaff
+    });
   } catch (err) {
-    console.error("Error fetching user data:", err);
+    console.error("Error checking staff status:", err);
     res.status(500).json({ error: "Internal server error." });
   }
 });
 
-// Usar esto con un CRON JOB y agregar ADMIN KEY header
+// CRON JOB endpoint - checks all users
 router.patch("/checkstaffall", async (req, res) => {
   try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
-    const positions = await prisma.employee_Position.findMany({
+    // Get all users with their project assignments
+    const usersWithProjects = await prisma.users.findMany({
       select: {
         user_id: true,
-        end_date: true,
-      },
+        Project_Positions: {
+          select: {
+            Projects: {
+              select: {
+                end_date: true
+              }
+            }
+          }
+        }
+      }
     });
 
-    const userStatusMap = new Map<number, boolean>();
+    // Determine staff status for each user
+    const updates = usersWithProjects.map(user => {
+      const isInActiveProject = user.Project_Positions.some(position => {
+        return position.Projects.end_date === null || 
+               new Date(position.Projects.end_date) > today;
+      });
 
-    positions.forEach((position) => {
-      const currentStatus = userStatusMap.get(position.user_id);
-      if (currentStatus === true) return; // Already has a true status, keep it
-
-      const endDate = position.end_date ? new Date(position.end_date) : null;
-      const isValid = !endDate || endDate > today;
-
-      userStatusMap.set(position.user_id, isValid);
+      return {
+        user_id: user.user_id,
+        isStaff: !isInActiveProject,
+        in_project: isInActiveProject // for backward compatibility
+      };
     });
 
-    const allUsers = Array.from(userStatusMap, ([user_id, in_project]) => ({
-      user_id,
-      in_project,
-    }));
-
-    const usersInProjects = allUsers.filter((u) => u.in_project);
-    const usersNotInProjects = allUsers.filter((u) => !u.in_project);
-
-    console.log("Users in projects:", usersInProjects);
-    console.log("Users not in projects:", usersNotInProjects);
-
-    const updateInProject = await prisma.users.updateMany({
-      where: { user_id: { in: usersInProjects.map((u) => u.user_id) } },
-      data: { in_project: true },
-    });
-
-    const updateNotInProject = await prisma.users.updateMany({
-      where: { user_id: { in: usersNotInProjects.map((u) => u.user_id) } },
-      data: { in_project: false },
-    });
+    const staffCount = updates.filter(u => u.isStaff).length;
+    const nonStaffCount = updates.length - staffCount;
 
     res.status(200).json({
-      message: `Updated ${updateInProject.count} in projects, ${updateNotInProject.count} out of projects`,
+      message: `Staff status updated for all users`,
+      staff_count: staffCount,
+      non_staff_count: nonStaffCount
     });
   } catch (err) {
     console.error("Error updating staff statuses:", err);
@@ -456,7 +445,7 @@ router.patch("/checkstaffall", async (req, res) => {
   }
 });
 
-
+// regresa todos los usuarios
 router.get("/list", async (req, res) => {
   try {
     const employees = await prisma.users.findMany({
@@ -501,7 +490,7 @@ router.get("/list", async (req, res) => {
             },
           },
         },
-        Project_User: {
+        Project_Positions: {
           include: {
             Projects: {
               select: {
@@ -535,10 +524,16 @@ router.get("/list", async (req, res) => {
         user.Certificate_Users?.map((cu) => cu.Certificates.certificate_name || "N/A") || [];
 
       const projects =
-        user.Project_User?.map((pu) => pu.Projects?.project_name).filter(Boolean) || [];
+        user.Project_Positions?.map((pp) => pp.Projects?.project_name).filter(Boolean) || [];
 
-      const positions =
+      const positions_from_projects =
+        user.Project_Positions?.map((pp) => pp.position_name).filter(Boolean) || [];
+
+      const positions_from_employee =
         user.Employee_Position?.map((ep) => ep.Work_Position?.position_name).filter(Boolean) || [];
+
+      // Fusiona ambas listas de posiciones si quieres mantener ambas fuentes
+      const all_positions = [...new Set([...positions_from_employee, ...positions_from_projects])];
 
       return {
         user_id: user.user_id,
@@ -551,7 +546,7 @@ router.get("/list", async (req, res) => {
         skills,
         certifications,
         project_names: projects.length > 0 ? projects : ["Staff"],
-        position_names: positions.length > 0 ? positions : ["Sin posición"],
+        position_names: all_positions.length > 0 ? all_positions : ["Sin posición"],
       };
     });
 
@@ -562,6 +557,8 @@ router.get("/list", async (req, res) => {
   }
 });
 
+
+// obtiene la experiencia laboral y de proyectos de un usuario.
 router.get("/experience", async (req, res) => {
   try {
     // 🔍 Usa query param si existe, si no usa sesión
@@ -574,7 +571,6 @@ router.get("/experience", async (req, res) => {
       }
       userId = sessionResult;
     }
-    
 
     // Fetch jobs
     const workPositions = await prisma.employee_Position.findMany({
@@ -583,26 +579,18 @@ router.get("/experience", async (req, res) => {
       orderBy: { start_date: "asc" },
     });
 
-    // Fetch projects
-    const userProjects = await prisma.project_User.findMany({
+    // Fetch projects where user is assigned directly to a Project_Position
+    const projectPositions = await prisma.project_Positions.findMany({
       where: { user_id: userId },
       include: {
         Projects: {
           include: {
             Country: true,
             Users: true, // Delivery lead
-            Project_Positions: {
-              where: { user_id: userId },
-              include: {
-                Project_Position_Skills: {
-                  include: { Skills: true },
-                },
-              },
-            },
-            Feedback: {
-              where: { user_id: userId },
-            },
           },
+        },
+        Project_Position_Skills: {
+          include: { Skills: true },
         },
       },
     });
@@ -621,24 +609,23 @@ router.get("/experience", async (req, res) => {
       rawEnd: pos.end_date,
     }));
 
-    const projects = userProjects.map((proj) => {
-      const position = proj.Projects.Project_Positions[0];
-      const feedback = proj.Projects.Feedback[0];
+    const projects = projectPositions.map((pos) => {
+      const project = pos.Projects;
+      //const feedback = project.Feedback[0];
 
       return {
-        projectName: proj.Projects.project_name || "Unknown",
-        company: proj.Projects.company_name || "Unknown",
-        positionName: position?.position_name || "No position assigned",
-        projectDescription: proj.Projects.project_desc || "No description",
-        startDate: formatDate(proj.Projects.start_date),
-        endDate: formatDate(proj.Projects.end_date),
-        feedbackDesc: feedback?.desc || "No feedback",
-        feedbackScore: feedback?.score || null,
-        deliveryLeadName: proj.Projects.Users?.name || "Unknown Lead",
-        skills:
-          position?.Project_Position_Skills.map((s) => s.Skills.name) || [],
-        rawStart: proj.Projects.start_date,
-        rawEnd: proj.Projects.end_date,
+        projectName: project.project_name || "Unknown",
+        company: project.company_name || "Unknown",
+        positionName: pos.position_name || "No position assigned",
+        projectDescription: project.project_desc || "No description",
+        startDate: formatDate(project.start_date),
+        endDate: formatDate(project.end_date),
+        // feedbackDesc: feedback?.desc || "No feedback",
+        // feedbackScore: feedback?.score || null,
+        deliveryLeadName: project.Users?.name || "Unknown Lead",
+        skills: pos.Project_Position_Skills.map((s) => s.Skills.name),
+        rawStart: project.start_date,
+        rawEnd: project.end_date,
       };
     });
 
@@ -691,17 +678,6 @@ router.post("/addExperience", async (req, res) => {
         end_date: new Date(end_date),
       },
     });
-
-    // Actualizar el estado de in_project del usuario si es necesario
-    const today = new Date();
-    const endDateObj = new Date(end_date);
-    
-    if (endDateObj > today) {
-      await prisma.users.update({
-        where: { user_id: userId },
-        data: { in_project: true },
-      });
-    }
 
     // console.log("Experience added successfully:", {
     //   userId,
@@ -795,35 +771,6 @@ router.put("/updateExperience/:positionId", async (req, res) => {
         end_date: new Date(end_date),
       },
     });
-
-    // Actualizar el estado de in_project del usuario si es necesario
-    const today = new Date();
-    const endDateObj = new Date(end_date);
-    
-    if (endDateObj > today) {
-      await prisma.users.update({
-        where: { user_id: userId },
-        data: { in_project: true },
-      });
-    } else {
-      // Verificar si el usuario tiene otras posiciones activas
-      const activePositions = await prisma.employee_Position.findMany({
-        where: {
-          user_id: userId,
-          OR: [
-            { end_date: null },
-            { end_date: { gt: today } }
-          ]
-        }
-      });
-
-      if (activePositions.length === 0) {
-        await prisma.users.update({
-          where: { user_id: userId },
-          data: { in_project: false },
-        });
-      }
-    }
 
     res.status(200).json({ 
       message: "Experience updated successfully",
@@ -951,7 +898,6 @@ router.get("/is-subordinate", async (req, res) => {
   }
 });
 
-
 // Endpoint para eliminar una experiencia laboral
 router.delete("/deleteExperience/:positionId", async (req, res) => {
   try {
@@ -1005,31 +951,6 @@ router.delete("/deleteExperience/:positionId", async (req, res) => {
     await prisma.work_Position.delete({
       where: { position_id: positionId }
     });
-
-    // Verificar si el usuario necesita actualizar su estado in_project
-    const today = new Date();
-    const wasActivePosition = !existingPosition.end_date || 
-                            new Date(existingPosition.end_date) > today;
-
-    if (wasActivePosition) {
-      // Verificar si el usuario tiene otras posiciones activas
-      const remainingPositions = await prisma.employee_Position.findMany({
-        where: {
-          user_id: userId,
-          OR: [
-            { end_date: null },
-            { end_date: { gt: today } }
-          ]
-        }
-      });
-
-      if (remainingPositions.length === 0) {
-        await prisma.users.update({
-          where: { user_id: userId },
-          data: { in_project: false },
-        });
-      }
-    }
 
     res.status(200).json({ 
       message: "Experience deleted successfully",
