@@ -48,21 +48,6 @@ class DataFetcher:
         response = requests.get(f"{self.base_url}/general/skills", headers=self.headers)
         return response.json() if response.status_code == 200 else []
 
-    def get_all_courses(self) -> List[Dict]:
-        """Fetch all available courses"""
-        response = requests.get(
-            f"{self.base_url}/ml-user-data/all_courses", headers=self.headers
-        )
-        return response.json() if response.status_code == 200 else []
-
-    def get_course_skills(self, course_id: int) -> List[int]:
-        """Get skills associated with a course"""
-        response = requests.get(
-            f"{self.base_url}/ml-user-data/course/{course_id}",
-            headers=self.headers,
-        )
-        return response.json() if response.status_code == 200 else []
-
     def get_all_positions(self) -> List[Dict]:
         """Fetch all available positions"""
         response = requests.get(
