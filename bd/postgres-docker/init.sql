@@ -286,7 +286,7 @@ INSERT INTO "Permits" (
 ) VALUES
 (TRUE, FALSE, FALSE, FALSE, FALSE), -- 1 Simple employee
 (TRUE, TRUE, FALSE, FALSE, FALSE), -- 2 People lead
-(TRUE, FALSE, TRUE, FALSE, FALSE), -- 3 Capability lead
+(TRUE, TRUE, TRUE, FALSE, FALSE), -- 3 Capability lead
 (TRUE, FALSE, FALSE, TRUE, FALSE), -- 4 Delivery lead
 (FALSE, FALSE, FALSE, FALSE, TRUE); -- 5 Admin
 
@@ -671,8 +671,9 @@ INSERT INTO "Users" ("mail", "password", "name", "birthday", "hire_date", "role_
 ('hudson.simmons@accenture.com', crypt('simmons123', gen_salt('bf')), 'Hudson Simmons', '1995-01-30', '2020-09-22', 1, 2), -- 91
 ('autumn.foster@accenture.com', crypt('foster123', gen_salt('bf')), 'Autumn Foster', '1996-06-25', '2021-02-15', 1, 4), -- 92
 ('ezra.gonzales@accenture.com', crypt('gonzales123', gen_salt('bf')), 'Ezra Gonzales', '1997-11-18', '2022-05-30', 1, 5), -- 93
-('piper.bryant@accenture.com', crypt('bryant123', gen_salt('bf')), 'Piper Bryant', '1995-04-10', '2020-10-25', 1, 6); -- 94
-
+('piper.bryant@accenture.com', crypt('bryant123', gen_salt('bf')), 'Piper Bryant', '1995-04-10', '2020-10-25', 1, 6), -- 94
+-- Managing Director
+('john.doe@accenture.com', crypt('doe123', gen_salt('bf')), 'John Doe', '1985-04-10', '2020-10-25', 3, 1); -- 95
 
 
 -- 9) Work Positions
@@ -716,8 +717,13 @@ INSERT INTO "Work_Position" (
 ('Desarrollador de Juegos', 'Crea videojuegos para múltiples plataformas', 'Electronic Arts'), -- 31
 ('Ingeniero de Sistemas Embebidos', 'Programa sistemas de hardware integrado', 'Intel'), -- 32
 ('Especialista en Transformación Digital', 'Ayuda a empresas en su transición tecnológica', 'IBM'), -- 33
-('Delivery Lead', 'Delivery lead Accenture', 'Accenture'), -- 34
-('Admin', 'Admin Accenture PathExplorer', 'Accenture'); -- 35
+('Software Delivery Lead', 'Delivery lead Accenture', 'Accenture'), -- 34
+('Data Delivery Lead', 'Delivery lead Accenture', 'Accenture'), -- 35
+('AWS Delivery Lead', 'Delivery lead Accenture', 'Accenture'), -- 36
+('QA Delivery Lead', 'Delivery lead Accenture', 'Accenture'), -- 37
+('UIUX Delivery Lead', 'Delivery lead Accenture', 'Accenture'), -- 38
+('Admin', 'Admin Accenture PathExplorer', 'Accenture'), -- 39
+('Managing Director', 'Managing director of capability and delivery leads', 'Accenture'); -- 40
 
 
 
@@ -730,115 +736,117 @@ INSERT INTO "Employee_Position" (
     "end_date"
 ) VALUES
 -- Administradores (usuarios 1-3)
-(35, 1, 1, '2000-01-01', NULL),
-(35, 2, 1, '2000-01-01', NULL),
-(35, 3, 1, '2000-01-01', NULL),
+(39, 1, 1, '2000-01-01', NULL),
+(39, 2, 1, '2000-01-01', NULL),
+(39, 3, 1, '2000-01-01', NULL),
 -- DL (usuarios 4-8)
-(34, 4, 1, '2000-01-01', NULL),
-(34, 5, 1, '2000-01-01', NULL),
-(34, 6, 1, '2000-01-01', NULL),
-(34, 7, 1, '2000-01-01', NULL),
-(34, 8, 1, '2000-01-01', NULL), 
+(34, 4, 6, '2000-01-01', NULL),
+(35, 5, 6, '2000-01-01', NULL),
+(36, 6, 6, '2000-01-01', NULL),
+(37, 7, 6, '2000-01-01', NULL),
+(38, 8, 6, '2000-01-01', NULL), 
 -- CL (9-14)
 (25, 9, NULL, '2018-10-10', '2022-12-31'),
-(2,  9, 7, '2023-01-01', NULL),
+(2,  9, 6, '2023-01-01', NULL),
 (4, 10, 7, '2022-01-10', NULL),
-(6, 11, 7, '2022-01-10', NULL),
-(8, 12, 7, '2022-01-10', NULL),
-(10, 13, 7, '2022-01-10', NULL),
+(6, 11, 8, '2022-01-10', NULL),
+(8, 12, 6, '2022-01-10', NULL),
+(10, 13, 6, '2022-01-10', NULL),
 (12, 14, 7, '2022-01-10', NULL),
 -- PL CAP 1 (15-19)
 (13, 15, NULL, '2019-01-10', '2022-01-09'),
-(1, 15, 5, '2022-01-10', NULL),
-(1, 16, 4, '2022-01-10', NULL),
-(1, 17, 4, '2022-01-10', NULL),
-(1, 18, 6, '2022-01-10', NULL),
-(1, 19, 4, '2022-01-10', NULL),
+(1, 15, 7, '2022-01-10', NULL),
+(1, 16, 8, '2022-01-10', NULL),
+(1, 17, 9, '2022-01-10', NULL),
+(1, 18, 8, '2022-01-10', NULL),
+(1, 19, 6, '2022-01-10', NULL),
 -- Otros PL (20-34)
-(3, 20, 5, '2022-01-10', NULL),
-(3, 21, 4, '2022-01-10', NULL),
-(3, 22, 4, '2022-01-10', NULL),
-(5, 23, 5, '2022-01-10', NULL),
-(5, 24, 5, '2022-01-10', NULL),
-(5, 25, 5, '2022-01-10', NULL),
-(7, 26, 5, '2022-01-10', NULL),
-(7, 27, 5, '2022-01-10', NULL),
-(7, 28, 5, '2022-01-10', NULL),
-(9, 29, 5, '2022-01-10', NULL),
-(9, 30, 5, '2022-01-10', NULL),
-(9, 31, 5, '2022-01-10', NULL),
-(11, 32, 5, '2022-01-10', NULL),
-(11, 33, 5, '2022-01-10', NULL),
-(11, 34, 5, '2022-01-10', NULL),
+(3, 20, 7, '2022-01-10', NULL),
+(3, 21, 8, '2022-01-10', NULL),
+(3, 22, 7, '2022-01-10', NULL),
+(5, 23, 9, '2022-01-10', NULL),
+(5, 24, 8, '2022-01-10', NULL),
+(5, 25, 7, '2022-01-10', NULL),
+(7, 26, 7, '2022-01-10', NULL),
+(7, 27, 7, '2022-01-10', NULL),
+(7, 28, 8, '2022-01-10', NULL),
+(9, 29, 8, '2022-01-10', NULL),
+(9, 30, 8, '2022-01-10', NULL),
+(9, 31, 7, '2022-01-10', NULL),
+(11, 32, 7, '2022-01-10', NULL),
+(11, 33, 7, '2022-01-10', NULL),
+(11, 34, 7, '2022-01-10', NULL),
 -- Regular Emps (35-94)
 -- Employee 35 with previous position 13 (Desarrollador Frontend React at Meta)
 (13, 35, NULL, '2019-06-15', '2021-12-31'),
-(1, 35, 2, '2022-01-01', NULL),
+(1, 35, 10, '2022-01-01', NULL),
 -- Employees 36-49 (Job 1 nivel 1-3)
-(1, 36, 1, '2022-01-10', NULL),
-(1, 37, 2, '2022-01-10', NULL),
-(1, 38, 3, '2022-01-10', NULL),
-(1, 39, 1, '2022-01-10', NULL),
-(1, 40, 2, '2022-01-10', NULL),
-(1, 41, 3, '2022-01-10', NULL),
-(1, 42, 1, '2022-01-10', NULL),
-(1, 43, 2, '2022-01-10', NULL),
-(1, 44, 3, '2022-01-10', NULL),
-(1, 45, 1, '2022-01-10', NULL),
-(1, 46, 2, '2022-01-10', NULL),
-(1, 47, 3, '2022-01-10', NULL),
-(1, 48, 1, '2022-01-10', NULL),
-(1, 49, 2, '2022-01-10', NULL),
+(1, 36, 11, '2022-01-10', NULL),
+(1, 37, 10, '2022-01-10', NULL),
+(1, 38, 9, '2022-01-10', NULL),
+(1, 39, 10, '2022-01-10', NULL),
+(1, 40, 11, '2022-01-10', NULL),
+(1, 41, 10, '2022-01-10', NULL),
+(1, 42, 11, '2022-01-10', NULL),
+(1, 43, 10, '2022-01-10', NULL),
+(1, 44, 10, '2022-01-10', NULL),
+(1, 45, 11, '2022-01-10', NULL),
+(1, 46, 11, '2022-01-10', NULL),
+(1, 47, 9, '2022-01-10', NULL),
+(1, 48, 11, '2022-01-10', NULL),
+(1, 49, 10, '2022-01-10', NULL),
 -- Employees 50-58 (Job 3 nivel 1-3)
-(3, 50, 1, '2022-01-10', NULL),
-(3, 51, 2, '2022-01-10', NULL),
-(3, 52, 3, '2022-01-10', NULL),
-(3, 53, 1, '2022-01-10', NULL),
-(3, 54, 2, '2022-01-10', NULL),
-(3, 55, 3, '2022-01-10', NULL),
-(3, 56, 1, '2022-01-10', NULL),
-(3, 57, 2, '2022-01-10', NULL),
-(3, 58, 3, '2022-01-10', NULL),
+(3, 50, 11, '2022-01-10', NULL),
+(3, 51, 9, '2022-01-10', NULL),
+(3, 52, 10, '2022-01-10', NULL),
+(3, 53, 11, '2022-01-10', NULL),
+(3, 54, 10, '2022-01-10', NULL),
+(3, 55, 11, '2022-01-10', NULL),
+(3, 56, 10, '2022-01-10', NULL),
+(3, 57, 10, '2022-01-10', NULL),
+(3, 58, 10, '2022-01-10', NULL),
 -- Employees 59-67 (Job 5 nivel 1-3)
-(5, 59, 1, '2022-01-10', NULL),
-(5, 60, 2, '2022-01-10', NULL),
-(5, 61, 3, '2022-01-10', NULL),
-(5, 62, 1, '2022-01-10', NULL),
-(5, 63, 2, '2022-01-10', NULL),
-(5, 64, 3, '2022-01-10', NULL),
-(5, 65, 1, '2022-01-10', NULL),
-(5, 66, 2, '2022-01-10', NULL),
-(5, 67, 3, '2022-01-10', NULL),
+(5, 59, 10, '2022-01-10', NULL),
+(5, 60, 10, '2022-01-10', NULL),
+(5, 61, 11, '2022-01-10', NULL),
+(5, 62, 11, '2022-01-10', NULL),
+(5, 63, 11, '2022-01-10', NULL),
+(5, 64, 9, '2022-01-10', NULL),
+(5, 65, 9, '2022-01-10', NULL),
+(5, 66, 10, '2022-01-10', NULL),
+(5, 67, 11, '2022-01-10', NULL),
 -- Employees 68-76 (Job 7 nivel 1-3)
-(7, 68, 1, '2022-01-10', NULL),
-(7, 69, 2, '2022-01-10', NULL),
-(7, 70, 3, '2022-01-10', NULL),
-(7, 71, 1, '2022-01-10', NULL),
-(7, 72, 2, '2022-01-10', NULL),
-(7, 73, 3, '2022-01-10', NULL),
-(7, 74, 1, '2022-01-10', NULL),
-(7, 75, 2, '2022-01-10', NULL),
-(7, 76, 3, '2022-01-10', NULL),
+(7, 68, 11, '2022-01-10', NULL),
+(7, 69, 11, '2022-01-10', NULL),
+(7, 70, 10, '2022-01-10', NULL),
+(7, 71, 11, '2022-01-10', NULL),
+(7, 72, 11, '2022-01-10', NULL),
+(7, 73, 11, '2022-01-10', NULL),
+(7, 74, 10, '2022-01-10', NULL),
+(7, 75, 10, '2022-01-10', NULL),
+(7, 76, 11, '2022-01-10', NULL),
 -- Employees 77-85 (Job 9 nivel 1-3)
-(9, 77, 1, '2022-01-10', NULL),
-(9, 78, 2, '2022-01-10', NULL),
-(9, 79, 3, '2022-01-10', NULL),
-(9, 80, 1, '2022-01-10', NULL),
-(9, 81, 2, '2022-01-10', NULL),
-(9, 82, 3, '2022-01-10', NULL),
-(9, 83, 1, '2022-01-10', NULL),
-(9, 84, 2, '2022-01-10', NULL),
-(9, 85, 3, '2022-01-10', NULL),
+(9, 77, 11, '2022-01-10', NULL),
+(9, 78, 10, '2022-01-10', NULL),
+(9, 79, 11, '2022-01-10', NULL),
+(9, 80, 9, '2022-01-10', NULL),
+(9, 81, 10, '2022-01-10', NULL),
+(9, 82, 11, '2022-01-10', NULL),
+(9, 83, 11, '2022-01-10', NULL),
+(9, 84, 9, '2022-01-10', NULL),
+(9, 85, 9, '2022-01-10', NULL),
 -- Employees 86-94 (Job 11 nivel 1-3)
-(11, 86, 1, '2022-01-10', NULL),
-(11, 87, 2, '2022-01-10', NULL),
-(11, 88, 3, '2022-01-10', NULL),
-(11, 89, 1, '2022-01-10', NULL),
-(11, 90, 2, '2022-01-10', NULL),
-(11, 91, 3, '2022-01-10', NULL),
-(11, 92, 1, '2022-01-10', NULL),
-(11, 93, 2, '2022-01-10', NULL),
-(11, 94, 3, '2022-01-10', NULL);
+(11, 86, 10, '2022-01-10', NULL),
+(11, 87, 11, '2022-01-10', NULL),
+(11, 88, 9, '2022-01-10', NULL),
+(11, 89, 11, '2022-01-10', NULL),
+(11, 90, 11, '2022-01-10', NULL),
+(11, 91, 11, '2022-01-10', NULL),
+(11, 92, 10, '2022-01-10', NULL),
+(11, 93, 9, '2022-01-10', NULL),
+(11, 94, 10, '2022-01-10', NULL),
+-- Managing director
+(40, 95, 5, '2015-01-01', NULL);
 
 
 
@@ -853,7 +861,8 @@ INSERT INTO "Capability" (
 ('Arquitectura en la nube', 11, 2),
 ('Calidad de Software QA', 12, 1),
 ('Diseño de UI y UX', 13, 4),
-('Ingenieria de DevOps', 14, 3);
+('Ingenieria de DevOps', 14, 3),
+('Management', 95, 1);
 
 
 
@@ -884,7 +893,15 @@ INSERT INTO "Capability_People_Lead" ("capability_id", "capability_pl_id") VALUE
 -- Ingeniería de DevOps (People Leads 32-34)
 (6, 32),
 (6, 33),
-(6, 34);
+(6, 34),
+-- CLs son people leads tambien
+(1, 9),
+(2, 10),
+(3, 11),
+(4, 12),
+(5, 13),
+(6, 14),
+(7, 95);
 
 
 
@@ -896,31 +913,51 @@ INSERT INTO "Capability_Employee" ("capability_id", "people_lead_id", "employee_
 (1, 17, 41), (1, 17, 42), (1, 17, 43),
 (1, 18, 44), (1, 18, 45), (1, 18, 46),
 (1, 19, 47), (1, 19, 48), (1, 19, 49),
+-- PLs son counselees de CL
+(1, 9, 15), (1, 9, 16), (1, 9, 17), (1, 9, 18), (1, 9, 19), (1, 9, 4),
 -- Ciencia de Datos (Employees 50-58) - 3 employees per People Lead (20-22)
 (2, 20, 50), (2, 20, 51), (2, 20, 52),
 (2, 21, 53), (2, 21, 54), (2, 21, 55),
 (2, 22, 56), (2, 22, 57), (2, 22, 58),
+-- PLs son counselees de CL
+(2, 10, 20), (2, 10, 21), (2, 10, 22), (2, 10, 5),
 -- Arquitectura en la Nube (Employees 59-67) - 3 employees per People Lead (23-25)
 (3, 23, 59), (3, 23, 60), (3, 23, 61),
 (3, 24, 62), (3, 24, 63), (3, 24, 64),
 (3, 25, 65), (3, 25, 66), (3, 25, 67),
+-- PLs son counselees de CL
+(3, 11, 23), (3, 11, 24), (3, 11, 25), (3, 11, 6),
 -- Calidad de Software QA (Employees 68-76) - 3 employees per People Lead (26-28)
 (4, 26, 68), (4, 26, 69), (4, 26, 70),
 (4, 27, 71), (4, 27, 72), (4, 27, 73),
 (4, 28, 74), (4, 28, 75), (4, 28, 76),
+-- PLs son counselees de CL
+(4, 12, 26), (4, 12, 27), (4, 12, 28), (4, 12, 7),
 -- Diseño de UI/UX (Employees 77-85) - 3 employees per People Lead (29-31)
 (5, 29, 77), (5, 29, 78), (5, 29, 79),
 (5, 30, 80), (5, 30, 81), (5, 30, 82),
 (5, 31, 83), (5, 31, 84), (5, 31, 85),
+-- PLs son counselees de CL
+(5, 13, 29), (5, 13, 30), (5, 13, 31), (5, 13, 8),
 -- Ingeniería de DevOps (Employees 86-94) - 3 employees per People Lead (32-34)
 (6, 32, 86), (6, 32, 87), (6, 32, 88),
 (6, 33, 89), (6, 33, 90), (6, 33, 91),
-(6, 34, 92), (6, 34, 93), (6, 34, 94);
+(6, 34, 92), (6, 34, 93), (6, 34, 94),
+-- PLs son counselees de CL
+(6, 14, 32), (6, 14, 33), (6, 14, 34),
+-- Manager es PL de CLs
+(7, 95, 9), (7, 95, 10), (7, 95, 11), (7, 95, 12), (7, 95, 13), (7, 95, 14);
 
 
 
 -- 14) User Skills
 INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
+-- Delivery Leads (4-8)
+(4, 1), (4, 8), (4, 13), (4, 42), (4, 43), (4, 45),  -- Java, Spring Boot, SQL, Comunicación, Liderazgo, Resolución de Problemas
+(5, 2), (5, 15), (5, 16), (5, 37), (5, 43), (5, 52),  -- Python, Aprendizaje Automático, Análisis de Datos, Pensamiento Estratégico, Liderazgo, Pensamiento Crítico
+(6, 11), (6, 19), (6, 26), (6, 40), (6, 43), (6, 47),  -- AWS, Microservicios, Arquitectura Serverless, Gestión del Cambio, Liderazgo, Metodologías Ágiles
+(7, 7), (7, 13), (7, 17), (7, 41), (7, 43), (7, 48),  -- Node.js, SQL, DevOps, Gestión de Proyectos, Liderazgo, Scrum
+(8, 5), (8, 6), (8, 20), (8, 42), (8, 49), (8, 53),  -- React, Angular, API REST, Comunicación, Oratoria, Creatividad
 -- Capability Leads (9-14)
 (9, 1), (9, 8), (9, 13), (9, 42), (9, 43), (9, 45),  -- Java, Spring Boot, SQL, Comunicación, Liderazgo, Resolución de Problemas
 (10, 2), (10, 15), (10, 16), (10, 37), (10, 43), (10, 52),  -- Python, Aprendizaje Automático, Análisis de Datos, Pensamiento Estratégico, Liderazgo, Pensamiento Crítico
@@ -1009,12 +1046,14 @@ INSERT INTO "User_Skills" ("user_id", "skill_id") VALUES
 (91, 3), (91, 5), (91, 28), (91, 42), (91, 44), (91, 53),
 (92, 9), (92, 10), (92, 17), (92, 42), (92, 45), (92, 54),
 (93, 17), (93, 18), (93, 32), (93, 42), (93, 45), (93, 47),
-(94, 9), (94, 17), (94, 30), (94, 42), (94, 45), (94, 54);
+(94, 9), (94, 17), (94, 30), (94, 42), (94, 45), (94, 54),
+-- 95 Manager
+(95, 1), (95, 8), (95, 13), (95, 42), (95, 43), (95, 45);  -- Java, Spring Boot, SQL, Comunicación, Liderazgo, Resolución de Problemas
 
 
 
 -- 15) Asignar Certificados Certificate Users
--- Asignar 8 certificados completados y 1 en progreso para usuarios 35-49
+-- Asignar 8 certificados completados y 1 en progreso para usuarios 4-19, 35-49
 DO $$
 DECLARE
     user_id integer;
@@ -1024,6 +1063,69 @@ DECLARE
     cert_link varchar;
     used_certificates integer[];
 BEGIN
+    FOR user_id IN 4..19 LOOP
+        used_certificates := '{}'; -- Resetear array para cada usuario
+        
+        -- Asignar 8 certificados completados en los últimos 12 meses
+        FOR i IN 1..8 LOOP
+            -- Seleccionar un certificado aleatorio que no haya sido usado aún para este usuario
+            LOOP
+                cert_id := floor(random() * 60 + 1)::integer;
+                EXIT WHEN NOT (cert_id = ANY(used_certificates));
+            END LOOP;
+            
+            used_certificates := array_append(used_certificates, cert_id);
+            
+            -- Fecha aleatoria en los últimos 12 meses (junio 2024 - mayo 2025)
+            months_ago := floor(random() * 12)::integer;
+            cert_date := (date '2025-05-01' - (months_ago || ' months')::interval)::date;
+            
+            -- Generar un enlace ficticio
+            cert_link := 'https://certificates.example.com/' || user_id || '/' || cert_id || '/' || 
+                         to_char(cert_date, 'YYYYMMDD');
+            
+            -- Insertar certificado completado
+            INSERT INTO "Certificate_Users" (
+                "certificate_id", 
+                "user_id", 
+                "certificate_date", 
+                "certificate_expiration_date",
+                "certificate_link", 
+                "status"
+            ) VALUES (
+                cert_id,
+                user_id,
+                cert_date,
+                cert_date + interval '2 years', -- Expiración en 2 años
+                cert_link,
+                'completed'
+            );
+        END LOOP;
+        
+        -- Asignar 1 certificado en progreso (diferente a los completados)
+        LOOP
+            cert_id := floor(random() * 60 + 1)::integer;
+            EXIT WHEN NOT (cert_id = ANY(used_certificates));
+        END LOOP;
+        
+        cert_link := 'https://certificates.example.com/' || user_id || '/' || cert_id || '/in-progress';
+        
+        INSERT INTO "Certificate_Users" (
+            "certificate_id", 
+            "user_id", 
+            "certificate_date", 
+            "certificate_expiration_date",
+            "certificate_link", 
+            "status"
+        ) VALUES (
+            cert_id,
+            user_id,
+            NULL, -- Fecha nula porque está en progreso
+            NULL, -- Fecha de expiración nula
+            cert_link,
+            'in progress'
+        );
+    END LOOP;
     FOR user_id IN 35..49 LOOP
         used_certificates := '{}'; -- Resetear array para cada usuario
         
@@ -1089,7 +1191,7 @@ BEGIN
     END LOOP;
 END $$;
 
--- Asignar 1 certificado completado y 1 en progreso para usuarios 50-94
+-- Asignar 1 certificado completado y 1 en progreso para usuarios 20-34, 50-95
 DO $$
 DECLARE
     user_id integer;
@@ -1099,7 +1201,55 @@ DECLARE
     cert_link varchar;
     in_progress_cert_id integer;
 BEGIN
-    FOR user_id IN 50..94 LOOP
+    FOR user_id IN 20..34 LOOP
+        -- Asignar 1 certificado completado en los últimos 12 meses
+        cert_id := floor(random() * 60 + 1)::integer;
+        months_ago := floor(random() * 12)::integer;
+        cert_date := (date '2025-05-01' - (months_ago || ' months')::interval)::date;
+        cert_link := 'https://certificates.example.com/' || user_id || '/' || cert_id || '/' || 
+                     to_char(cert_date, 'YYYYMMDD');
+        
+        INSERT INTO "Certificate_Users" (
+            "certificate_id", 
+            "user_id", 
+            "certificate_date", 
+            "certificate_expiration_date",
+            "certificate_link", 
+            "status"
+        ) VALUES (
+            cert_id,
+            user_id,
+            cert_date,
+            cert_date + interval '2 years',
+            cert_link,
+            'completed'
+        );
+        
+        -- Asignar 1 certificado en progreso (diferente al completado)
+        LOOP
+            in_progress_cert_id := floor(random() * 60 + 1)::integer;
+            EXIT WHEN in_progress_cert_id <> cert_id;
+        END LOOP;
+        
+        cert_link := 'https://certificates.example.com/' || user_id || '/' || in_progress_cert_id || '/in-progress';
+        
+        INSERT INTO "Certificate_Users" (
+            "certificate_id", 
+            "user_id", 
+            "certificate_date", 
+            "certificate_expiration_date",
+            "certificate_link", 
+            "status"
+        ) VALUES (
+            in_progress_cert_id,
+            user_id,
+            NULL,
+            NULL,
+            cert_link,
+            'in progress'
+        );
+    END LOOP;
+    FOR user_id IN 50..95 LOOP
         -- Asignar 1 certificado completado en los últimos 12 meses
         cert_id := floor(random() * 60 + 1)::integer;
         months_ago := floor(random() * 12)::integer;
@@ -1152,7 +1302,7 @@ END $$;
 
 
 -- 16) Goal Users
--- Asignar 1 meta completada y 1 en progreso para usuarios 35-94
+-- Asignar 1 meta completada y 1 en progreso para usuarios 4-95
 DO $$
 DECLARE
     user_id integer;
@@ -1163,7 +1313,7 @@ DECLARE
     priority_options varchar[] := ARRAY['low', 'medium', 'high'];
     selected_priority varchar;
 BEGIN
-    FOR user_id IN 35..94 LOOP
+    FOR user_id IN 4..95 LOOP
         -- Seleccionar una meta aleatoria para completar (1-22)
         goal_id := floor(random() * 22 + 1)::integer;
         
@@ -1237,50 +1387,56 @@ INSERT INTO "Projects" (
     "country_id"
 ) VALUES
 -- Proyectos completados (terminaron en los últimos 3 meses)
-(4, 'Migración a la Nube', 'Banco Nacional', 'Migración de infraestructura on-premise a AWS', '2024-06-01', '2024-11-15', 1), -- ID 1
-(5, 'Sistema de Gestión de Inventarios', 'Distribuidora Latina', 'Desarrollo de sistema de control de inventario con IoT', '2024-05-15', '2024-10-30', 2), -- ID 2
-(6, 'Plataforma de E-learning', 'EducaTech', 'Plataforma de cursos online con inteligencia artificial', '2024-04-10', '2024-09-28', 3), -- ID 3
-(7, 'App de Delivery', 'Rápido Express', 'Aplicación móvil para servicio de delivery con seguimiento en tiempo real', '2024-03-20', '2024-08-15', 4), -- ID 4
-(8, 'Modernización de ERP', 'Manufacturas Unidas', 'Actualización del sistema ERP a versión cloud', '2024-02-15', '2024-07-30', 5), -- ID 5
-(4, 'Portal de Clientes', 'Seguros Continental', 'Portal web para autogestión de clientes con firma digital', '2024-01-10', '2024-06-20', 6), -- ID 6
-(5, 'Chatbot Empresarial', 'Servicios Financieros', 'Asistente virtual para servicio al cliente con NLP', '2023-12-05', '2024-05-18', 7), -- ID 7
-(6, 'Análisis de Datos Médicos', 'Hospital Central', 'Plataforma de análisis predictivo para historiales médicos', '2023-11-15', '2024-04-25', 8), -- ID 8
-(7, 'Sistema de Pago Digital', 'PagoFácil', 'Infraestructura para pagos digitales con blockchain', '2023-10-20', '2024-03-30', 9), -- ID 9
+(4, 'Migración a la Nube', 'Banco Nacional', 'Migración de infraestructura on-premise a AWS', '2024-06-01', '2025-03-15', 1), -- ID 1
+(5, 'Sistema de Gestión de Inventarios', 'Distribuidora Latina', 'Desarrollo de sistema de control de inventario con IoT', '2024-05-15', '2025-02-28', 2), -- ID 2
+(6, 'Plataforma de E-learning', 'EducaTech', 'Plataforma de cursos online con inteligencia artificial', '2024-04-10', '2025-04-28', 3), -- ID 3
+(7, 'App de Delivery', 'Rápido Express', 'Aplicación móvil para servicio de delivery con seguimiento en tiempo real', '2024-03-20', '2025-04-15', 4), -- ID 4
+(8, 'Modernización de ERP', 'Manufacturas Unidas', 'Actualización del sistema ERP a versión cloud', '2024-02-15', '2025-03-30', 5), -- ID 5
+(4, 'Portal de Clientes', 'Seguros Continental', 'Portal web para autogestión de clientes con firma digital', '2024-01-10', '2025-04-20', 6), -- ID 6
+(5, 'Chatbot Empresarial', 'Servicios Financieros', 'Asistente virtual para servicio al cliente con NLP', '2023-12-05', '2025-03-18', 7), -- ID 7
+(6, 'Análisis de Datos Médicos', 'Hospital Central', 'Plataforma de análisis predictivo para historiales médicos', '2023-11-15', '2025-03-25', 8), -- ID 8
+(7, 'Sistema de Pago Digital', 'PagoFácil', 'Infraestructura para pagos digitales con blockchain', '2023-10-20', '2025-04-30', 9), -- ID 9
+(8, 'Optimización de Red Logística', 'Global Logistics', 'Reestructuración de red de distribución con algoritmos de optimización', '2024-03-01', '2025-03-10', 1), -- ID 10
+(4, 'Sistema de Reservas Hotelera', 'Hotel Chain International', 'Plataforma unificada de reservas con integración a canales de venta', '2024-02-15', '2025-02-22', 1), -- ID 11
+(5, 'Automatización de Procesos Bancarios', 'Banco Comercial', 'Implementación de RPA para procesos back-office', '2024-01-20', '2025-03-30', 3), -- ID 12
+(6, 'Plataforma de Crowdfunding', 'Invierte Local', 'Sistema de financiamiento colectivo para emprendedores', '2023-12-10', '2025-04-15', 4), -- ID 13
 
 -- Proyectos activos (en curso)
-(4, 'Inteligencia Artificial para Retail', 'Supermercados Unidos', 'Sistema de recomendación personalizada para clientes', '2024-06-01', '2024-12-15', 1), -- ID 10
-(5, 'Plataforma de Streaming', 'EntertainTV', 'Servicio de streaming con contenido regional', '2024-07-15', '2025-01-30', 2), -- ID 11
-(6, 'Blockchain para Cadena de Suministro', 'AgroExport', 'Sistema de trazabilidad para productos agrícolas', '2024-08-10', '2025-02-28', 3), -- ID 12
-(8, 'Reconocimiento Facial para Seguridad', 'Ciudad Segura', 'Sistema de identificación biométrica para espacios públicos', '2024-10-15', '2025-04-30', 5), -- ID 13
+(4, 'Inteligencia Artificial para Retail', 'Supermercados Unidos', 'Sistema de recomendación personalizada para clientes', '2025-05-01', '2025-12-15', 1), -- ID 14
+(5, 'Plataforma de Streaming', 'EntertainTV', 'Servicio de streaming con contenido regional', '2025-05-15', '2026-01-30', 2), -- ID 15
+(6, 'Blockchain para Cadena de Suministro', 'AgroExport', 'Sistema de trazabilidad para productos agrícolas', '2025-05-10', '2025-8-28', 3), -- ID 16
+(8, 'Reconocimiento Facial para Seguridad', 'Ciudad Segura', 'Sistema de identificación biométrica para espacios públicos', '2025-05-15', '2025-9-30', 5), -- ID 17
+(7, 'Sistema de Gestión Energética', 'Energía Verde S.A.', 'Plataforma para monitoreo y optimización de consumo energético en edificios', '2025-05-01', '2025-11-30', 1), -- ID 18
+(8, 'Realidad Virtual para Entrenamiento', 'Industrias Pesadas Co.', 'Simuladores VR para capacitación de operarios de maquinaria pesada', '2025-05-15', '2026-02-28', 2), -- ID 19
 
 -- Proyectos no iniciados (planificados)
-(4, 'Sistema de Gestión de Flotas', 'Transportes Rápidos', 'Plataforma para optimización de rutas de transporte', '2025-07-01', '2025-12-01', 1), -- ID 14
-(5, 'App de Turismo Local', 'DescubreMiCiudad', 'Guía turística con realidad aumentada', '2025-06-20', '2025-10-01', 2), -- ID 15
-(6, 'Plataforma de Telemedicina', 'SaludConectada', 'Sistema de consultas médicas remotas con IA', '2025-07-15', '2025-11-01', 3), -- ID 16
-(7, 'Gestión Inteligente de Residuos', 'EcoCiudad', 'Sistema de recolección de basura con sensores IoT', '2025-08-01', '2025-12-31', 4); -- ID 17
+(4, 'Sistema de Gestión de Flotas', 'Transportes Rápidos', 'Plataforma para optimización de rutas de transporte', '2025-07-01', '2025-12-01', 1), -- ID 20
+(5, 'App de Turismo Local', 'DescubreMiCiudad', 'Guía turística con realidad aumentada', '2025-06-20', '2025-10-01', 2), -- ID 21
+(6, 'Plataforma de Telemedicina', 'SaludConectada', 'Sistema de consultas médicas remotas con IA', '2025-07-15', '2025-11-01', 3), -- ID 22
+(7, 'Gestión Inteligente de Residuos', 'EcoCiudad', 'Sistema de recolección de basura con sensores IoT', '2025-08-01', '2025-12-31', 4); -- ID 23
 
 
 
 -- 18) Project_Positions
 -- SCRIPT DE PROYECTOS COMPLETADOS
--- Asignación de puestos para proyectos completados (IDs 1-9)
+-- Asignación de puestos para proyectos completados (IDs 1-13)
 DO $$
 DECLARE
     project_id integer;
     cap_id integer;
     user_id integer;
     used_users integer[] := '{}';
-    all_users integer[] := ARRAY(SELECT generate_series(35,94));
+    all_users integer[] := ARRAY(SELECT generate_series(9,94));
     available_users integer[];
     cap1_positions integer;
 BEGIN
     -- Asignar puestos para cada proyecto completado
-    FOR project_id IN 1..9 LOOP
+    FOR project_id IN 1..13 LOOP
         -- Resetear usuarios disponibles para este proyecto
         available_users := all_users;
 
         -- Determinar cuántos puestos de capability 1 asignar (2 para los primeros 6 proyectos, 1 para los demás)
-        IF project_id <= 6 THEN
+        IF project_id <= 8 THEN
             cap1_positions := 2;
         ELSE
             cap1_positions := 1;
@@ -1288,11 +1444,13 @@ BEGIN
 
         -- Asignar puestos de Desarrollo de Software (capability 1)
         FOR i IN 1..cap1_positions LOOP
+            -- Buscar primero en los rangos específicos (9, 15-19 y 35-49)
             user_id := (SELECT u FROM unnest(available_users) u 
-                        WHERE u BETWEEN 35 AND 49 
+                        WHERE (u = 9 OR u BETWEEN 15 AND 19 OR u BETWEEN 35 AND 49)
                         AND NOT u = ANY(used_users)
                         LIMIT 1);
 
+            -- Si no encuentra en los rangos específicos, buscar en cualquier usuario disponible
             IF user_id IS NULL THEN
                 user_id := (SELECT u FROM unnest(available_users) u 
                             WHERE NOT u = ANY(used_users) 
@@ -1326,28 +1484,34 @@ BEGIN
         -- Asignar 1 puesto de cada otra capability (2-6)
         FOR cap_id IN 2..6 LOOP
             CASE cap_id
-                WHEN 2 THEN user_id := (SELECT u FROM unnest(available_users) u 
-                                        WHERE u BETWEEN 50 AND 58 
-                                        AND NOT u = ANY(used_users)
-                                        LIMIT 1);
-                WHEN 3 THEN user_id := (SELECT u FROM unnest(available_users) u 
-                                        WHERE u BETWEEN 59 AND 67 
-                                        AND NOT u = ANY(used_users)
-                                        LIMIT 1);
-                WHEN 4 THEN user_id := (SELECT u FROM unnest(available_users) u 
-                                        WHERE u BETWEEN 68 AND 76 
-                                        AND NOT u = ANY(used_users)
-                                        LIMIT 1);
-                WHEN 5 THEN user_id := (SELECT u FROM unnest(available_users) u 
-                                        WHERE u BETWEEN 77 AND 85 
-                                        AND NOT u = ANY(used_users)
-                                        LIMIT 1);
-                WHEN 6 THEN user_id := (SELECT u FROM unnest(available_users) u 
-                                        WHERE u BETWEEN 86 AND 94 
-                                        AND NOT u = ANY(used_users)
-                                        LIMIT 1);
+                WHEN 2 THEN -- Científico de Datos
+                    user_id := (SELECT u FROM unnest(available_users) u 
+                                WHERE (u = 10 OR u BETWEEN 20 AND 22 OR u BETWEEN 50 AND 58)
+                                AND NOT u = ANY(used_users)
+                                LIMIT 1);
+                WHEN 3 THEN -- Arquitecto Cloud
+                    user_id := (SELECT u FROM unnest(available_users) u 
+                                WHERE (u = 11 OR u BETWEEN 23 AND 25 OR u BETWEEN 59 AND 67)
+                                AND NOT u = ANY(used_users)
+                                LIMIT 1);
+                WHEN 4 THEN -- Especialista QA
+                    user_id := (SELECT u FROM unnest(available_users) u 
+                                WHERE (u = 12 OR u BETWEEN 26 AND 28 OR u BETWEEN 68 AND 76)
+                                AND NOT u = ANY(used_users)
+                                LIMIT 1);
+                WHEN 5 THEN -- Diseñador UX/UI
+                    user_id := (SELECT u FROM unnest(available_users) u 
+                                WHERE (u = 13 OR u BETWEEN 29 AND 31 OR u BETWEEN 77 AND 85)
+                                AND NOT u = ANY(used_users)
+                                LIMIT 1);
+                WHEN 6 THEN -- Ingeniero DevOps
+                    user_id := (SELECT u FROM unnest(available_users) u 
+                                WHERE (u = 14 OR u BETWEEN 32 AND 34 OR u BETWEEN 86 AND 94)
+                                AND NOT u = ANY(used_users)
+                                LIMIT 1);
             END CASE;
 
+            -- Si no encuentra en los rangos específicos, buscar en cualquier usuario disponible
             IF user_id IS NULL THEN
                 user_id := (SELECT u FROM unnest(available_users) u 
                             WHERE NOT u = ANY(used_users) 
@@ -1393,19 +1557,19 @@ DECLARE
     cap_id integer;
     user_id integer;
     used_users integer[] := '{}';
-    all_users integer[] := ARRAY(SELECT generate_series(35,94));
+    all_users integer[] := ARRAY(SELECT generate_series(9,94));
     available_users integer[] := all_users;
 BEGIN
-    FOR project_id IN 10..13 LOOP
+    FOR project_id IN 14..19 LOOP
         FOR cap_id IN 1..6 LOOP
             -- Seleccionar usuario según capability
             CASE cap_id
-                WHEN 1 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE u BETWEEN 35 AND 49 AND NOT u = ANY(used_users) LIMIT 1);
-                WHEN 2 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE u BETWEEN 50 AND 58 AND NOT u = ANY(used_users) LIMIT 1);
-                WHEN 3 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE u BETWEEN 59 AND 67 AND NOT u = ANY(used_users) LIMIT 1);
-                WHEN 4 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE u BETWEEN 68 AND 76 AND NOT u = ANY(used_users) LIMIT 1);
-                WHEN 5 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE u BETWEEN 77 AND 85 AND NOT u = ANY(used_users) LIMIT 1);
-                WHEN 6 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE u BETWEEN 86 AND 94 AND NOT u = ANY(used_users) LIMIT 1);
+                WHEN 1 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE (u = 9 OR u BETWEEN 15 AND 19 OR u BETWEEN 35 AND 49) AND NOT u = ANY(used_users) LIMIT 1);
+                WHEN 2 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE (u = 10 OR u BETWEEN 20 AND 22 OR u BETWEEN 50 AND 58) AND NOT u = ANY(used_users) LIMIT 1);
+                WHEN 3 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE (u = 11 OR u BETWEEN 23 AND 25 OR u BETWEEN 59 AND 67) AND NOT u = ANY(used_users) LIMIT 1);
+                WHEN 4 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE (u = 12 OR u BETWEEN 26 AND 28 OR u BETWEEN 68 AND 76) AND NOT u = ANY(used_users) LIMIT 1);
+                WHEN 5 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE (u = 13 OR u BETWEEN 29 AND 31 OR u BETWEEN 77 AND 85) AND NOT u = ANY(used_users) LIMIT 1);
+                WHEN 6 THEN user_id := (SELECT u FROM unnest(available_users) u WHERE (u = 14 OR u BETWEEN 32 AND 34 OR u BETWEEN 86 AND 94) AND NOT u = ANY(used_users) LIMIT 1);
             END CASE;
 
             -- Si no hay en la capability específica, seleccionar cualquiera no usado
@@ -1459,7 +1623,7 @@ DECLARE
     project_id integer;
     cap_id integer;
 BEGIN
-    FOR project_id IN 14..17 LOOP
+    FOR project_id IN 20..23 LOOP
         FOR cap_id IN 1..6 LOOP
             INSERT INTO "Project_Positions" (
                 "project_id",
@@ -1496,431 +1660,374 @@ END $$;
 
 -- 19) Project Position Skills
 INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
--- Capability 1: Desarrollo de Software (IDs 1-2, 8-9, 15-16, 22-23, 29-30, 36-37, 43, 49, 55, 61, 67, 73, 79, 85, 91, 97, 103)
+-- Capability 1: Desarrollo de Software (IDs 1,2,8,9,15,16,22,23,29,30,36,37,43,44,50,51,57,63,69,75,81,87,93,99,105,111,117)
+-- Backend Developers
 (1, 1), (1, 8), (1, 13),   -- Java, Spring Boot, SQL
-(2, 3), (2, 5), (2, 20),   -- JavaScript, React, API REST
 (8, 1), (8, 8), (8, 44),   -- Java, Spring Boot, Trabajo en Equipo
-(9, 3), (9, 7), (9, 28),   -- JavaScript, Node.js, GraphQL
-(15, 4), (15, 5), (15, 28), -- TypeScript, React, GraphQL
-(16, 6), (16, 20), (16, 42), -- Angular, API REST, Comunicación
-(22, 1), (22, 8), (22, 19), -- Java, Spring Boot, Microservicios
-(23, 7), (23, 13), (23, 20), -- Node.js, SQL, API REST
-(29, 1), (29, 8), (29, 47), -- Java, Spring Boot, Metodologías Ágiles
-(30, 3), (30, 5), (30, 44), -- JavaScript, React, Trabajo en Equipo
-(36, 4), (36, 5), (36, 28), -- TypeScript, React, GraphQL
-(37, 6), (37, 20), (37, 42), -- Angular, API REST, Comunicación
-(43, 1), (43, 8), (43, 19), -- Java, Spring Boot, Microservicios
-(49, 7), (49, 13), (49, 20), -- Node.js, SQL, API REST
-(55, 1), (55, 8), (55, 47), -- Java, Spring Boot, Metodologías Ágiles
-(61, 3), (61, 5), (61, 44), -- JavaScript, React, Trabajo en Equipo
-(67, 4), (67, 5), (67, 28), -- TypeScript, React, GraphQL
-(73, 6), (73, 20), (73, 42), -- Angular, API REST, Comunicación
-(79, 1), (79, 8), (79, 19), -- Java, Spring Boot, Microservicios
-(85, 7), (85, 13), (85, 20), -- Node.js, SQL, API REST
-(91, 1), (91, 8), (91, 47), -- Java, Spring Boot, Metodologías Ágiles
-(97, 3), (97, 5), (97, 44), -- JavaScript, React, Trabajo en Equipo
-(103, 4), (103, 5), (103, 28), -- TypeScript, React, GraphQL
+(15, 1), (15, 8), (15, 19), -- Java, Spring Boot, Microservicios
+(22, 1), (22, 8), (22, 47), -- Java, Spring Boot, Metodologías Ágiles
+(29, 1), (29, 13), (29, 19), -- Java, SQL, Microservicios
+(36, 1), (36, 8), (36, 44), -- Java, Spring Boot, Trabajo en Equipo
+(43, 1), (43, 19), (43, 47), -- Java, Microservicios, Metodologías Ágiles
+(50, 7), (50, 13), (50, 20), -- Node.js, SQL, API REST
+(57, 7), (57, 20), (57, 44), -- Node.js, API REST, Trabajo en Equipo
+(63, 7), (63, 28), (63, 47), -- Node.js, GraphQL, Metodologías Ágiles
+(69, 7), (69, 13), (69, 20), -- Node.js, SQL, API REST
+(75, 7), (75, 20), (75, 44), -- Node.js, API REST, Trabajo en Equipo
+(81, 7), (81, 28), (81, 47), -- Node.js, GraphQL, Metodologías Ágiles
 
--- Capability 2: Ciencia de Datos (IDs 3, 10, 17, 24, 31, 38, 44, 50, 56, 62, 68, 74, 80, 86, 92, 98, 104)
+-- Frontend Developers
+(2, 3), (2, 5), (2, 20),   -- JavaScript, React, API REST
+(9, 3), (9, 5), (9, 44),   -- JavaScript, React, Trabajo en Equipo
+(16, 3), (16, 5), (16, 28), -- JavaScript, React, GraphQL
+(23, 3), (23, 6), (23, 42), -- JavaScript, Angular, Comunicación
+(30, 4), (30, 5), (30, 20), -- TypeScript, React, API REST
+(37, 4), (37, 5), (37, 44), -- TypeScript, React, Trabajo en Equipo
+(44, 4), (44, 6), (44, 28), -- TypeScript, Angular, GraphQL
+(51, 3), (51, 6), (51, 42), -- JavaScript, Angular, Comunicación
+(87, 4), (87, 5), (87, 20), -- TypeScript, React, API REST
+(93, 4), (93, 5), (93, 44), -- TypeScript, React, Trabajo en Equipo
+(99, 4), (99, 6), (99, 28), -- TypeScript, Angular, GraphQL
+(105, 3), (105, 6), (105, 42), -- JavaScript, Angular, Comunicación
+(111, 4), (111, 5), (111, 20), -- TypeScript, React, API REST
+(117, 4), (117, 5), (117, 44), -- TypeScript, React, Trabajo en Equipo
+
+-- Capability 2: Ciencia de Datos (IDs 3,10,17,24,31,38,45,52,58,64,70,76,82,88,94,100,106,112,118)
 (3, 2), (3, 15), (3, 16),   -- Python, Aprendizaje Automático, Análisis de Datos
 (10, 2), (10, 21), (10, 22), -- Python, TensorFlow, PyTorch
 (17, 15), (17, 16), (17, 45), -- Aprendizaje Automático, Análisis de Datos, Resolución de Problemas
 (24, 2), (24, 15), (24, 21), -- Python, Aprendizaje Automático, TensorFlow
 (31, 16), (31, 29), (31, 42), -- Análisis de Datos, Apache Kafka, Comunicación
 (38, 2), (38, 15), (38, 22), -- Python, Aprendizaje Automático, PyTorch
-(44, 15), (44, 16), (44, 45), -- Aprendizaje Automático, Análisis de Datos, Resolución de Problemas
-(50, 2), (50, 21), (50, 22), -- Python, TensorFlow, PyTorch
-(56, 2), (56, 15), (56, 16), -- Python, Aprendizaje Automático, Análisis de Datos
-(62, 15), (62, 21), (62, 45), -- Aprendizaje Automático, TensorFlow, Resolución de Problemas
-(68, 2), (68, 16), (68, 29), -- Python, Análisis de Datos, Apache Kafka
-(74, 15), (74, 22), (74, 42), -- Aprendizaje Automático, PyTorch, Comunicación
-(80, 2), (80, 15), (80, 21), -- Python, Aprendizaje Automático, TensorFlow
-(86, 16), (86, 29), (86, 45), -- Análisis de Datos, Apache Kafka, Resolución de Problemas
-(92, 2), (92, 15), (92, 22), -- Python, Aprendizaje Automático, PyTorch
-(98, 15), (98, 16), (98, 42), -- Aprendizaje Automático, Análisis de Datos, Comunicación
-(104, 2), (104, 21), (104, 45), -- Python, TensorFlow, Resolución de Problemas
+(45, 15), (45, 16), (45, 45), -- Aprendizaje Automático, Análisis de Datos, Resolución de Problemas
+(52, 2), (52, 21), (52, 22), -- Python, TensorFlow, PyTorch
+(58, 2), (58, 15), (58, 16), -- Python, Aprendizaje Automático, Análisis de Datos
+(64, 15), (64, 21), (64, 45), -- Aprendizaje Automático, TensorFlow, Resolución de Problemas
+(70, 2), (70, 16), (70, 29), -- Python, Análisis de Datos, Apache Kafka
+(76, 15), (76, 22), (76, 42), -- Aprendizaje Automático, PyTorch, Comunicación
+(82, 2), (82, 15), (82, 21), -- Python, Aprendizaje Automático, TensorFlow
+(88, 16), (88, 29), (88, 45), -- Análisis de Datos, Apache Kafka, Resolución de Problemas
+(94, 2), (94, 15), (94, 22), -- Python, Aprendizaje Automático, PyTorch
+(100, 15), (100, 16), (100, 42), -- Aprendizaje Automático, Análisis de Datos, Comunicación
+(106, 2), (106, 21), (106, 45), -- Python, TensorFlow, Resolución de Problemas
+(112, 15), (112, 22), (112, 29), -- Aprendizaje Automático, PyTorch, Apache Kafka
+(118, 2), (118, 16), (118, 42), -- Python, Análisis de Datos, Comunicación
 
--- Capability 3: Arquitectura en la Nube (IDs 4, 11, 18, 25, 32, 39, 45, 51, 57, 63, 69, 75, 81, 87, 93, 99, 105)
+-- Capability 3: Arquitectura en la Nube (IDs 4,11,18,25,32,39,46,53,59,65,71,77,83,89,95,101,107,113,119)
 (4, 11), (4, 17), (4, 19),   -- AWS, DevOps, Microservicios
 (11, 12), (11, 17), (11, 26), -- Azure, DevOps, Arquitectura Serverless
 (18, 9), (18, 10), (18, 17), -- Docker, Kubernetes, DevOps
 (25, 11), (25, 19), (25, 26), -- AWS, Microservicios, Arquitectura Serverless
 (32, 12), (32, 17), (32, 47), -- Azure, DevOps, Metodologías Ágiles
 (39, 9), (39, 10), (39, 45), -- Docker, Kubernetes, Resolución de Problemas
-(45, 11), (45, 17), (45, 19), -- AWS, DevOps, Microservicios
-(51, 12), (51, 26), (51, 42), -- Azure, Arquitectura Serverless, Comunicación
-(57, 9), (57, 10), (57, 17), -- Docker, Kubernetes, DevOps
-(63, 11), (63, 19), (63, 47), -- AWS, Microservicios, Metodologías Ágiles
-(69, 12), (69, 17), (69, 26), -- Azure, DevOps, Arquitectura Serverless
-(75, 9), (75, 10), (75, 45), -- Docker, Kubernetes, Resolución de Problemas
-(81, 11), (81, 17), (81, 19), -- AWS, DevOps, Microservicios
-(87, 12), (87, 26), (87, 42), -- Azure, Arquitectura Serverless, Comunicación
-(93, 9), (93, 10), (93, 17), -- Docker, Kubernetes, DevOps
-(99, 11), (99, 19), (99, 47), -- AWS, Microservicios, Metodologías Ágiles
-(105, 12), (105, 17), (105, 26), -- Azure, DevOps, Arquitectura Serverless
+(46, 11), (46, 17), (46, 19), -- AWS, DevOps, Microservicios
+(53, 12), (53, 26), (53, 42), -- Azure, Arquitectura Serverless, Comunicación
+(59, 9), (59, 10), (59, 17), -- Docker, Kubernetes, DevOps
+(65, 11), (65, 19), (65, 47), -- AWS, Microservicios, Metodologías Ágiles
+(71, 12), (71, 17), (71, 26), -- Azure, DevOps, Arquitectura Serverless
+(77, 9), (77, 10), (77, 45), -- Docker, Kubernetes, Resolución de Problemas
+(83, 11), (83, 17), (83, 19), -- AWS, DevOps, Microservicios
+(89, 12), (89, 26), (89, 42), -- Azure, Arquitectura Serverless, Comunicación
+(95, 9), (95, 10), (95, 17), -- Docker, Kubernetes, DevOps
+(101, 11), (101, 19), (101, 47), -- AWS, Microservicios, Metodologías Ágiles
+(107, 12), (107, 17), (107, 26), -- Azure, DevOps, Arquitectura Serverless
+(113, 9), (113, 10), (113, 45), -- Docker, Kubernetes, Resolución de Problemas
+(119, 11), (119, 17), (119, 19), -- AWS, DevOps, Microservicios
 
--- Capability 4: Calidad de Software QA (IDs 5, 12, 19, 26, 33, 40, 46, 52, 58, 64, 70, 76, 82, 88, 94, 100, 106)
+-- Capability 4: Calidad de Software QA (IDs 5,12,19,26,33,40,47,54,60,66,72,78,84,90,96,102,108,114,120)
 (5, 3), (5, 5), (5, 48),   -- JavaScript, React, Scrum
 (12, 1), (12, 8), (12, 48), -- Java, Spring Boot, Scrum
 (19, 3), (19, 7), (19, 18), -- JavaScript, Node.js, CI/CD
 (26, 5), (26, 20), (26, 45), -- React, API REST, Resolución de Problemas
 (33, 1), (33, 13), (33, 48), -- Java, SQL, Scrum
 (40, 3), (40, 18), (40, 47), -- JavaScript, CI/CD, Metodologías Ágiles
-(46, 5), (46, 7), (46, 45), -- React, Node.js, Resolución de Problemas
-(52, 1), (52, 8), (52, 48), -- Java, Spring Boot, Scrum
-(58, 3), (58, 18), (58, 47), -- JavaScript, CI/CD, Metodologías Ágiles
-(64, 5), (64, 20), (64, 45), -- React, API REST, Resolución de Problemas
-(70, 1), (70, 13), (70, 48), -- Java, SQL, Scrum
-(76, 3), (76, 7), (76, 18), -- JavaScript, Node.js, CI/CD
-(82, 5), (82, 20), (82, 45), -- React, API REST, Resolución de Problemas
-(88, 1), (88, 8), (88, 48), -- Java, Spring Boot, Scrum
-(94, 3), (94, 18), (94, 47), -- JavaScript, CI/CD, Metodologías Ágiles
-(100, 5), (100, 7), (100, 45), -- React, Node.js, Resolución de Problemas
-(106, 1), (106, 8), (106, 48), -- Java, Spring Boot, Scrum
+(47, 5), (47, 7), (47, 45), -- React, Node.js, Resolución de Problemas
+(54, 1), (54, 8), (54, 48), -- Java, Spring Boot, Scrum
+(60, 3), (60, 18), (60, 47), -- JavaScript, CI/CD, Metodologías Ágiles
+(66, 5), (66, 20), (66, 45), -- React, API REST, Resolución de Problemas
+(72, 1), (72, 13), (72, 48), -- Java, SQL, Scrum
+(78, 3), (78, 7), (78, 18), -- JavaScript, Node.js, CI/CD
+(84, 5), (84, 20), (84, 45), -- React, API REST, Resolución de Problemas
+(90, 1), (90, 8), (90, 48), -- Java, Spring Boot, Scrum
+(96, 3), (96, 18), (96, 47), -- JavaScript, CI/CD, Metodologías Ágiles
+(102, 5), (102, 7), (102, 45), -- React, Node.js, Resolución de Problemas
+(108, 1), (108, 8), (108, 48), -- Java, Spring Boot, Scrum
+(114, 3), (114, 18), (114, 47), -- JavaScript, CI/CD, Metodologías Ágiles
+(120, 5), (120, 20), (120, 45), -- React, API REST, Resolución de Problemas
 
--- Capability 5: Diseño de UI/UX (IDs 6, 13, 20, 27, 34, 41, 47, 53, 59, 65, 71, 77, 83, 89, 95, 101, 107)
+-- Capability 5: Diseño de UI/UX (IDs 6,13,20,27,34,41,48,55,61,67,73,79,85,91,97,103,109,115,121)
 (6, 5), (6, 28), (6, 42),   -- React, GraphQL, Comunicación
 (13, 3), (13, 5), (13, 53), -- JavaScript, React, Creatividad
 (20, 4), (20, 5), (20, 49), -- TypeScript, React, Oratoria
 (27, 5), (27, 6), (27, 42), -- React, Angular, Comunicación
 (34, 3), (34, 28), (34, 53), -- JavaScript, GraphQL, Creatividad
 (41, 5), (41, 20), (41, 49), -- React, API REST, Oratoria
-(47, 5), (47, 6), (47, 42), -- React, Angular, Comunicación
-(53, 3), (53, 5), (53, 53), -- JavaScript, React, Creatividad
-(59, 4), (59, 28), (59, 49), -- TypeScript, GraphQL, Oratoria
-(65, 5), (65, 6), (65, 42), -- React, Angular, Comunicación
-(71, 3), (71, 5), (71, 53), -- JavaScript, React, Creatividad
-(77, 5), (77, 20), (77, 49), -- React, API REST, Oratoria
-(83, 5), (83, 6), (83, 42), -- React, Angular, Comunicación
-(89, 3), (89, 28), (89, 53), -- JavaScript, GraphQL, Creatividad
-(95, 4), (95, 5), (95, 49), -- TypeScript, React, Oratoria
-(101, 5), (101, 6), (101, 42), -- React, Angular, Comunicación
-(107, 3), (107, 5), (107, 53), -- JavaScript, React, Creatividad
+(48, 5), (48, 6), (48, 42), -- React, Angular, Comunicación
+(55, 3), (55, 5), (55, 53), -- JavaScript, React, Creatividad
+(61, 4), (61, 28), (61, 49), -- TypeScript, GraphQL, Oratoria
+(67, 5), (67, 6), (67, 42), -- React, Angular, Comunicación
+(73, 3), (73, 5), (73, 53), -- JavaScript, React, Creatividad
+(79, 5), (79, 20), (79, 49), -- React, API REST, Oratoria
+(85, 5), (85, 6), (85, 42), -- React, Angular, Comunicación
+(91, 3), (91, 28), (91, 53), -- JavaScript, GraphQL, Creatividad
+(97, 4), (97, 5), (97, 49), -- TypeScript, React, Oratoria
+(103, 5), (103, 6), (103, 42), -- React, Angular, Comunicación
+(109, 3), (109, 5), (109, 53), -- JavaScript, React, Creatividad
+(115, 4), (115, 28), (115, 49), -- TypeScript, GraphQL, Oratoria
+(121, 5), (121, 6), (121, 42), -- React, Angular, Comunicación
 
--- Capability 6: Ingeniería de DevOps (IDs 7, 14, 21, 28, 35, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108)
+-- Capability 6: Ingeniería de DevOps (IDs 7,14,21,28,35,42,49,56,62,68,74,80,86,92,98,104,110,116,122)
 (7, 9), (7, 17), (7, 18),   -- Docker, DevOps, CI/CD
 (14, 10), (14, 17), (14, 32), -- Kubernetes, DevOps, Jenkins
 (21, 9), (21, 10), (21, 45), -- Docker, Kubernetes, Resolución de Problemas
 (28, 17), (28, 18), (28, 33), -- DevOps, CI/CD, Ansible
 (35, 9), (35, 17), (35, 47), -- Docker, DevOps, Metodologías Ágiles
 (42, 10), (42, 30), (42, 45), -- Kubernetes, Prometheus, Resolución de Problemas
-(48, 17), (48, 18), (48, 32), -- DevOps, CI/CD, Jenkins
-(54, 9), (54, 10), (54, 47), -- Docker, Kubernetes, Metodologías Ágiles
-(60, 17), (60, 33), (60, 45), -- DevOps, Ansible, Resolución de Problemas
-(66, 9), (66, 18), (66, 30), -- Docker, CI/CD, Prometheus
-(72, 10), (72, 17), (72, 47), -- Kubernetes, DevOps, Metodologías Ágiles
-(78, 18), (78, 32), (78, 45), -- CI/CD, Jenkins, Resolución de Problemas
-(84, 9), (84, 10), (84, 33), -- Docker, Kubernetes, Ansible
-(90, 17), (90, 30), (90, 47), -- DevOps, Prometheus, Metodologías Ágiles
-(96, 9), (96, 18), (96, 45), -- Docker, CI/CD, Resolución de Problemas
-(102, 10), (102, 17), (102, 32), -- Kubernetes, DevOps, Jenkins
-(108, 9), (108, 33), (108, 47); -- Docker, Ansible, Metodologías Ágiles
+(49, 17), (49, 18), (49, 32), -- DevOps, CI/CD, Jenkins
+(56, 9), (56, 10), (56, 47), -- Docker, Kubernetes, Metodologías Ágiles
+(62, 17), (62, 33), (62, 45), -- DevOps, Ansible, Resolución de Problemas
+(68, 9), (68, 18), (68, 30), -- Docker, CI/CD, Prometheus
+(74, 10), (74, 17), (74, 47), -- Kubernetes, DevOps, Metodologías Ágiles
+(80, 18), (80, 32), (80, 45), -- CI/CD, Jenkins, Resolución de Problemas
+(86, 9), (86, 10), (86, 33), -- Docker, Kubernetes, Ansible
+(92, 17), (92, 30), (92, 47), -- DevOps, Prometheus, Metodologías Ágiles
+(98, 9), (98, 18), (98, 45), -- Docker, CI/CD, Resolución de Problemas
+(104, 10), (104, 17), (104, 32), -- Kubernetes, DevOps, Jenkins
+(110, 9), (110, 33), (110, 47), -- Docker, Ansible, Metodologías Ágiles
+(116, 10), (116, 30), (116, 45), -- Kubernetes, Prometheus, Resolución de Problemas
+(122, 17), (122, 18), (122, 33); -- DevOps, CI/CD, Ansible
 
 
 
 -- 20) Project Position Certificates
 INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VALUES
--- CAP 1
-(1, 1), -- Java SE 11 Developer
-(1, 53), -- React Development
-(2, 19), -- Python for Everybody
-(2, 57), -- Python Development
-(8, 39), -- React Native
-(8, 45), -- Secure Java Coding
-(9, 41), -- iOS with Swift
-(9, 42), -- Android with Kotlin
-(15, 49), -- Full Stack Development
-(15, 54), -- Backend with Node.js
-(16, 27), -- Blockchain Developer
-(16, 53), -- React Development
-(22, 45), -- Secure Java Coding
-(22, 57), -- Python Development
-(23, 39), -- React Native
-(23, 60), -- GraphQL Development
-(29, 1), -- Java SE 11 Developer
-(29, 4), -- Java EE Enterprise Architect
-(30, 53), -- React Development
-(30, 54), -- Backend with Node.js
-(36, 19), -- Python for Everybody
-(36, 57), -- Python Development
-(37, 49), -- Full Stack Development
-(37, 60), -- GraphQL Development
-(43, 45), -- Secure Java Coding
-(43, 54), -- Backend with Node.js
-(49, 1), -- Java SE 11 Developer
-(49, 53), -- React Development
-(55, 49), -- Full Stack Development
-(55, 60), -- GraphQL Development
-(61, 41), -- iOS with Swift
-(61, 42), -- Android with Kotlin
-(67, 27), -- Blockchain Developer
-(67, 57), -- Python Development
-(73, 39), -- React Native
-(73, 53), -- React Development
-(79, 1), -- Java SE 11 Developer
-(79, 4), -- Java EE Enterprise Architect
-(85, 49), -- Full Stack Development
-(85, 54), -- Backend with Node.js
-(91, 45), -- Secure Java Coding
-(91, 57), -- Python Development
-(97, 1), -- Java SE 11 Developer
-(97, 53), -- React Development
-(103, 49), -- Full Stack Development
-(103, 60), -- GraphQL Development
--- CAP 2
-(3, 17), -- Data Science Professional
-(3, 18), -- Machine Learning Specialization
-(10, 16), -- Google ML Engineer
-(10, 20), -- Deep Learning Specialization
-(17, 11), -- Power BI Data Analyst
-(17, 58), -- Data Visualization with Tableau
-(24, 8), -- AWS Machine Learning
-(24, 13), -- Google Data Engineer
-(31, 17), -- Data Science Professional
-(31, 20), -- Deep Learning Specialization
-(38, 11), -- Power BI Data Analyst
-(38, 16), -- Google ML Engineer
-(44, 18), -- Machine Learning Specialization
-(44, 25), -- TensorFlow Developer
-(50, 13), -- Google Data Engineer
-(50, 58), -- Data Visualization with Tableau
-(56, 17), -- Data Science Professional
-(56, 18), -- Machine Learning Specialization
-(62, 8), -- AWS Machine Learning
-(62, 25), -- TensorFlow Developer
-(68, 11), -- Power BI Data Analyst
-(68, 58), -- Data Visualization with Tableau
-(74, 16), -- Google ML Engineer
-(74, 20), -- Deep Learning Specialization
-(80, 17), -- Data Science Professional
-(80, 52), -- Ethical AI Design
-(86, 13), -- Google Data Engineer
-(86, 17), -- Data Science Professional
-(92, 25), -- TensorFlow Developer
-(92, 58), -- Data Visualization with Tableau
-(98, 18), -- Machine Learning Specialization
-(98, 52), -- Ethical AI Design
-(104, 11), -- Power BI Data Analyst
-(104, 16), -- Google ML Engineer
--- CAP 3
-(4, 5), -- AWS Solutions Architect
-(4, 15), -- Google Cloud Architect
-(11, 10), -- Azure Solutions Architect
-(11, 15), -- Google Cloud Architect
-(18, 3), -- Oracle Cloud Foundations
-(18, 14), -- Google Associate Cloud Engineer
-(25, 5), -- AWS Solutions Architect
-(25, 32), -- Serverless Architecture
-(32, 9), -- Azure Administrator
-(32, 10), -- Azure Solutions Architect
-(39, 3), -- Oracle Cloud Foundations
-(39, 14), -- Google Associate Cloud Engineer
-(45, 5), -- AWS Solutions Architect
-(45, 56), -- Cloud Security
-(51, 10), -- Azure Solutions Architect
-(51, 15), -- Google Cloud Architect
-(57, 14), -- Google Associate Cloud Engineer
-(57, 32), -- Serverless Architecture
-(63, 5), -- AWS Solutions Architect
-(63, 59), -- Distributed Systems
-(69, 10), -- Azure Solutions Architect
-(69, 56), -- Cloud Security
-(75, 15), -- Google Cloud Architect
-(75, 32), -- Serverless Architecture
-(81, 3), -- Oracle Cloud Foundations
-(81, 59), -- Distributed Systems
-(87, 5), -- AWS Solutions Architect
-(87, 10), -- Azure Solutions Architect
-(93, 15), -- Google Cloud Architect
-(93, 56), -- Cloud Security
-(99, 14), -- Google Associate Cloud Engineer
-(99, 32), -- Serverless Architecture
-(105, 10), -- Azure Solutions Architect
-(105, 59), -- Distributed Systems
--- CAP 4
-(5, 37), -- ISTQB Foundation Level
-(5, 38), -- Mobile Testing with Appium
-(12, 26), -- Certified Ethical Hacker
-(12, 37), -- ISTQB Foundation Level
-(19, 38), -- Mobile Testing with Appium
-(19, 45), -- Secure Java Coding
-(26, 26), -- Certified Ethical Hacker
-(26, 51), -- Cybersecurity Analyst
-(33, 37), -- ISTQB Foundation Level
-(33, 46), -- Data Privacy Professional
-(40, 38), -- Mobile Testing with Appium
-(40, 51), -- Cybersecurity Analyst
-(46, 26), -- Certified Ethical Hacker
-(46, 37), -- ISTQB Foundation Level
-(52, 38), -- Mobile Testing with Appium
-(52, 45), -- Secure Java Coding
-(58, 37), -- ISTQB Foundation Level
-(58, 51), -- Cybersecurity Analyst
-(64, 26), -- Certified Ethical Hacker
-(64, 46), -- Data Privacy Professional
-(70, 37), -- ISTQB Foundation Level
-(70, 38), -- Mobile Testing with Appium
-(76, 45), -- Secure Java Coding
-(76, 51), -- Cybersecurity Analyst
-(82, 26), -- Certified Ethical Hacker
-(82, 37), -- ISTQB Foundation Level
-(88, 38), -- Mobile Testing with Appium
-(88, 46), -- Data Privacy Professional
-(94, 37), -- ISTQB Foundation Level
-(94, 51), -- Cybersecurity Analyst
-(100, 26), -- Certified Ethical Hacker
-(100, 45), -- Secure Java Coding
-(106, 37), -- ISTQB Foundation Level
-(106, 38), -- Mobile Testing with Appium
--- CAP 5
-(6, 35), -- UX Design Certification
-(6, 36), -- UI Design with Figma
-(13, 35), -- UX Design Certification
-(13, 53), -- React Development
-(20, 36), -- UI Design with Figma
-(20, 58), -- Data Visualization with Tableau
-(27, 35), -- UX Design Certification
-(27, 52), -- Ethical AI Design
-(34, 36), -- UI Design with Figma
-(34, 39), -- React Native Development
-(41, 35), -- UX Design Certification
-(41, 36), -- UI Design with Figma
-(47, 36), -- UI Design with Figma
-(47, 53), -- React Development
-(53, 35), -- UX Design Certification
-(53, 58), -- Data Visualization with Tableau
-(59, 36), -- UI Design with Figma
-(59, 52), -- Ethical AI Design
-(65, 35), -- UX Design Certification
-(65, 39), -- React Native Development
-(71, 36), -- UI Design with Figma
-(71, 53), -- React Development
-(77, 35), -- UX Design Certification
-(77, 36), -- UI Design with Figma
-(83, 36), -- UI Design with Figma
-(83, 58), -- Data Visualization with Tableau
-(89, 35), -- UX Design Certification
-(89, 52), -- Ethical AI Design
-(95, 36), -- UI Design with Figma
-(95, 39), -- React Native Development
-(101, 35), -- UX Design Certification
-(101, 53), -- React Development
-(107, 36), -- UI Design with Figma
-(107, 58), -- Data Visualization with Tableau
--- CAP 6
-(7, 7), -- AWS SysOps Administrator
-(7, 43), -- CI/CD Pipelines with Jenkins
-(14, 12), -- Microsoft DevOps Engineer
-(14, 28), -- Terraform Associate
-(21, 23), -- Cisco DevNet Associate
-(21, 44), -- Infrastructure Monitoring with Prometheus & Grafana
-(28, 7), -- AWS SysOps Administrator
-(28, 29), -- Kubernetes Security Specialist
-(35, 12), -- Microsoft DevOps Engineer
-(35, 55), -- DevOps in Azure
-(42, 28), -- Terraform Associate
-(42, 44), -- Infrastructure Monitoring with Prometheus & Grafana
-(48, 23), -- Cisco DevNet Associate
-(48, 29), -- Kubernetes Security Specialist
-(54, 7), -- AWS SysOps Administrator
-(54, 55), -- DevOps in Azure
-(60, 12), -- Microsoft DevOps Engineer
-(60, 28), -- Terraform Associate
-(66, 23), -- Cisco DevNet Associate
-(66, 44), -- Infrastructure Monitoring with Prometheus & Grafana
-(72, 7), -- AWS SysOps Administrator
-(72, 29), -- Kubernetes Security Specialist
-(78, 12), -- Microsoft DevOps Engineer
-(78, 55), -- DevOps in Azure
-(84, 28), -- Terraform Associate
-(84, 44), -- Infrastructure Monitoring with Prometheus & Grafana
-(90, 23), -- Cisco DevNet Associate
-(90, 29), -- Kubernetes Security Specialist
-(96, 7), -- AWS SysOps Administrator
-(96, 55), -- DevOps in Azure
-(102, 12), -- Microsoft DevOps Engineer
-(102, 28), -- Terraform Associate
-(108, 23), -- Cisco DevNet Associate
-(108, 44); -- Infrastructure Monitoring with Prometheus & Grafana
+-- Capability 1: Desarrollo de Software
+(1, 1), (1, 45),    -- Java SE 11 Developer, Secure Java Coding
+(2, 53), (2, 60),    -- React Development, GraphQL Development
+(8, 1), (8, 54),     -- Java SE 11 Developer, Backend with Node.js
+(9, 39), (9, 53),    -- React Native, React Development
+(15, 4), (15, 19),   -- Java EE Enterprise Architect, Python for Everybody
+(16, 53), (16, 60),  -- React Development, GraphQL Development
+(22, 45), (22, 54),  -- Secure Java Coding, Backend with Node.js
+(23, 39), (23, 60),  -- React Native, GraphQL Development
+(29, 1), (29, 57),   -- Java SE 11 Developer, Python Development
+(30, 53), (30, 54),  -- React Development, Backend with Node.js
+(36, 19), (36, 57),  -- Python for Everybody, Python Development
+(37, 49), (37, 60),  -- Full Stack Development, GraphQL Development
+(43, 45), (43, 54),  -- Secure Java Coding, Backend with Node.js
+(44, 1), (44, 53),   -- Java SE 11 Developer, React Development
+(50, 49), (50, 60),  -- Full Stack Development, GraphQL Development
+(51, 41), (51, 42),  -- iOS with Swift, Android with Kotlin
+(57, 27), (57, 57),  -- Blockchain Developer, Python Development
+(63, 39), (63, 53),  -- React Native, React Development
+(69, 1), (69, 4),    -- Java SE 11 Developer, Java EE Enterprise Architect
+(75, 49), (75, 54),  -- Full Stack Development, Backend with Node.js
+(81, 45), (81, 57),  -- Secure Java Coding, Python Development
+(87, 1), (87, 53),   -- Java SE 11 Developer, React Development
+(93, 49), (93, 60),  -- Full Stack Development, GraphQL Development
+(99, 41), (99, 42),  -- iOS with Swift, Android with Kotlin
+(105, 27), (105, 57), -- Blockchain Developer, Python Development
+(111, 39), (111, 53), -- React Native, React Development
+(117, 1), (117, 4),  -- Java SE 11 Developer, Java EE Enterprise Architect
+-- Capability 2: Ciencia de Datos
+(3, 17), (3, 20),    -- Data Science Professional, Deep Learning Specialization
+(10, 16), (10, 20),  -- Google ML Engineer, Deep Learning Specialization
+(17, 11), (17, 58),  -- Power BI Data Analyst, Data Visualization with Tableau
+(24, 8), (24, 25),   -- AWS Machine Learning, TensorFlow Developer
+(31, 17), (31, 52),  -- Data Science Professional, Ethical AI Design
+(38, 16), (38, 58),  -- Google ML Engineer, Data Visualization with Tableau
+(45, 18), (45, 25),  -- Machine Learning Specialization, TensorFlow Developer
+(52, 13), (52, 58),  -- Google Data Engineer, Data Visualization with Tableau
+(58, 17), (58, 20),  -- Data Science Professional, Deep Learning Specialization
+(64, 25), (64, 52),  -- TensorFlow Developer, Ethical AI Design
+(70, 11), (70, 20),  -- Power BI Data Analyst, Deep Learning Specialization
+(76, 16), (76, 52),  -- Google ML Engineer, Ethical AI Design
+(82, 17), (82, 25),  -- Data Science Professional, TensorFlow Developer
+(88, 13), (88, 17),  -- Google Data Engineer, Data Science Professional
+(94, 25), (94, 58),  -- TensorFlow Developer, Data Visualization with Tableau
+(100, 18), (100, 52), -- Machine Learning Specialization, Ethical AI Design
+(106, 11), (106, 16), -- Power BI Data Analyst, Google ML Engineer
+(112, 17), (112, 25), -- Data Science Professional, TensorFlow Developer
+(118, 13), (118, 58), -- Google Data Engineer, Data Visualization with Tableau
+-- Capability 3: Arquitectura en la Nube
+(4, 5), (4, 56),     -- AWS Solutions Architect, Cloud Security
+(11, 10), (11, 56),  -- Azure Solutions Architect, Cloud Security
+(18, 14), (18, 32),  -- Google Associate Cloud Engineer, Serverless Architecture
+(25, 5), (25, 32),   -- AWS Solutions Architect, Serverless Architecture
+(32, 10), (32, 59),  -- Azure Solutions Architect, Distributed Systems
+(39, 14), (39, 59),  -- Google Associate Cloud Engineer, Distributed Systems
+(46, 5), (46, 56),   -- AWS Solutions Architect, Cloud Security
+(53, 15), (53, 32),  -- Google Cloud Architect, Serverless Architecture
+(59, 32), (59, 59),  -- Serverless Architecture, Distributed Systems
+(65, 15), (65, 56),  -- Google Cloud Architect, Cloud Security
+(71, 10), (71, 32),  -- Azure Solutions Architect, Serverless Architecture
+(77, 14), (77, 59),  -- Google Associate Cloud Engineer, Distributed Systems
+(83, 5), (83, 56),   -- AWS Solutions Architect, Cloud Security
+(89, 15), (89, 32),  -- Google Cloud Architect, Serverless Architecture
+(95, 32), (95, 56),  -- Serverless Architecture, Cloud Security
+(101, 5), (101, 59), -- AWS Solutions Architect, Distributed Systems
+(107, 10), (107, 32), -- Azure Solutions Architect, Serverless Architecture
+(113, 14), (113, 59), -- Google Associate Cloud Engineer, Distributed Systems
+(119, 5), (119, 15), -- AWS Solutions Architect, Google Cloud Architect
+-- Capability 4: Calidad de Software QA
+(5, 37), (5, 51),    -- ISTQB Foundation Level, Cybersecurity Analyst
+(12, 26), (12, 37),  -- Certified Ethical Hacker, ISTQB Foundation Level
+(19, 38), (19, 51),  -- Mobile Testing with Appium, Cybersecurity Analyst
+(26, 37), (26, 46),  -- ISTQB Foundation Level, Data Privacy Professional
+(33, 37), (33, 51),  -- ISTQB Foundation Level, Cybersecurity Analyst
+(40, 45), (40, 51),  -- Secure Java Coding, Cybersecurity Analyst
+(47, 26), (47, 37),  -- Certified Ethical Hacker, ISTQB Foundation Level
+(54, 37), (54, 51),  -- ISTQB Foundation Level, Cybersecurity Analyst
+(60, 45), (60, 51),  -- Secure Java Coding, Cybersecurity Analyst
+(66, 26), (66, 37),  -- Certified Ethical Hacker, ISTQB Foundation Level
+(70, 37), (70, 51),  -- ISTQB Foundation Level, Cybersecurity Analyst
+(76, 45), (76, 51),  -- Secure Java Coding, Cybersecurity Analyst
+(82, 26), (82, 37),  -- Certified Ethical Hacker, ISTQB Foundation Level
+(88, 37), (88, 51),  -- ISTQB Foundation Level, Cybersecurity Analyst
+(94, 45), (94, 51),  -- Secure Java Coding, Cybersecurity Analyst
+(100, 26), (100, 37), -- Certified Ethical Hacker, ISTQB Foundation Level
+(106, 37), (106, 51), -- ISTQB Foundation Level, Cybersecurity Analyst
+(114, 45), (114, 51), -- Secure Java Coding, Cybersecurity Analyst
+(120, 26), (120, 37), -- Certified Ethical Hacker, ISTQB Foundation Level
+-- Capability 5: Diseño de UI/UX
+(6, 35), (6, 53),    -- UX Design Certification, React Development
+(13, 36), (13, 58),  -- UI Design with Figma, Data Visualization with Tableau
+(20, 39), (20, 53),  -- React Native Development, React Development
+(27, 35), (27, 52),  -- UX Design Certification, Ethical AI Design
+(34, 36), (34, 39),  -- UI Design with Figma, React Native Development
+(41, 35), (41, 36),  -- UX Design Certification, UI Design with Figma
+(48, 36), (48, 53),  -- UI Design with Figma, React Development
+(55, 35), (55, 52),  -- UX Design Certification, Ethical AI Design
+(61, 36), (61, 53),  -- UI Design with Figma, React Development
+(67, 35), (67, 58),  -- UX Design Certification, Data Visualization with Tableau
+(73, 36), (73, 39),  -- UI Design with Figma, React Native Development
+(79, 35), (79, 36),  -- UX Design Certification, UI Design with Figma
+(85, 36), (85, 53),  -- UI Design with Figma, React Development
+(91, 35), (91, 52),  -- UX Design Certification, Ethical AI Design
+(97, 36), (97, 53),  -- UI Design with Figma, React Development
+(103, 35), (103, 58), -- UX Design Certification, Data Visualization with Tableau
+(109, 36), (109, 39), -- UI Design with Figma, React Native Development
+(115, 35), (115, 36), -- UX Design Certification, UI Design with Figma
+(121, 36), (121, 53), -- UI Design with Figma, React Development
+-- Capability 6: Ingeniería de DevOps
+(7, 7), (7, 28),     -- AWS SysOps Administrator, Terraform Associate
+(14, 12), (14, 55),  -- Microsoft DevOps Engineer, DevOps in Azure
+(21, 28), (21, 44),  -- Terraform Associate, Infrastructure Monitoring with Prometheus & Grafana
+(28, 7), (28, 55),   -- AWS SysOps Administrator, DevOps in Azure
+(35, 12), (35, 55),  -- Microsoft DevOps Engineer, DevOps in Azure
+(42, 28), (42, 55),  -- Terraform Associate, DevOps in Azure
+(49, 23), (49, 44),  -- Cisco DevNet Associate, Infrastructure Monitoring with Prometheus & Grafana
+(56, 7), (56, 55),   -- AWS SysOps Administrator, DevOps in Azure
+(62, 12), (62, 55),  -- Microsoft DevOps Engineer, DevOps in Azure
+(68, 28), (68, 55),  -- Terraform Associate, DevOps in Azure
+(74, 7), (74, 55),   -- AWS SysOps Administrator, DevOps in Azure
+(80, 12), (80, 55),  -- Microsoft DevOps Engineer, DevOps in Azure
+(86, 28), (86, 55),  -- Terraform Associate, DevOps in Azure
+(92, 23), (92, 44),  -- Cisco DevNet Associate, Infrastructure Monitoring with Prometheus & Grafana
+(98, 7), (98, 55),   -- AWS SysOps Administrator, DevOps in Azure
+(104, 12), (104, 55), -- Microsoft DevOps Engineer, DevOps in Azure
+(110, 28), (110, 55), -- Terraform Associate, DevOps in Azure
+(116, 7), (116, 55), -- AWS SysOps Administrator, DevOps in Azure
+(122, 12), (122, 28); -- Microsoft DevOps Engineer, Terraform Associate
 
 
 
--- 21) Postulations NULL
+-- -- 21) Postulations NULL
 
 
 
--- 22) Meeting NULL
+-- -- 22) Meeting NULL
 
 
 
 -- 23) Feedback
 INSERT INTO "Feedback" ("position_id", "desc", "score") VALUES
--- CAP 1
-(1, 'Excelente desempeño en desarrollo backend. Código limpio y bien documentado. Implementó patrones de diseño avanzados que mejoraron la mantenibilidad del proyecto.', 5),
-(2, 'Buen trabajo en la implementación de APIs RESTful. Podría mejorar en la optimización de consultas a base de datos.', 4),
-(8, 'Desarrollo frontend destacado con implementación efectiva de React hooks y state management. UX fluida y responsiva.', 5),
-(9, 'Cumplió con los requerimientos de desarrollo móvil. Necesita trabajar en la optimización de rendimiento para dispositivos de gama baja.', 3),
-(15, 'Implementación sólida de microservicios. Código modular y bien estructurado. Buena colaboración con el equipo de DevOps.', 4),
-(16, 'Excelente integración de componentes frontend con GraphQL. UI moderna y accesible que cumple con estándares WCAG.', 5),
-(22, 'Implementación satisfactoria de protocolos de seguridad. Se recomienda mayor documentación de procesos para futuras auditorías.', 3),
-(23, 'Desarrollo eficiente de interfaces de usuario con buenas prácticas de React. Excelente manejo de estados complejos.', 4),
-(29, 'Arquitectura backend robusta con excelente manejo de concurrencia. Implementación destacada de patrones de resiliencia.', 5),
-(30, 'Buen trabajo en la implementación de componentes frontend reutilizables. La documentación técnica fue excepcional.', 4),
-(36, 'Desarrollo consistente de servicios backend. Necesita mejorar el manejo de errores y logging.', 3),
-(37, 'Implementación frontend con buena estructura de código. Necesita mejorar en pruebas unitarias y de integración.', 3),
-(43, 'Excelente aplicación de prácticas de seguridad en el código. Análisis de vulnerabilidades detallado y soluciones efectivas.', 5),
-(49, 'Desarrollo frontend notable con excelente atención al detalle en UX. Componentes altamente reutilizables.', 5),
-(55, 'Buena implementación de arquitectura de microservicios. Podría mejorar la documentación técnica.', 4),
--- CAP 2
-(3, 'Excelente análisis exploratorio de datos. Los modelos predictivos demostraron alta precisión en producción.', 5),
-(10, 'Buena implementación de modelos de machine learning. Necesita mejorar la explicabilidad de los modelos para stakeholders no técnicos.', 4),
-(17, 'Visualizaciones de datos claras y efectivas. Insights valiosos que impactaron positivamente decisiones de negocio.', 5),
-(24, 'Modelos de clasificación con buen rendimiento. Se recomienda mayor validación con datos históricos.', 3),
-(31, 'Pipeline de procesamiento de datos eficiente. Buena optimización de recursos computacionales.', 4),
-(38, 'Implementación satisfactoria de dashboard analítico. Necesita mejorar la documentación del proceso ETL.', 3),
-(44, 'Excelente trabajo en modelos de deep learning para procesamiento de imágenes. Resultados superiores a las expectativas.', 5),
-(50, 'Buenos análisis estadísticos que aportaron valor al proyecto. Podría mejorar en la comunicación de resultados.', 4),
-(56, 'Implementación efectiva de algoritmos de NLP. Documentación técnica detallada que facilitará el mantenimiento.', 4),
--- CAP 3
-(4, 'Arquitectura cloud robusta con excelente implementación de alta disponibilidad y recuperación ante desastres.', 5),
-(11, 'Buena implementación de servicios en la nube. Podría mejorar en la optimización de costos.', 4),
-(18, 'Diseño cloud multi-región efectivo. Excelente balance entre rendimiento y costos operativos.', 5),
-(25, 'Implementación satisfactoria de servicios serverless. Necesita mejorar documentación para facilitar la transferencia de conocimiento.', 3),
-(32, 'Arquitectura de microservicios bien diseñada en la nube. Buena integración con servicios managed de AWS.', 4),
-(39, 'Configuración aceptable de servicios cloud. Se requiere mayor automatización en los procesos de despliegue.', 3),
-(45, 'Excelente implementación de seguridad en la nube con principio de privilegio mínimo. Documentación de cumplimiento normativo destacada.', 5),
-(51, 'Buena arquitectura de datos en la nube. La estrategia de migración fue particularmente efectiva.', 4),
-(57, 'Implementación eficiente de infraestructura como código. Pipelines de CI/CD bien integrados con el flujo de desarrollo.', 4),
--- CAP 4
-(5, 'Excelente implementación de pruebas automatizadas. Cobertura de código superior al 90% con tests significativos.', 5),
-(12, 'Buenos casos de prueba para funcionalidades críticas. Podría mejorar en pruebas de rendimiento.', 4),
-(19, 'Estrategia de pruebas bien documentada. Ejecución consistente que identificó defectos críticos tempranamente.', 5),
-(26, 'Implementación satisfactoria de pruebas de seguridad. Se recomienda mayor profundidad en pruebas de penetración.', 3),
-(33, 'Buena implementación de pruebas de integración y end-to-end. Documentación detallada de procedimientos de QA.', 4),
-(40, 'Pruebas funcionales adecuadas. Necesita mejorar en la automatización de pruebas de regresión.', 3),
-(46, 'Excelente trabajo en pruebas de seguridad aplicativa. Análisis detallado de vulnerabilidades con recomendaciones prácticas.', 5),
-(52, 'Buena cobertura de pruebas unitarias. Colaboración efectiva con el equipo de desarrollo para resolver defectos.', 4),
-(58, 'Implementación efectiva de pruebas de carga y estrés. Identificación temprana de cuellos de botella en rendimiento.', 4),
--- CAP 5
-(6, 'Diseño de interfaz excepcional con excelente atención a la accesibilidad. Experiencia de usuario intuitiva y fluida.', 5),
-(13, 'Buen trabajo en wireframes y prototipos. La investigación de usuarios podría haber sido más exhaustiva.', 4),
-(20, 'Diseño visual destacado con sistema de componentes consistente. Documentación de design system completa.', 5),
-(27, 'Implementación satisfactoria de interfaces de usuario. Necesita mayor consistencia en la aplicación de patrones UX.', 3),
-(34, 'Buenas soluciones de diseño basadas en investigación de usuarios. Prototipado efectivo que aceleró el desarrollo.', 4),
-(41, 'Diseño aceptable pero con oportunidades de mejora en accesibilidad. Falta mayor documentación de decisiones de diseño.', 3),
-(47, 'Excelente trabajo en diseño de experiencia de usuario. Pruebas de usabilidad bien ejecutadas que generaron mejoras significativas.', 5),
-(53, 'Buen trabajo en el rediseño de interfaz. Los indicadores de usabilidad mostraron mejora considerable después de la implementación.', 4),
-(59, 'Diseño efectivo de interacciones complejas. Buena colaboración con el equipo de desarrollo para implementación fiel.', 4),
--- CAP 6
-(7, 'Excelente implementación de pipeline CI/CD con despliegue azul-verde. Monitoreo completo con alertas proactivas.', 5),
-(14, 'Buena configuración de infraestructura como código. Podría mejorar la documentación de procedimientos de rollback.', 4),
-(21, 'Implementación destacada de entornos de desarrollo consistentes con contenedores. Excelente gestión de secretos.', 5),
-(28, 'Configuración satisfactoria de monitoreo y observabilidad. Se recomienda mejorar la cobertura de logs para troubleshooting.', 3),
-(35, 'Buena implementación de kubernetes con autoscaling efectivo. Documentación detallada de la arquitectura.', 4),
-(42, 'Configuración básica de integración continua. Necesita implementar pruebas automatizadas en el pipeline.', 2),
-(48, 'Excelente trabajo en automatización de infraestructura con terraform. Estrategia de branching y promoción a producción muy efectiva.', 5),
-(54, 'Buena implementación de estrategias de deployment. Los tiempos de recuperación ante fallos mejoraron significativamente.', 4),
-(60, 'Implementación efectiva de monitoreo y alertas. Dashboards informativos que facilitan la operación diaria.', 4);
+(1, 'Desarrolló lógica de negocio robusta y mantuvo una excelente estructura en los endpoints.', 5),
+(2, 'Buena implementación de componentes reutilizables y uso adecuado de librerías frontend.', 4),
+(3, 'Demostró habilidades analíticas sólidas al construir modelos predictivos efectivos.', 5),
+(4, 'Propuso una arquitectura en la nube escalable y optimizada para costos.', 4),
+(5, 'Realizó pruebas exhaustivas que mejoraron significativamente la calidad del producto.', 5),
+(6, 'Diseños intuitivos que mejoraron notablemente la experiencia del usuario final.', 4),
+(7, 'Automatizó con éxito pipelines de CI/CD y monitoreo de infraestructura.', 5),
+(8, 'Buen manejo de controladores y servicios backend, aunque con áreas de mejora en validación.', 4),
+(9, 'Interfaces visualmente atractivas, pero faltó accesibilidad en algunos elementos.', 3),
+(10, 'Identificó patrones ocultos en los datos que aportaron valor estratégico.', 5),
+(11, 'Arquitectura propuesta con buen uso de contenedores y balanceadores.', 4),
+(12, 'Detección oportuna de bugs críticos en pruebas de regresión.', 5),
+(13, 'Propuso wireframes innovadores y coherentes con la identidad del producto.', 4),
+(14, 'Estableció integraciones con herramientas de monitoreo como Prometheus y Grafana.', 5),
+(15, 'API REST bien documentada y con manejo adecuado de errores.', 5),
+(16, 'Implementación rápida de interfaces adaptables a móviles.', 4),
+(17, 'Validó hipótesis con técnicas estadísticas avanzadas y limpieza efectiva de datos.', 5),
+(18, 'Diseño orientado a microservicios con enfoque en alta disponibilidad.', 4),
+(19, 'Cobertura de pruebas superior al 90%, con scripts bien estructurados.', 5),
+(20, 'Flujos de usuario claros y consistentes en todas las pantallas.', 4),
+(21, 'Configuración de pipelines en Jenkins eficiente y estable.', 5),
+(22, 'Contribuyó con endpoints seguros y eficientes.', 4),
+(23, 'Buen uso de hooks y estados en React, aunque se repitieron estilos.', 3),
+(24, 'Predicciones acertadas que ayudaron a tomar decisiones de negocio.', 5),
+(25, 'Uso adecuado de servicios como AWS Lambda y S3.', 4),
+(26, 'Identificó escenarios de prueba no contemplados por el equipo.', 5),
+(27, 'Propuso mejoras en el diseño con base en pruebas de usuario.', 4),
+(28, 'Automatizó tareas de mantenimiento de infraestructura con Terraform.', 5),
+(29, 'Refactorizó código para mejorar mantenibilidad y rendimiento.', 5),
+(30, 'Buen manejo de enrutamiento y diseño responsive.', 4),
+(31, 'Documentación detallada y reproducible de los modelos generados.', 5),
+(32, 'Diseño eficiente de red con balanceo de carga distribuido.', 4),
+(33, 'Creó planes de prueba completos y bien ejecutados.', 5),
+(34, 'Siguió buenas prácticas de diseño centrado en el usuario.', 4),
+(35, 'Uso efectivo de herramientas como Docker y Ansible.', 5),
+(36, 'Refactorizó módulos complejos, reduciendo duplicación y mejorando mantenibilidad.', 5),
+(37, 'Utilizó Tailwind CSS y buenas prácticas de diseño, aunque algunos componentes se repiten.', 4),
+(38, 'Desarrolló dashboards interactivos con datos en tiempo real.', 5),
+(39, 'El código cumplió con estándares de seguridad pero requiere más pruebas unitarias.', 3),
+(40, 'Analizó datasets masivos con herramientas como Pandas y Spark.', 5),
+(41, 'Implementó una arquitectura de microservicios bien documentada.', 4),
+(42, 'Creó tests automatizados con buena cobertura, pero falta integración en CI.', 4),
+(43, 'Diseñó UI accesible siguiendo lineamientos WCAG.', 5),
+(44, 'Configuró infraestructura en GCP con Terraform de forma eficiente.', 5),
+(45, 'Endpoints bien estructurados y respuesta rápida bajo carga.', 5),
+(46, 'Buen uso de componentes funcionales y gestión de estado.', 4),
+(47, 'Extracción de datos efectiva con ETL programado y validación de calidad.', 5),
+(48, 'Alta disponibilidad lograda con balanceadores y failover automático.', 5),
+(49, 'Validaciones sólidas en pruebas manuales, aunque faltó automatización.', 3),
+(50, 'Diseños centrados en usabilidad con prototipos funcionales.', 4),
+(51, 'Integración continua con pipelines robustos y pruebas en staging.', 5),
+(52, 'Organización lógica del backend con separación de responsabilidades clara.', 4),
+(53, 'Interfaces limpias, pero con algunos problemas de rendimiento en móviles.', 3),
+(54, 'Exploración de datos profunda y visualizaciones efectivas.', 5),
+(55, 'Buena segmentación de servicios y escalabilidad garantizada.', 5),
+(56, 'Escritura de casos de prueba completos y bien ejecutados.', 5),
+(57, 'Creación de prototipos de interfaz con alto grado de fidelidad.', 4),
+(58, 'Automatizó procesos clave usando scripts Bash y Python.', 5),
+(59, 'Código backend escalable y con principios SOLID bien aplicados.', 5),
+(60, 'Componentes reutilizables bien diseñados con estado controlado.', 4),
+(61, 'Uso avanzado de clustering y técnicas de aprendizaje no supervisado.', 5),
+(62, 'Red con políticas de seguridad claras y segmentación lógica adecuada.', 4),
+(63, 'Pruebas automatizadas eficaces, aunque con bajo enfoque en casos negativos.', 4),
+(64, 'Diseños innovadores y coherentes con la identidad visual del producto.', 5),
+(65, 'Automatización efectiva de infraestructura como código.', 5),
+(66, 'Endpoints bien versionados y respetando principios REST.', 4),
+(67, 'Diseño de UI responsive, pero con ligeros errores de alineación.', 3),
+(68, 'Análisis exploratorio bien presentado con hallazgos relevantes.', 5),
+(69, 'Reducción de latencia en microservicios con caching inteligente.', 5),
+(70, 'Creación de ambientes de testing reproducibles y completos.', 5),
+(71, 'Entregó prototipos bien evaluados con retroalimentación de usuarios.', 4),
+(72, 'Automatización de despliegue con zero-downtime efectiva.', 5),
+(73, 'Optimización del backend que mejoró tiempos de respuesta.', 5),
+(74, 'Componentes modernos y bien estructurados en frontend.', 4),
+(75, 'Modelos predictivos precisos y explicables.', 5),
+(76, 'Diseño de arquitectura orientada a eventos y desacoplada.', 4),
+(77, 'Cobertura completa de pruebas, incluyendo casos extremos.', 5),
+(78, 'Interfaz accesible, pero con oportunidades de mejora en usabilidad móvil.', 3),
+(79, 'Infraestructura robusta con monitoreo proactivo implementado.', 5),
+(80, 'API GraphQL bien estructurada con resolvers eficientes.', 5),
+(81, 'Diseño limpio de interfaces, aunque repetitivo en algunas secciones.', 3),
+(82, 'Análisis estadístico profundo y visualización de KPIs clave.', 5),
+(83, 'Uso eficiente de Kubernetes para escalar servicios automáticamente.', 5),
+(84, 'Suite de pruebas con cobertura alta y rápida ejecución.', 5),
+(85, 'Prototipos validados con pruebas A/B y feedback de usuarios.', 4),
+(86, 'Automatización con scripts reproducibles y bien documentados.', 5);
 
 
 
@@ -1994,122 +2101,41 @@ INSERT INTO "Area_Certificates" ("area_id", "certificate_id") VALUES
 
 
 
--- 26) project position areas
+-- -- 26) project position areas
+-- Asignación de áreas a las posiciones de proyecto
 INSERT INTO "Project_Position_Areas" ("position_id", "area_id") VALUES
--- CAP 1
-(1, 1),  -- Backend Development
-(2, 1),  -- Backend Development
-(8, 2),  -- Frontend Development
-(9, 5),  -- Mobile Development
-(15, 1), -- Backend Development
-(16, 2), -- Frontend Development
-(22, 9), -- Cybersecurity
-(23, 2), -- Frontend Development
-(29, 1), -- Backend Development
-(30, 2), -- Frontend Development
-(36, 1), -- Backend Development
-(37, 2), -- Frontend Development
-(43, 9), -- Cybersecurity
-(49, 2), -- Frontend Development
-(55, 1), -- Backend Development
-(61, 5), -- Mobile Development
-(67, 1), -- Backend Development
-(73, 5), -- Mobile Development
-(79, 1), -- Backend Development
-(85, 2), -- Frontend Development
-(91, 9), -- Cybersecurity
-(97, 2), -- Frontend Development
-(103, 1), -- Backend Development
--- CAP 2
-(3, 4),  -- Data Science & Analytics
-(10, 4), -- Data Science & Analytics
-(17, 4), -- Data Science & Analytics
-(24, 4), -- Data Science & Analytics
-(31, 4), -- Data Science & Analytics
-(38, 4), -- Data Science & Analytics
-(44, 4), -- Data Science & Analytics
-(50, 4), -- Data Science & Analytics
-(56, 4), -- Data Science & Analytics
-(62, 4), -- Data Science & Analytics
-(68, 4), -- Data Science & Analytics
-(74, 4), -- Data Science & Analytics
-(80, 4), -- Data Science & Analytics
-(86, 4), -- Data Science & Analytics
-(92, 4), -- Data Science & Analytics
-(98, 4), -- Data Science & Analytics
-(104, 4), -- Data Science & Analytics
--- CAP 3
-(4, 3),  -- Cloud & DevOps
-(11, 3), -- Cloud & DevOps
-(18, 3), -- Cloud & DevOps
-(25, 3), -- Cloud & DevOps
-(32, 3), -- Cloud & DevOps
-(39, 3), -- Cloud & DevOps
-(45, 9), -- Cybersecurity (Cloud Security focus)
-(51, 3), -- Cloud & DevOps
-(57, 3), -- Cloud & DevOps
-(63, 3), -- Cloud & DevOps
-(69, 3), -- Cloud & DevOps
-(75, 3), -- Cloud & DevOps
-(81, 3), -- Cloud & DevOps
-(87, 3), -- Cloud & DevOps
-(93, 3), -- Cloud & DevOps
-(99, 3), -- Cloud & DevOps
-(105, 3), -- Cloud & DevOps
--- CAP 4
-(5, 6),  -- Quality Assurance
-(12, 6), -- Quality Assurance
-(19, 6), -- Quality Assurance
-(26, 9), -- Cybersecurity (Security Testing focus)
-(33, 6), -- Quality Assurance
-(40, 6), -- Quality Assurance
-(46, 9), -- Cybersecurity (Security Testing focus)
-(52, 6), -- Quality Assurance
-(58, 6), -- Quality Assurance
-(64, 9), -- Cybersecurity (Security Testing focus)
-(70, 6), -- Quality Assurance
-(76, 6), -- Quality Assurance
-(82, 9), -- Cybersecurity (Security Testing focus)
-(88, 6), -- Quality Assurance
-(94, 6), -- Quality Assurance
-(100, 9), -- Cybersecurity (Security Testing focus)
-(106, 6), -- Quality Assurance
--- CAP 5
-(6, 7),  -- UX/UI Design
-(13, 7), -- UX/UI Design
-(20, 7), -- UX/UI Design
-(27, 7), -- UX/UI Design
-(34, 7), -- UX/UI Design
-(41, 7), -- UX/UI Design
-(47, 7), -- UX/UI Design
-(53, 7), -- UX/UI Design
-(59, 7), -- UX/UI Design
-(65, 7), -- UX/UI Design
-(71, 7), -- UX/UI Design
-(77, 7), -- UX/UI Design
-(83, 7), -- UX/UI Design
-(89, 7), -- UX/UI Design
-(95, 7), -- UX/UI Design
-(101, 7), -- UX/UI Design
-(107, 7), -- UX/UI Design
--- CAP 6
-(7, 3),  -- Cloud & DevOps
-(14, 3), -- Cloud & DevOps
-(21, 3), -- Cloud & DevOps
-(28, 3), -- Cloud & DevOps
-(35, 3), -- Cloud & DevOps
-(42, 3), -- Cloud & DevOps
-(48, 3), -- Cloud & DevOps
-(54, 3), -- Cloud & DevOps
-(60, 3), -- Cloud & DevOps
-(66, 3), -- Cloud & DevOps
-(72, 3), -- Cloud & DevOps
-(78, 3), -- Cloud & DevOps
-(84, 3), -- Cloud & DevOps
-(90, 3), -- Cloud & DevOps
-(96, 3), -- Cloud & DevOps
-(102, 3), -- Cloud & DevOps
-(108, 3); -- Cloud & DevOps
+-- Capability 1: Desarrollo de Software
+-- Backend Developers
+(1, 1), (8, 1), (15, 1), (22, 1), (29, 1), (36, 1), (43, 1), (50, 1), (57, 1), (63, 1), (69, 1), (75, 1), (81, 1),
+-- Frontend Developers
+(2, 2), (9, 2), (16, 2), (23, 2), (30, 2), (37, 2), (44, 2), (51, 2), (87, 2), (93, 2), (99, 2), (105, 2), (111, 2), (117, 2),
+-- Fullstack Developers
+(55, 1), (55, 2), (85, 1), (85, 2), (103, 1), (103, 2),
+
+-- Capability 2: Ciencia de Datos
+(3, 4), (10, 4), (17, 4), (24, 4), (31, 4), (38, 4), (45, 4), (52, 4), (58, 4), (64, 4), (70, 4), (76, 4), (82, 4), (88, 4), (94, 4), (100, 4), (106, 4), (112, 4), (118, 4),
+
+-- Capability 3: Arquitectura en la Nube
+(4, 3), (11, 3), (18, 3), (25, 3), (32, 3), (39, 3), (46, 3), (53, 3), (59, 3), (65, 3), (71, 3), (77, 3), (83, 3), (89, 3), (95, 3), (101, 3), (107, 3), (113, 3), (119, 3),
+
+-- Capability 4: Calidad de Software QA
+(5, 6), (12, 6), (19, 6), (26, 6), (33, 6), (40, 6), (47, 6), (54, 6), (60, 6), (66, 6), (72, 6), (78, 6), (84, 6), (90, 6), (96, 6), (102, 6), (108, 6), (114, 6), (120, 6),
+
+-- Capability 5: Diseño de UI/UX
+(6, 7), (13, 7), (20, 7), (27, 7), (34, 7), (41, 7), (48, 7), (55, 7), (61, 7), (67, 7), (73, 7), (79, 7), (85, 7), (91, 7), (97, 7), (103, 7), (109, 7), (115, 7), (121, 7),
+
+-- Capability 6: Ingeniería de DevOps
+(7, 3), (14, 3), (21, 3), (28, 3), (35, 3), (42, 3), (49, 3), (56, 3), (62, 3), (68, 3), (74, 3), (80, 3), (86, 3), (92, 3), (98, 3), (104, 3), (110, 3), (116, 3), (122, 3),
+
+-- Posiciones especiales (múltiples áreas)
+-- Desarrolladores con enfoque en seguridad
+(1, 9), (8, 9), (22, 9), (29, 9), (43, 9), (45, 9), (91, 9),
+-- Desarrolladores con enfoque en bases de datos
+(1, 10), (8, 10), (15, 10), (22, 10), (29, 10), (36, 10), (43, 10), (50, 10), (57, 10), (63, 10), (69, 10), (75, 10), (81, 10),
+-- Científicos de datos con enfoque en visualización
+(17, 7), (52, 7), (58, 7), (70, 7), (88, 7), (94, 7), (118, 7),
+-- QA con enfoque en seguridad
+(5, 9), (12, 9), (19, 9), (26, 9), (33, 9), (40, 9), (47, 9), (54, 9), (60, 9), (66, 9), (72, 9), (78, 9), (84, 9), (90, 9), (96, 9), (102, 9), (108, 9), (114, 9), (120, 9);
 
 
 

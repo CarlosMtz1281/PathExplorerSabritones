@@ -558,7 +558,6 @@ router.get("/list", async (req, res) => {
 });
 
 
-// obtiene la experiencia laboral y de proyectos de un usuario.
 router.get("/experience", async (req, res) => {
   try {
     // 🔍 Usa query param si existe, si no usa sesión
@@ -592,6 +591,10 @@ router.get("/experience", async (req, res) => {
         Project_Position_Skills: {
           include: { Skills: true },
         },
+        Feedback: true, // Include feedback directly
+        Project_Position_Areas: {
+          include: { Areas: true }
+        }
       },
     });
 
@@ -611,7 +614,7 @@ router.get("/experience", async (req, res) => {
 
     const projects = projectPositions.map((pos) => {
       const project = pos.Projects;
-      //const feedback = project.Feedback[0];
+      const feedback = pos.Feedback[0]; // Get first feedback if exists
 
       return {
         projectName: project.project_name || "Unknown",
@@ -620,10 +623,11 @@ router.get("/experience", async (req, res) => {
         projectDescription: project.project_desc || "No description",
         startDate: formatDate(project.start_date),
         endDate: formatDate(project.end_date),
-        // feedbackDesc: feedback?.desc || "No feedback",
-        // feedbackScore: feedback?.score || null,
+        feedbackDesc: feedback?.desc || "No feedback",
+        feedbackScore: feedback?.score || null,
         deliveryLeadName: project.Users?.name || "Unknown Lead",
         skills: pos.Project_Position_Skills.map((s) => s.Skills.name),
+        areas: pos.Project_Position_Areas.map((a) => a.Areas.area_name),
         rawStart: project.start_date,
         rawEnd: project.end_date,
       };

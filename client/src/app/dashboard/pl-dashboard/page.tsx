@@ -11,34 +11,29 @@ import Cargabilidad from "@/components/Cargabilidad";
 // componente de grafica de cargtabilidad
 const SemiCircleChart = ({ percentage }: { percentage: number }) => {
     const radius = 80;
-    const circumference = 2 * Math.PI * radius;
+    const circumference = Math.PI * radius; // semicircle = πr
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
     return (
         <div className="relative w-90 h-50 flex justify-center items-end">
             <svg className="w-full h-full" viewBox="0 0 200 100">
-                {/* Background circle */}
-                <circle
-                    cx="100"
-                    cy="100"
-                    r={radius}
+                {/* Background semi-circle */}
+                <path
+                    d="M 20 100 A 80 80 0 0 1 180 100"
                     fill="none"
                     stroke="#e5e7eb"
                     strokeWidth="16"
                     strokeLinecap="round"
                 />
-                {/* Progress circle */}
-                <circle
-                    cx="100"
-                    cy="100"
-                    r={radius}
+                {/* Progress semi-circle */}
+                <path
+                    d="M 20 100 A 80 80 0 0 1 180 100"
                     fill="none"
                     stroke="#9605F7"
                     strokeWidth="16"
+                    strokeLinecap="round"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round"
-                    transform="rotate(90 100 100)"
                 />
             </svg>
             <div className="absolute bottom-0 text-center">
@@ -48,6 +43,7 @@ const SemiCircleChart = ({ percentage }: { percentage: number }) => {
         </div>
     );
 };
+
 
 
 // Componente de alerta individual
@@ -382,7 +378,7 @@ const DashboardPL = () => {
     <div className="flex flex-col h-full bg-base-200 px-22 py-10">
         {/*  Título de la pantalla */}
         <div className="flex w-full items-center bg-base-100 p-5 text-4xl font-bold rounded-md border border-base-300 mb-6 text-secondary">
-            <p>Dashboard (cambiar)</p>
+            <p>Resumen de Cargos</p>
         </div>
         {/* Primeros dashbaords */}
         <div className="flex w-full">
@@ -446,7 +442,7 @@ const DashboardPL = () => {
         {/* Subordinados */}
         <div className="w-full mb-10 mt-4">
             <div className="flex w-full items-center bg-base-100 p-5 text-3xl font-bold rounded-md border border-base-300 mb-8 mt-2 text-secondary">
-                <p>Tus Subordinados</p>
+                <p>Tus Counselees</p>
             </div>
             
             {loading ? (

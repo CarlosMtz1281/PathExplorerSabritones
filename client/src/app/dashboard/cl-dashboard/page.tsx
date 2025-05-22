@@ -16,6 +16,7 @@ interface CapabilityLeadData {
     employeeCount: number;
     positionName: string;
     positionLevel: string;
+    isCapabilityLead?: boolean;
   }[];
 }
 
@@ -38,12 +39,12 @@ interface Subordinate {
 const DashboardCL = () => {
   const { data: session } = useSession();
   const [dashboardData, setDashboardData] = useState<CapabilityLeadData | null>(null);
+  const [ clSubs, setClSubs ] = useState(0);
   const [selectedPeopleLead, setSelectedPeopleLead] = useState<number | null>(null);
   const [peopleLeadDetails, setPeopleLeadDetails] = useState<PeopleLeadDetails | null>(null);
   const [subordinates, setSubordinates] = useState<Subordinate[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [employeeChanges, setEmployeeChanges] = useState<Record<number, number>>({});
 
   const fetchData = async () => {
     try {
@@ -64,7 +65,16 @@ const DashboardCL = () => {
         return;
       }
 
-      setDashboardData(res.data);
+      // Marcar si algún people lead es también el capability lead
+      const data = res.data;
+      if (data) {
+        const updatedPeopleLeads = data.peopleLeads.map((pl: PeopleLeadDetails) => ({
+          ...pl,
+          isCapabilityLead: pl.name === data.capabilityLeadName
+        }));
+        setDashboardData({ ...data, peopleLeads: updatedPeopleLeads });
+        setClSubs(data.capabilityLeadSubs);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -74,7 +84,6 @@ const DashboardCL = () => {
     setIsLoading(true);
     setIsModalOpen(true);
     setSelectedPeopleLead(peopleLeadId);
-    setEmployeeChanges({});
     
     try {
         const sessionId = session?.sessionId;
@@ -104,47 +113,16 @@ const DashboardCL = () => {
     } finally {
         setIsLoading(false);
     }
-    };
-
-  const handlePeopleLeadChange = (employeeId: number, newPeopleLeadId: number) => {
-    setEmployeeChanges(prev => ({
-      ...prev,
-      [employeeId]: newPeopleLeadId
-    }));
-  };
-
-  const saveChanges = async () => {
-    try {
-        setIsLoading(true);
-        const sessionId = session?.sessionId;
-        if (!sessionId) return;
-
-        // Prepare the data to send
-        const changesToSend = Object.entries(employeeChanges).map(([employeeId, newPeopleLeadId]) => ({
-            employeeId: Number(employeeId),
-            newPeopleLeadId
-        }));
-        
-        await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/cl/updatePeopleLeads`, {
-        changes: changesToSend,
-        }, {
-        headers: { "session-key": sessionId }
-        });
-
-        setIsModalOpen(false);
-        fetchData();
-    } catch (error) {
-        console.error("Error saving changes:", error);
-    } finally {
-        setIsLoading(false);
-    }
   };
 
   useEffect(() => {
     fetchData();
   }, [session]);
 
-  const totalSubordinates = dashboardData?.peopleLeads.reduce(
+  // Filtrar people leads para excluir al que también es capability lead
+  const filteredPeopleLeads = dashboardData?.peopleLeads.filter(pl => !pl.isCapabilityLead) || [];
+
+  const totalSubordinates = filteredPeopleLeads.reduce(
     (total, pl) => total + pl.employeeCount, 0
   ) || 0;
 
@@ -156,7 +134,7 @@ const DashboardCL = () => {
     return result;
   };
 
-  const peopleLeadsChunks = dashboardData ? chunkArray(dashboardData.peopleLeads, 3) : [];
+  const peopleLeadsChunks = dashboardData ? chunkArray(filteredPeopleLeads, 3) : [];
 
   return (
     <div className="flex flex-col min-h-screen bg-base-200 px-22 py-10">
@@ -177,8 +155,17 @@ const DashboardCL = () => {
             style={{ maxHeight: '63vh' }}
           >
             {/* Capability Lead Card */}
-            <div className="w-full pt-6">
-              <div className="flex w-[45%] items-center bg-base-100 p-5 rounded-2xl border border-base-300 mb-6 shadow-md mx-auto">
+            <div 
+              className="w-full pt-6 cursor-pointer"
+              onClick={() => {
+                // Encontrar el people lead que también es capability lead
+                const capabilityLead = dashboardData.peopleLeads.find(pl => pl.isCapabilityLead);
+                if (capabilityLead) {
+                  openPeopleLeadModal(capabilityLead.id);
+                }
+              }}
+            >
+              <div className="flex w-[45%] items-center bg-base-100 p-5 rounded-2xl border border-base-300 mb-6 shadow-md mx-auto hover:shadow-lg transition-shadow">
                 {/* Imagen */}
                 <div className="avatar mr-4">
                   <div className="w-24 h-24 rounded-lg">
@@ -203,18 +190,18 @@ const DashboardCL = () => {
                   
                   <div className="flex space-x-6 text-sm">
                     <div>
-                      <p className="font-semibold">Subordinados Directos</p>
+                      <p className="font-semibold">Directos</p>
                       <p className="text-gray-600">
-                        {dashboardData.peopleLeads.length} People Leads
+                        {clSubs} Counselees
                       </p>
                     </div>
                     <div>
                       <p className="font-semibold">Totales</p>
                       <p className="text-gray-600">
-                        {totalSubordinates + dashboardData.peopleLeads.length} Empleados
+                        {totalSubordinates + clSubs} Empleados
                       </p>
                     </div>
-                    <div className="flex items-center mx-auto">
+                    <div className="flex items-center ml-20">
                       <span className="bg-secondary text-primary-content px-3 py-1 rounded-full text-xs font-semibold mr-3">
                         Capability Lead
                       </span>
@@ -304,7 +291,7 @@ const DashboardCL = () => {
               ) : (
                 <div className="flex flex-col md:flex-row gap-6 px-6">
                   {/* Left Side - People Lead Details */}
-                  <div className="w-full md:w-1/3 bg-base-100 py-6 px-3 rounded-xl border-2 border-base-300 relative shadow-lg overflow-hidden">
+                  <div className="w-full md:w-11/30 bg-base-100 py-6 px-1 rounded-xl border-2 border-base-300 relative shadow-lg overflow-hidden">
                     {/* Banner Background */}
                     <div className="absolute top-0 left-0 w-full h-30">
                       <Image
@@ -333,7 +320,7 @@ const DashboardCL = () => {
                           {peopleLeadDetails?.name}
                         </h3>
                         <p className="text-primary text-center text-lg font-bold">
-                          {dashboardData?.peopleLeads.find(pl => pl.id === selectedPeopleLead)?.positionName} {dashboardData?.peopleLeads.find(pl => pl.id === selectedPeopleLead)?.positionLevel}
+                          {selectedPeopleLead && dashboardData?.peopleLeads.find(pl => pl.id === selectedPeopleLead)?.positionName} {selectedPeopleLead && dashboardData?.peopleLeads.find(pl => pl.id === selectedPeopleLead)?.positionLevel}
                         </p>
                       </div>
 
@@ -364,7 +351,7 @@ const DashboardCL = () => {
 
                   {/* Right Side - Subordinates List */}
                   <div className="w-full md:w-2/3">
-                    <div className="grid grid-cols-1 md:grid-cols-1 max-h-[52vh] gap-4 mb-6 bg-base-200 p-6 overflow-y-auto rounded-2xl">
+                    <div className="grid grid-cols-1 md:grid-cols-1 max-h-[60vh] gap-4 bg-base-200 p-6 overflow-y-auto rounded-2xl">
                       {subordinates.map((subordinate: Subordinate) => (
                         <div 
                           key={subordinate.id} 
@@ -389,39 +376,8 @@ const DashboardCL = () => {
                               </p>
                             </div>
                           </div>
-                          <div className="flex flex-col items-end">
-                            <p className="text-md font-semibold mb-1 text-secondary mr-2">People Lead:</p>
-                            <select 
-                              className="select select-bordered select-sm w-full max-w-xs bg-accent/20 text-accent-content hover:bg-accent/30 focus:bg-accent/30 transition-colors"
-                              defaultValue={subordinate.currentPeopleLeadId}
-                              onChange={(e) => handlePeopleLeadChange(subordinate.id, Number(e.target.value))}
-                            >
-                              {dashboardData?.peopleLeads.map((pl) => (
-                                <option key={pl.id} value={pl.id}>
-                                  {pl.name}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
                         </div>
                       ))}
-                    </div>
-
-                    {/* Button at the bottom */}
-                    <div className="flex justify-end gap-4">
-                      <button 
-                        className="btn btn-ghost"
-                        onClick={() => setIsModalOpen(false)}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        className="btn btn-primary"
-                        onClick={saveChanges}
-                        disabled={Object.keys(employeeChanges).length === 0}
-                      >
-                        Guardar Cambios
-                      </button>
                     </div>
                   </div>
                 </div>
