@@ -121,14 +121,25 @@ const InfoColegas = () => {
           className="flex flex-col gap-10 pr-5 overflow-y-auto"
           style={{ width: "68vw", marginLeft: "2vw" }}
         >
-          {/* Empleado Y DELIVERY Certificaaciones Y trayectoria */}
-          
-            <WidgetCertificacionesColegas userId={userData.user_id} />
-            <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
+          {(
+            viewerRoleId === 1 ||
+            viewerRoleId === 4 ||
+            (viewerRoleId === 2 && !subordinado) ||
+            (viewerRoleId === 3 && !subordinado)
+          ) && (
+            <>              
+              <WidgetCertificacionesColegas userId={userData.user_id} />
+              <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
+              <WidgetHabilidadesColegas userId={userData.user_id} />
+            </>
+          )}
+
 
           {/* People Lead: solo puede ver Habilidades y Feedback si el perfil es subordinado directo */}
             {viewerRoleId === 2 && subordinado && (
               <>
+                <WidgetCertificacionesColegas userId={userData.user_id} />
+                <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
                 <WidgetHabilidadesColegas userId={userData.user_id} />
                 <WidgetFeedbackColegas userId={userData.user_id} />
               </>
@@ -137,6 +148,8 @@ const InfoColegas = () => {
             {/* Capability Lead: puede ver Habilidades y Feedback si el perfil es subordinado directo o indirecto */}
             {viewerRoleId === 3 && subordinado && (
               <>
+                <WidgetCertificacionesColegas userId={userData.user_id} />
+                <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
                 <WidgetHabilidadesColegas userId={userData.user_id} />
                 <WidgetFeedbackColegas userId={userData.user_id} />
               </>
