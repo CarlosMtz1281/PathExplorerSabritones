@@ -17,7 +17,7 @@ import {
   FaProcedures,
   FaRProject,
   FaSuitcase,
-  FaUserTie
+  FaUserTie,
 } from "react-icons/fa";
 import { FaUpwork } from "react-icons/fa6";
 
@@ -55,8 +55,7 @@ export default function Navbar() {
       <ul className="flex flex-col gap-4 flex-grow items-start mt-30">
         <li className="w-full">
           <a
-             href={`/dashboard/profile/${session?.user?.id}`} 
-
+            href={`/dashboard/profile/${session?.user?.id}`}
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaUser className="w-6 h-6" />
@@ -71,6 +70,17 @@ export default function Navbar() {
             <FaSuitcase className="w-5 h-5" />
             {!isCollapsed && (
               <h3 className="text-xl font-semibold"> Proyectos</h3>
+            )}
+          </a>
+        </li>
+        <li className="w-full">
+          <a
+            href="/dashboard/delivery-projects"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaSuitcase className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold"> Delivery proyectos</h3>
             )}
           </a>
         </li>
@@ -133,8 +143,6 @@ export default function Navbar() {
             )}
           </a>
         </li>
-
-        
       </ul>
 
       {/* Logout Button */}

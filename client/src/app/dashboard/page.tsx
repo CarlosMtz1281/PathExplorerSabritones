@@ -7,6 +7,7 @@ import axios from "axios";
 const DashboardPage = () => {
   // Get the session data
   const { data: session } = useSession();
+  console.log(session);
 
   const validateStaffStatus = async () => {
     try {

@@ -304,4 +304,54 @@ router.get("/postulate/:user_id/:project_id/:position_id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// New endpoint to get all projects associated with a delivery lead
+router.get("/repositories/deliveryProjects/:deliveryLeadId", async (req, res) => {
+  try {
+    const deliveryLeadId = req.params.deliveryLeadId;
+    
+    if (!deliveryLeadId) {
+      return res.status(400).json({ error: "Delivery lead ID is required" });
+    }
+    
+    const deliveryLeadIdNum = parseInt(deliveryLeadId);
+    
+    if (isNaN(deliveryLeadIdNum)) {
+      return res.status(400).json({ error: "Invalid delivery lead ID" });
+    }
+
+    const projects = await prisma.projects.findMany({
+      where: {
+        delivery_lead_user_id: deliveryLeadIdNum,
+      },
+      include: {
+        Project_Positions: true,
+        Country: true,
+        Users: true,
+      },
+    });
+
+    const formattedProjects = projects.map((project) => ({
+      id: project.project_id,
+      name: project.project_name,
+      description: project.project_desc,
+      start_date: project.start_date ? project.start_date.toLocaleDateString("es-ES") : null,
+      end_date: project.end_date ? project.end_date.toLocaleDateString("es-ES") : null,
+      vacants: project.Project_Positions.filter((pos) => pos.user_id === null).length,
+      filled_positions: project.Project_Positions.filter((pos) => pos.user_id !== null).length,
+      total_positions: project.Project_Positions.length,
+      details: {
+        company: project.company_name,
+        country: project.Country?.country_name || "No country",
+        capability: project.Users?.name || "No capability",
+      },
+    }));
+
+    res.status(200).json(formattedProjects);
+  } catch (error) {
+    console.error("Error fetching delivery lead projects:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

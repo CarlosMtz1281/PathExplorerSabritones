@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { RepoProjectTable } from "@/components/repo-projects/RepoProjectTable";
 import { useSession } from "next-auth/react";
+import { useAuthContext } from "@/app/context/AuthContext";
 
 type Project = {
   id: number;
@@ -23,10 +24,14 @@ function parseDate(dateString: string): Date {
   return new Date(year, month - 1, day);
 }
 
-export default function RepoProjects() {
+export default function DeliveryProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState(""); //Almacena el texto
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const { authUser } = useAuthContext();
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+  console.log("userId", userId);
 
   const filteredProjects = projects
     .filter((project) => {
@@ -49,7 +54,7 @@ export default function RepoProjects() {
   const fetchProjects = async () => {
     try {
       const response = await axios.get(
-        process.env.NEXT_PUBLIC_API_BASE + "/project/repositories"
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/repositories/deliveryProjects/${userId}`
       );
       setProjects(response.data);
     } catch (error) {
@@ -64,7 +69,7 @@ export default function RepoProjects() {
   return (
     <div className="flex min-h-screen max-h-screen flex-col items-center bg-base-200 px-15 py-10">
       <div className="flex w-full items-center bg-base-100 p-5 text-3xl font-semibold rounded-md border border-base-300">
-        <p>Proyectos por Capability</p>
+        <p>Proyectos por Delivery</p>
       </div>
       <div className="flex h-full max-h-full w-full flex-col bg-base-100 p-5 mt-5 rounded-md overflow-hidden border border-base-300">
         <div className="flex justify-between items-center mb-4 gap-4">
@@ -91,7 +96,7 @@ export default function RepoProjects() {
         <RepoProjectTable
           projects={filteredProjects}
           setProjects={setProjects}
-          permission="People"
+          permission="Delivery"
         />
       </div>
     </div>

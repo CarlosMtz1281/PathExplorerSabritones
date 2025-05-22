@@ -449,15 +449,18 @@ const ProjectDetails = () => {
   // Get filled positions (team members)
   const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
-  async function handlePostular(user_id: number, position_id: number): Promise<void> {
+  async function handlePostular(
+    user_id: number,
+    position_id: number
+  ): Promise<void> {
     const project_id = id;
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate/${user_id}/${project_id}/${position_id}`
       );
-      console.log('Postulation successful:', response.data);
-      alert('Postulation submitted successfully!');
-      
+      console.log("Postulation successful:", response.data);
+      alert("Postulation submitted successfully!");
+
       // Update the project state to include the new postulation
       if (project) {
         const updatedProject = { ...project };
@@ -465,35 +468,35 @@ const ProjectDetails = () => {
         const positionIndex = updatedProject.positions.findIndex(
           (pos) => pos.position_id === position_id
         );
-        
+
         if (positionIndex !== -1) {
           // Initialize Postulations array if it doesn't exist
           if (!updatedProject.positions[positionIndex].Postulations) {
             updatedProject.positions[positionIndex].Postulations = [];
           }
-          
+
           // Add the new postulation to the position
           updatedProject.positions[positionIndex].Postulations?.push({
             postulation_id: response.data.postulation_id || Date.now(), // Use response id or fallback
             user_id: user_id,
             Users: {
               user_id: user_id,
-              name: session?.user?.name || '',
-              mail: session?.user?.email || ''
+              name: session?.user?.name || "",
+              mail: session?.user?.email || "",
             },
-            Meeting: null
+            Meeting: null,
           });
-          
+
           // Update the project state
           setProject(updatedProject);
         }
       }
     } catch (error: any) {
-      console.error('Error during postulation:', error);
+      console.error("Error during postulation:", error);
       if (error.response && error.response.data && error.response.data.error) {
         alert(`Error: ${error.response.data.error}`);
       } else {
-        alert('An error occurred during postulation. Please try again.');
+        alert("An error occurred during postulation. Please try again.");
       }
     }
   }
@@ -603,7 +606,7 @@ const ProjectDetails = () => {
                                       (pps) => (
                                         <div
                                           key={pps.Skills.skill_id}
-                                          className="badge badge-outline"
+                                          className="badge badge-outline badge-primary"
                                         >
                                           {pps.Skills.skill_name ||
                                             pps.Skills.name}
@@ -719,140 +722,51 @@ const ProjectDetails = () => {
             )}
           </div>
 
-          {/* Candidates Section */}
+          {/* Postulations Section */}
           <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 overflow-y-auto max-h-[calc(55vh-5rem)]">
             <h2 className="text-2xl font-bold text-primary mb-4">
-              Candidatos Disponibles ({candidates.length})
+              Postulaciones
             </h2>
 
-            {loadingTeam ? (
+            {loading ? (
               <div className="flex justify-center py-8">
                 <span className="loading loading-spinner loading-lg"></span>
               </div>
-            ) : candidates.length > 0 ? (
-              <div className="space-y-4">
-                {candidates.map((candidate) => (
-                  <div
-                    key={candidate.user_id}
-                    className="collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border border-base-300"
-                  >
-                    {/* Collapse Title */}
-                    <input type="checkbox" />
-                    <div className="collapse-title text-lg font-semibold text-primary flex justify-between items-center">
-                      <span>{candidate.name}</span>
-                      <span className="badge badge-primary">
-                        {candidate.totalMatches} coincidencias
-                      </span>
-                    </div>
-
-                    {/* Collapse Content */}
-                    <div className="collapse-content">
-                      <p className="text-sm text-secondary mb-4">
-                        {candidate.mail}
-                      </p>
-
-                      {/* Required Skills */}
-                      {selectedPosition?.Project_Position_Skills &&
-                        selectedPosition.Project_Position_Skills.length > 0 && (
-                          <div className="flex justify-between">
-                            <div className="mb-4">
-                              <h3 className="font-bold mb-2">
-                                Skills requeridos:
-                              </h3>
-                              <div className="flex flex-wrap gap-2">
-                                {selectedPosition.Project_Position_Skills.map(
-                                  (requiredSkill) => {
-                                    const skillName =
-                                      requiredSkill.Skills.skill_name ||
-                                      requiredSkill.Skills.name;
-                                    const hasSkill =
-                                      candidate.matchedSkills?.some(
-                                        (skill: Skill) =>
-                                          (skill.skill_name || skill.name) ===
-                                          skillName
-                                      );
-                                    return (
-                                      <div
-                                        key={requiredSkill.Skills.skill_id}
-                                        className={`badge ${
-                                          hasSkill
-                                            ? "badge-success"
-                                            : "badge-error"
-                                        }`}
-                                      >
-                                        {skillName}
-                                      </div>
-                                    );
-                                  }
-                                )}
+            ) : project?.positions.some(pos => pos.Postulations && pos.Postulations.length > 0) ? (
+              <div className="space-y-6">
+                {project?.positions.map((position) => 
+                  position.Postulations && position.Postulations.length > 0 ? (
+                    <div key={position.position_id} className="mb-4">
+                      <h3 className="text-lg font-semibold text-secondary mb-2">{position.position_name}</h3>
+                      <div className="space-y-3">
+                        {position.Postulations.map((postulation) => (
+                          <div
+                            key={postulation.postulation_id}
+                            className="bg-base-200 rounded-lg shadow-sm border border-base-300 p-4"
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <div>
+                                <p className="font-medium">{postulation.Users.name}</p>
+                                <p className="text-sm text-secondary">{postulation.Users.mail}</p>
                               </div>
-                            </div>
-                            {/* Check if user has already postulated for this position */}
-                            {selectedPosition.Postulations?.some(
-                              (postulation) => postulation.user_id === candidate.user_id
-                            ) ? (
                               <button
                                 className="btn btn-disabled btn-sm"
                                 disabled
+                                title="Funcionalidad próximamente disponible"
                               >
-                                Postulado
+                                Asignar
                               </button>
-                            ) : (
-                              <button
-                                className="btn btn-primary btn-sm"
-                                onClick={() => handlePostular(candidate.user_id, selectedPosition.position_id)}
-                              >
-                                Postular
-                              </button>
-                            )}
-                          </div>
-                        )}
-
-                      {/* Required Certificates */}
-                      {selectedPosition?.Project_Position_Certificates &&
-                        selectedPosition.Project_Position_Certificates.length >
-                          0 && (
-                          <div>
-                            <h3 className="font-bold mb-2">
-                              Certificaciones requeridas:
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                              {selectedPosition.Project_Position_Certificates.map(
-                                (requiredCert) => {
-                                  const hasCertificate =
-                                    candidate.matchedCertificates?.some(
-                                      (cert: Certificate) =>
-                                        cert.certificate_name ===
-                                        requiredCert.Certificates
-                                          .certificate_name
-                                    );
-                                  return (
-                                    <div
-                                      key={
-                                        requiredCert.Certificates.certificate_id
-                                      }
-                                      className={`badge ${
-                                        hasCertificate
-                                          ? "badge-success"
-                                          : "badge-error"
-                                      }`}
-                                    >
-                                      {
-                                        requiredCert.Certificates
-                                          .certificate_name
-                                      }
-                                    </div>
-                                  );
-                                }
-                              )}
                             </div>
+                            
+                            {/* Skills section could be added here if needed */}
                           </div>
-                        )}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ) : null
+                )}
               </div>
-            ) : selectedVacancy ? (
+            ) : (
               <div className="flex flex-col items-center justify-center h-64">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -869,27 +783,7 @@ const ProjectDetails = () => {
                   />
                 </svg>
                 <p className="text-base-300 mt-4">
-                  No hay candidatos disponibles para esta posición
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-64">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16 text-base-300"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <p className="text-base-300 mt-4">
-                  Seleccione una vacante para ver candidatos compatibles
+                  No hay postulaciones para este proyecto
                 </p>
               </div>
             )}
