@@ -190,7 +190,7 @@ router.get("/getCapabilityTeamMembers/:userId", async (req, res) => {
     return res.status(400).json({ error: "Invalid project ID" });
   }
   try {
-    // Get the user's capability information
+    // Get the user's capability information as an employee
     const user = await prisma.users.findUnique({
       where: { user_id: userId },
       include: {
@@ -209,6 +209,7 @@ router.get("/getCapabilityTeamMembers/:userId", async (req, res) => {
     // Extract capability ID from user data
     let capabilityId = null;
 
+    // Check if user is an employee in a capability
     if (
       user.Capability_Employee_Capability_Employee_employee_idToUsers.length > 0
     ) {
@@ -217,8 +218,30 @@ router.get("/getCapabilityTeamMembers/:userId", async (req, res) => {
           .capability_id;
     }
 
+    // If not an employee, check if user is a people lead
     if (!capabilityId) {
-      return res.status(200).json([]); // User doesn't belong to any capability
+      const peopleLead = await prisma.capability_People_Lead.findFirst({
+        where: { capability_pl_id: userId },
+      });
+      
+      if (peopleLead) {
+        capabilityId = peopleLead.capability_id;
+      }
+    }
+    
+    // If not an employee or people lead, check if user is a capability lead
+    if (!capabilityId) {
+      const capabilityLead = await prisma.capability.findFirst({
+        where: { capability_lead_id: userId },
+      });
+      
+      if (capabilityLead) {
+        capabilityId = capabilityLead.capability_id;
+      }
+    }
+
+    if (!capabilityId) {
+      return res.status(200).json([]); // User doesn't belong to any capability in any role
     }
 
     // Get all team members in this capability

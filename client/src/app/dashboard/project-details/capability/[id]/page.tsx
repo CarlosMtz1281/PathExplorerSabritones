@@ -166,6 +166,7 @@ const ProjectDetails = () => {
 
         const data = await response.json();
         setCapabilityTeamMembers(data);
+        console.log("Capability team members:", data);
       } catch (err) {
         console.error("Error fetching capability team members:", err);
       } finally {
@@ -838,20 +839,34 @@ const ProjectDetails = () => {
                             </div>
                             {/* Calculate match percentage for postulation eligibility */}
                             {(() => {
-                              const totalRequiredSkills = selectedPosition?.Project_Position_Skills?.length || 0;
-                              const totalRequiredCerts = selectedPosition?.Project_Position_Certificates?.length || 0;
-                              const totalRequired = totalRequiredSkills + totalRequiredCerts;
-                              
-                              const matchedSkillsCount = candidate.matchedSkills?.length || 0;
-                              const matchedCertsCount = candidate.matchedCertificates?.length || 0;
-                              const totalMatched = matchedSkillsCount + matchedCertsCount;
-                              
-                              const matchPercentage = totalRequired > 0 ? (totalMatched / totalRequired) * 100 : 0;
-                              
+                              const totalRequiredSkills =
+                                selectedPosition?.Project_Position_Skills
+                                  ?.length || 0;
+                              const totalRequiredCerts =
+                                selectedPosition?.Project_Position_Certificates
+                                  ?.length || 0;
+                              const totalRequired =
+                                totalRequiredSkills + totalRequiredCerts;
+
+                              const matchedSkillsCount =
+                                candidate.matchedSkills?.length || 0;
+                              const matchedCertsCount =
+                                candidate.matchedCertificates?.length || 0;
+                              const totalMatched =
+                                matchedSkillsCount + matchedCertsCount;
+
+                              const matchPercentage =
+                                totalRequired > 0
+                                  ? (totalMatched / totalRequired) * 100
+                                  : 0;
+
                               // Check if user has already postulated for this position
-                              if (selectedPosition.Postulations?.some(
-                                (postulation) => postulation.user_id === candidate.user_id
-                              )) {
+                              if (
+                                selectedPosition.Postulations?.some(
+                                  (postulation) =>
+                                    postulation.user_id === candidate.user_id
+                                )
+                              ) {
                                 return (
                                   <button
                                     className="btn btn-disabled btn-sm"
