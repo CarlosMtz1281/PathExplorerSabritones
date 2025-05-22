@@ -162,17 +162,36 @@ async function getAlertas(subordinados: any[]) {
             where: {
                 user_id: { in: subordinadosIds },
                 Projects: {
-                end_date: {
-                    gte: new Date(new Date().setMonth(new Date().getMonth() - 3)),
-                }
+                    end_date: {
+                        gte: new Date(new Date().setMonth(new Date().getMonth() - 3)),
+                    }
+                },
+                Feedback: {
+                    some: {}
                 }
             },
             select: {
-                user_id: true
+                user_id: true,
+                Users: {
+                    select: {
+                        name: true
+                    }
+                },
+                Projects: {
+                    select: {
+                        end_date: true,
+                        project_name: true
+                    }
+                },
+                Feedback: {
+                    select: {
+                        score: true,
+                        desc: true
+                    }
+                }
             }
         }),
 
-        
         // 2. Certificaciones recientes (ahora incluye el nombre del usuario)
         prisma.certificate_Users.findMany({
             where: {
@@ -233,19 +252,20 @@ async function getAlertas(subordinados: any[]) {
     const alerts = [];
     
     // Process project feedbacks
-    // projectFeedbacks.forEach(feedback => {
-    // alerts.push({
-    //     userId: feedback.user_id,
-    //     userName: feedback.Users?.name || 'Desconocido',
-    //     type: 'project_feedback',
-    //     date: feedback.Projects?.end_date,
-    //     details: {
-    //     projectName: feedback.Projects?.project_name,
-    //     score: feedback.Feedback?.score,
-    //     comment: feedback.Feedback?.desc
-    //     }
-    // });
-    // });
+    projectFeedbacks.forEach(feedback => {
+        alerts.push({
+            userId: feedback.user_id,
+            userName: feedback.Users?.name || 'Desconocido',
+            type: 'project_feedback',
+            date: feedback.Projects?.end_date,
+            details: {
+                projectName: feedback.Projects?.project_name,
+                score: feedback.Feedback?.[0]?.score,
+                comment: feedback.Feedback?.[0]?.desc
+            }
+        });
+    });
+
 
     
     // Process recent certifications

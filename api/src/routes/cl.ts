@@ -98,12 +98,20 @@ router.get("/dashData", async (req, res) => {
         })
     );
 
+    // Subordinados de CL
+    const CLcounselees = await prisma.capability_Employee.count({
+      where:{
+        people_lead_id: userId
+      }
+    });
+
     // 5. Format the response
     const response = {
         capabilityName: capability.capability_name,
         capabilityLeadName: user.name,
         capabilityLeadPos: CLPosition[CLPosition.length-1].Work_Position.position_name,
         capabilityLeadLevel: CLPosition[CLPosition.length-1].level,
+        capabilityLeadSubs: CLcounselees,
         peopleLeads: peopleLeadsWithCounts.map(pl => ({
             id: pl.Users.user_id,
             name: pl.Users.name,
@@ -267,76 +275,76 @@ router.get("/subordinates", async (req, res) => {
 });
 
 
-// Actualiza los people leads de los empleados
-router.post("/updatePeopleLeads", async (req, res) => {
-  try {
-    const userId = await getUserIdFromSession(req.headers["session-key"]);
-    const { changes }: { changes: Array<{ employeeId: number; newPeopleLeadId: number }> } = req.body;
+// // Actualiza los people leads de los empleados
+// router.post("/updatePeopleLeads", async (req, res) => {
+//   try {
+//     const userId = await getUserIdFromSession(req.headers["session-key"]);
+//     const { changes }: { changes: Array<{ employeeId: number; newPeopleLeadId: number }> } = req.body;
 
-    if (!userId || typeof userId !== "number") {
-      return res.status(401).json({ error: "Invalid or expired session" });
-    }
+//     if (!userId || typeof userId !== "number") {
+//       return res.status(401).json({ error: "Invalid or expired session" });
+//     }
 
-    // 1. Verify if user is a Capability Lead
-    const user = await prisma.users.findUnique({
-      where: { user_id: userId },
-      include: { Permits: true }
-    });
+//     // 1. Verify if user is a Capability Lead
+//     const user = await prisma.users.findUnique({
+//       where: { user_id: userId },
+//       include: { Permits: true }
+//     });
 
-    if (!user?.Permits?.is_capability_lead) {
-      return res.status(403).json({ error: "User is not a Capability Lead" });
-    }
+//     if (!user?.Permits?.is_capability_lead) {
+//       return res.status(403).json({ error: "User is not a Capability Lead" });
+//     }
 
-    // 2. Get the capability the user leads
-    const capability = await prisma.capability.findFirst({
-      where: { capability_lead_id: userId }
-    });
+//     // 2. Get the capability the user leads
+//     const capability = await prisma.capability.findFirst({
+//       where: { capability_lead_id: userId }
+//     });
 
-    if (!capability) {
-      return res.status(404).json({ error: "No capability found for this lead" });
-    }
+//     if (!capability) {
+//       return res.status(404).json({ error: "No capability found for this lead" });
+//     }
 
-    // 3. Verify all new People Leads belong to this capability
-    const newPeopleLeadIds = changes.map(c => c.newPeopleLeadId);
-    const uniquePeopleLeadIds = [...new Set(newPeopleLeadIds)];
+//     // 3. Verify all new People Leads belong to this capability
+//     const newPeopleLeadIds = changes.map(c => c.newPeopleLeadId);
+//     const uniquePeopleLeadIds = [...new Set(newPeopleLeadIds)];
     
-    const validPeopleLeads = await prisma.capability_People_Lead.findMany({
-      where: {
-        capability_id: capability.capability_id,
-        capability_pl_id: { in: uniquePeopleLeadIds }
-      }
-    });
+//     const validPeopleLeads = await prisma.capability_People_Lead.findMany({
+//       where: {
+//         capability_id: capability.capability_id,
+//         capability_pl_id: { in: uniquePeopleLeadIds }
+//       }
+//     });
 
-    if (validPeopleLeads.length !== uniquePeopleLeadIds.length) {
-      return res.status(400).json({ error: "One or more People Leads don't belong to this capability" });
-    }
+//     if (validPeopleLeads.length !== uniquePeopleLeadIds.length) {
+//       return res.status(400).json({ error: "One or more People Leads don't belong to this capability" });
+//     }
 
-    // 4. Process each change in a transaction
-    const results = await prisma.$transaction(
-      changes.map(change => 
-        prisma.capability_Employee.updateMany({
-          where: {
-            capability_id: capability.capability_id,
-            employee_id: change.employeeId
-          },
-          data: {
-            people_lead_id: change.newPeopleLeadId
-          }
-        })
-      )
-    );
+//     // 4. Process each change in a transaction
+//     const results = await prisma.$transaction(
+//       changes.map(change => 
+//         prisma.capability_Employee.updateMany({
+//           where: {
+//             capability_id: capability.capability_id,
+//             employee_id: change.employeeId
+//           },
+//           data: {
+//             people_lead_id: change.newPeopleLeadId
+//           }
+//         })
+//       )
+//     );
 
-    // 5. Return success response
-    res.status(200).json({ 
-      message: "People Leads updated successfully",
-      updatedCount: results.reduce((sum, r) => sum + r.count, 0)
-    });
+//     // 5. Return success response
+//     res.status(200).json({ 
+//       message: "People Leads updated successfully",
+//       updatedCount: results.reduce((sum, r) => sum + r.count, 0)
+//     });
 
-  } catch (error) {
-    console.error("Error updating People Leads:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+//   } catch (error) {
+//     console.error("Error updating People Leads:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 
 export default router;
