@@ -123,7 +123,7 @@ def recommend_certificates(user_id: int):
                     ),
                     None,
                 ),
-                "certificate_description": next(
+                "certificate_desc": next(
                     (
                         cert_data["certificate_desc"]
                         for cert_data in certificatesDict

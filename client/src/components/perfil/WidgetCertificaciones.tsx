@@ -43,8 +43,9 @@ interface Props {
 export default function WidgetCertificaciones({ userId }: Props) {
   const { data: session } = useSession();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedCertificate, setSelectedCertificate] =
-    useState<Certificate | null>(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<
+    Certificate | RecommendedCertificate | null
+  >(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [addModalIsOpen, setAddModalIsOpen] = useState(false);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
@@ -86,35 +87,6 @@ export default function WidgetCertificaciones({ userId }: Props) {
 
   const fetchCertificates = async () => {
     try {
-      if (userId) {
-        // ✅ Forzar fetch por ID si viene desde el perfil
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_BASE}/employee/user`,
-          {
-            headers: { "user-id": userId.toString() },
-          }
-        );
-
-        const certs =
-          res.data.Certificate_Users?.map((cu: any) => ({
-            certificate_id: cu.certificate_id,
-            user_id: cu.user_id,
-            certificate_name: cu.Certificates?.certificate_name || "Sin nombre",
-            certificate_desc: cu.Certificates?.certificate_desc || "",
-            certificate_date: cu.certificate_date,
-            certificate_expiration_date: cu.certificate_expiration_date,
-            certificate_link: cu.certificate_link,
-            certificate_status: cu.status,
-            certificate_hours: cu.Certificates?.certificate_estimated_time || 0,
-            certificate_level: cu.Certificates?.certificate_level || 0,
-            skills: [],
-            provider: cu.Certificates?.provider || "",
-          })) || [];
-
-        setCertificates(certs);
-        return; // 👈 IMPORTANTE: no continuar a lógica de sesión
-      }
-
       // 🔁 Solo si no hay userId, usar la sesión
       const sessionId = session?.sessionId;
       if (!sessionId) {
@@ -152,9 +124,20 @@ export default function WidgetCertificaciones({ userId }: Props) {
     fetchCertificates();
   }, [userId]);
 
-  useEffect(() => {
-    console.log("RecommendedCertificates:", recommendedCertificates);
-  }, [recommendedCertificates]);
+  const completedCertificates = certificates.filter(
+    (cert) => cert.certificate_status === "completed"
+  );
+  const initialCompleted = completedCertificates.slice(0, 4);
+  const remainingCompleted = completedCertificates.slice(4);
+
+  const inProgress = certificates.filter(
+    (cert) => cert.certificate_status === "in progress"
+  );
+
+  const hasAccordionContent =
+    remainingCompleted.length > 0 ||
+    inProgress.length > 0 ||
+    recommendedCertificates.length > 0;
 
   return (
     <div className="card bg-base-100 shadow-xl col-span-2">
@@ -176,9 +159,100 @@ export default function WidgetCertificaciones({ userId }: Props) {
           Certificaciones Destacadas
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-          {certificates
-            .filter((cert) => cert.certificate_status === "completed")
-            .map((certificate) => (
+          {initialCompleted.map((certificate) => (
+            <div
+              key={certificate.certificate_id}
+              onClick={() => {
+                setSelectedCertificate(certificate);
+                setModalIsOpen(true);
+              }}
+              className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+            >
+              {certificate.provider && (
+                <Image
+                  width={300}
+                  height={300}
+                  src={"/companies/" + certificate.provider + ".svg"}
+                  alt={certificate.certificate_name}
+                  className="w-30 h-30 object-contain"
+                />
+              )}
+              <p className="font-bold mt-1.5">{certificate.certificate_name}</p>
+              <p className="text-xs text-primary mt-1">
+                Completado:{" "}
+                {new Date(certificate.certificate_date).toLocaleDateString(
+                  "es-MX",
+                  {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }
+                )}
+              </p>
+            </div>
+          ))}
+          {initialCompleted.length === 0 && (
+            <div className="flex flex-col items-center justify-center col-span-2 md:col-span-4 py-10">
+              <PiCertificate className="text-5xl text-primary" />
+              <p className="text-lg font-bold mt-2">
+                No tienes certificaciones completadas
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div
+          className={`transition-all duration-500 ease-in-out overflow-hidden ${
+            isExpanded
+              ? "max-h-screen opacity-100 overflow-visible"
+              : "max-h-0 opacity-0 overflow-hidden"
+          }`}
+        >
+          {remainingCompleted.length > 0 && (
+            <div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                {remainingCompleted.map((certificate) => (
+                  <div
+                    key={certificate.certificate_id}
+                    onClick={() => {
+                      setSelectedCertificate(certificate);
+                      setModalIsOpen(true);
+                    }}
+                    className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+                  >
+                    {certificate.provider && (
+                      <Image
+                        width={300}
+                        height={300}
+                        src={"/companies/" + certificate.provider + ".svg"}
+                        alt={certificate.certificate_name}
+                        className="w-30 h-30 object-contain"
+                      />
+                    )}
+                    <p className="font-bold mt-1.5">
+                      {certificate.certificate_name}
+                    </p>
+                    <p className="text-xs text-primary mt-1">
+                      Completado:{" "}
+                      {new Date(
+                        certificate.certificate_date
+                      ).toLocaleDateString("es-MX", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="text-secondary text-lg mt-4">
+            Certificaciones en Curso
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+            {inProgress.map((certificate) => (
               <div
                 key={certificate.certificate_id}
                 onClick={() => {
@@ -200,7 +274,7 @@ export default function WidgetCertificaciones({ userId }: Props) {
                   {certificate.certificate_name}
                 </p>
                 <p className="text-xs text-primary mt-1">
-                  Completado:{" "}
+                  Empezado:{" "}
                   {new Date(certificate.certificate_date).toLocaleDateString(
                     "es-MX",
                     {
@@ -210,60 +284,19 @@ export default function WidgetCertificaciones({ userId }: Props) {
                     }
                   )}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Horas Estimadas: {certificate.certificate_hours} horas
+                </p>
               </div>
             ))}
-        </div>
-
-        <div
-          className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            isExpanded
-              ? "max-h-screen opacity-100 overflow-visible"
-              : "max-h-0 opacity-0 overflow-hidden"
-          }`}
-        >
-          <p className="text-secondary text-lg mt-2">
-            Certificaciones en Curso
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-            {certificates
-              .filter((cert) => cert.certificate_status === "in progress")
-              .map((certificate) => (
-                <div
-                  key={certificate.certificate_id}
-                  onClick={() => {
-                    setSelectedCertificate(certificate);
-                    setModalIsOpen(true);
-                  }}
-                  className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
-                >
-                  {certificate.provider && (
-                    <Image
-                      width={300}
-                      height={300}
-                      src={"/companies/" + certificate.provider + ".svg"}
-                      alt={certificate.certificate_name}
-                      className="w-30 h-30 object-contain"
-                    />
-                  )}
-                  <p className="font-bold mt-1.5">
-                    {certificate.certificate_name}
-                  </p>
-                  <p className="text-xs text-primary mt-1">
-                    Empezado:{" "}
-                    {new Date(certificate.certificate_date).toLocaleDateString(
-                      "es-MX",
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      }
-                    )}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Horas Estimadas: {certificate.certificate_hours} horas
-                  </p>
-                </div>
-              ))}
+            {inProgress.length === 0 && (
+              <div className="flex flex-col items-center justify-center col-span-2 md:col-span-4 py-10">
+                <PiCertificate className="text-5xl text-primary" />
+                <p className="text-lg font-bold mt-2">
+                  No tienes certificaciones en curso
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -281,6 +314,10 @@ export default function WidgetCertificaciones({ userId }: Props) {
             {recommendedCertificates.map((certificate) => (
               <div
                 key={certificate.certificate_id}
+                onClick={() => {
+                  setSelectedCertificate(certificate);
+                  setModalIsOpen(true);
+                }}
                 className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
               >
                 {certificate.provider && (
@@ -329,14 +366,20 @@ export default function WidgetCertificaciones({ userId }: Props) {
           />
         )}
 
-        <div className="flex justify-center items-center mt-6">
-          <button
-            className="btn btn-circle btn-accent"
-            onClick={toggleAccordion}
-          >
-            {isExpanded ? <FaArrowUp /> : <FaArrowDown />}
-          </button>
-        </div>
+        {hasAccordionContent && (
+          <div className="flex justify-center items-center mt-6">
+            <button
+              className="btn btn-circle btn-accent"
+              onClick={toggleAccordion}
+            >
+              {isExpanded ? (
+                <FaArrowUp className="text-base-100" />
+              ) : (
+                <FaArrowDown className="text-base-100" />
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

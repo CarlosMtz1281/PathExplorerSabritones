@@ -74,7 +74,9 @@ const InfoColegas = () => {
             <div className="flex justify-between items-center mt-10 w-full">
               <div>
                 <h2 className="text-3xl font-bold">{userData.name}</h2>
-                <p className="text-gray-500 mt-2">{userData.Country.country_name}</p>
+                <p className="text-gray-500 mt-2">
+                  {userData.Country.country_name}
+                </p>
                 <p className="text-gray-500">{userData.mail}</p>
                 <p className="text-gray-500">
                   Zona Horaria: {userData.Country.timezone}
@@ -136,8 +138,6 @@ const InfoColegas = () => {
           )}
         </div>
       </div>
-
-
     </div>
   );
 };
