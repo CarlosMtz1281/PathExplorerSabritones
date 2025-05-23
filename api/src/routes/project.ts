@@ -183,16 +183,6 @@ router.post("/create", async (req, res) => {
       return res.status(401).json({ error: "Invalid session" });
     }
 
-    // Verify user exists
-    const user = await prisma.users.findUnique({
-      where: { user_id: Number(delivery_lead_user_id) },
-    });
-
-    if (!user) {
-      console.log("User not found");
-      return res.status(404).json({ error: "User not found" });
-    }
-
     const project = await prisma.projects.create({
       data: {
         project_name,
@@ -208,9 +198,11 @@ router.post("/create", async (req, res) => {
     for (const position of positions) {
       const createdPosition = await prisma.project_Positions.create({
         data: {
+          project_id: project.project_id,
           position_name: position.name,
           position_desc: position.desc,
-          project_id: project.project_id,
+          capability_id: position.capability_id,
+          user_id: null
         },
       });
 

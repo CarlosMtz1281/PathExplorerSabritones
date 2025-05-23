@@ -53,6 +53,7 @@ model Certificate_Skills {
 model Certificate_Users {
   certificate_id              Int
   user_id                     Int
+  certificate_start_date      DateTime?    @db.Timestamp(6)
   certificate_date            DateTime?    @db.Timestamp(6)
   certificate_expiration_date DateTime?    @db.Timestamp(6)
   certificate_link            String?      @db.VarChar

@@ -191,6 +191,22 @@ router.get("/certificates", async (req, res) => {
   }
 });
 
+router.get("/capabilities", async (req, res) => {
+  try {
+    const capabilities = await prisma.capability.findMany({
+      select: {
+        capability_id: true,
+        capability_name: true,
+      },
+    });
+
+    res.status(200).json(capabilities);
+  } catch (error) {
+    console.error("Error fetching capabilities:", error);
+    res.status(500).json({ error: "Failed to fetch capabilities" });
+  }
+});
+
 router.get("/roles", async (req, res) => {
   try {
     const roles = await prisma.permits.findMany();
