@@ -735,7 +735,7 @@
                     <input
                       type="text"
                       placeholder="Nombre del puesto"
-                      className={`input input-bordered w-full ${formErrors.position_name ? 'input-error' : ''}`}
+                      className={`input input-bordered w-full${formErrors.position_name ? 'input-error' : ''}`}
                       value={experienceForm.position_name}
                       onChange={(e) => setExperienceForm({
                         ...experienceForm,
