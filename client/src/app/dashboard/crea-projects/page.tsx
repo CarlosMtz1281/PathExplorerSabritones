@@ -1,15 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import { FaCalendarAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaInfoCircle } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function CreateProyects() {
   const { data: session } = useSession(); //Obtener la sesión actual
+  const router = useRouter(); // Hook para redireccionar
 
+  useEffect(() => {
+    if (session?.user?.role_id !== 4) {
+      alert("❌ No tienes permisos para acceder a esta página.");
+      router.push("/dashboard"); // Redirigir a la página de inicio
+    }
+  }, [session, router]);
+  
   type Puesto = {
     nombre: string;
+    capability: string;
+    desc: string;
     cantidad: number;
     habilidades: number[];
     certificaciones: number[];
@@ -19,6 +30,8 @@ export default function CreateProyects() {
   const [expandSkills, setExpandSkills] = useState(false);
   const [expandCerts, setExpandCerts] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
+  const [nuevoCapability, setNuevoCapability] = useState("");
+  const [nuevoDesc, setNuevoDesc] = useState("");
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
   const [nuevasHabilidades, setNuevasHabilidades] = useState<number[]>([]);
   const [nuevasCertificaciones, setNuevasCertificaciones] = useState<number[]>(
@@ -26,6 +39,8 @@ export default function CreateProyects() {
   );
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editNombre, setEditNombre] = useState("");
+  const [editCapability, setEditCapability] = useState("");
+  const [editDesc, setEditDesc] = useState("");
   const [editCantidad, setEditCantidad] = useState(1);
   const [editHabilidades, setEditHabilidades] = useState<number[]>([]);
   const [editCertificaciones, setEditCertificaciones] = useState<number[]>([]);
@@ -50,6 +65,9 @@ export default function CreateProyects() {
       certificate_name: string;
       certificate_desc: string;
     }[]
+  >([]);
+  const [capabilityList, setCapabilityList] = useState<
+    { capability_id: number; capability_name: string }[]
   >([]);
 
   useEffect(() => {
@@ -89,25 +107,6 @@ export default function CreateProyects() {
   }, []);
 
   useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/general/skills`
-        );
-        if (!res.ok) throw new Error(`Error al obtener skills: ${res.status}`);
-
-        const data = await res.json();
-
-        setSkills(data);
-      } catch (error) {
-        console.error("❌ Error al cargar skills:", error);
-      }
-    };
-
-    fetchSkills();
-  }, []);
-
-  useEffect(() => {
     const fetchCertificates = async () => {
       try {
         const res = await fetch(
@@ -125,15 +124,39 @@ export default function CreateProyects() {
     fetchCertificates();
   }, []);
 
+  useEffect(() => {
+    const fetchCapabilities = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE}/general/capabilities`
+        );
+        if (!res.ok)
+          throw new Error(`Error al obtener capacidades: ${res.status}`);
+        const data = await res.json();
+
+        //console.log("Capacidades:", data);
+
+        setCapabilityList(data);
+      } catch (error) {
+        console.error("❌ Error al cargar capacidades:", error);
+      }
+    };
+    fetchCapabilities();
+  }, []);
+
   const agregarNuevoPuesto = () => {
     const nuevo = {
       nombre: nuevoNombre,
+      capability: nuevoCapability,
+      desc: nuevoDesc,
       cantidad: nuevaCantidad,
       habilidades: nuevasHabilidades,
       certificaciones: nuevasCertificaciones,
     };
     setPuestos([...puestos, nuevo]);
     setNuevoNombre("");
+    setNuevoCapability("");
+    setNuevoDesc("");
     setNuevaCantidad(1);
     setNuevasHabilidades([]);
     setNuevasCertificaciones([]);
@@ -144,6 +167,8 @@ export default function CreateProyects() {
 
   const abrirModalAgregar = () => {
     setNuevoNombre("");
+    setNuevoCapability("");
+    setNuevoDesc("");
     setNuevaCantidad(1);
     setNuevasHabilidades([]);
     setNuevasCertificaciones([]);
@@ -169,6 +194,8 @@ export default function CreateProyects() {
     const p = puestos[index];
     setEditIndex(index);
     setEditNombre(p.nombre);
+    setEditCapability(p.capability);
+    setEditDesc(p.desc);
     setEditCantidad(p.cantidad);
     setEditHabilidades(p.habilidades);
     setEditCertificaciones(p.certificaciones);
@@ -186,6 +213,8 @@ export default function CreateProyects() {
 
     const actualizado = {
       nombre: editNombre,
+      capability: editCapability,
+      desc: editDesc,
       cantidad: editCantidad,
       habilidades: editHabilidades,
       certificaciones: editCertificaciones,
@@ -217,7 +246,9 @@ export default function CreateProyects() {
       end_date: endDate,
       positions: puestos.map((p) => ({
         name: p.nombre,
-        desc: "sin desc",
+        capability: p.capability,
+        desc: p.desc,
+        quantity: p.cantidad,
         skills: p.habilidades,
         certifications: p.certificaciones,
       })),
@@ -383,19 +414,39 @@ export default function CreateProyects() {
                 onChange={(e) => setNuevoNombre(e.target.value)}
               />
 
-              <h3 className="font-bold text-lg">Cantidad</h3>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={nuevaCantidad || ""}
-                onChange={(e) =>
-                  setNuevaCantidad(
-                    e.target.value ? parseInt(e.target.value) : 0
-                  )
-                }
-                min={1}
-              />
+              <div className="flex gap-6">
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg">Capability</h3>
+                  <select
+                    className="select select-bordered w-full"
+                    value={nuevoCapability}
+                    onChange={(e) => setNuevoCapability(e.target.value)}
+                  >
+                    <option value="">Selecciona una capability</option>
+                    {capabilityList.map((c) => (
+                      <option key={c.capability_id} value={c.capability_name}>
+                        {c.capability_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg">Cantidad</h3>
+                  <input
+                    type="number"
+                    className="input input-bordered w-full"
+                    value={nuevaCantidad || ""}
+                    onChange={(e) =>
+                      setNuevaCantidad(
+                        e.target.value ? parseInt(e.target.value) : 0
+                      )
+                    }
+                    min={1}
+                  />
+                </div>
+              </div>
+              
               <h3 className="font-bold text-lg">Habilidades</h3>
               <select
                 className="select select-bordered w-full"
@@ -487,6 +538,15 @@ export default function CreateProyects() {
                   );
                 })}
               </div>
+
+              <h3 className="font-bold text-lg">Descripción</h3>
+              <textarea
+                placeholder="Escribe una descripción del puesto"
+                className="textarea textarea-bordered w-full mt-2 px-6 py-4"
+                rows={5}
+                value={nuevoDesc}
+                onChange={(e) => setNuevoDesc(e.target.value)}
+              ></textarea>
 
               <div className="flex gap-4">
                 <button
@@ -652,6 +712,7 @@ export default function CreateProyects() {
             <thead>
               <tr className="text-base font-bold">
                 <th>Puesto</th>
+                <th>Capability</th>
                 <th>Habilidades Técnicas</th>
                 <th>Certificaciones</th>
                 <th>Cantidad</th>
@@ -674,6 +735,7 @@ export default function CreateProyects() {
                 return (
                   <tr key={idx}>
                     <td>{puesto.nombre}</td>
+                    <td>{puesto.capability}</td>
 
                     {/* Habilidades */}
                     <td>

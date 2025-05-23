@@ -123,6 +123,7 @@ CREATE TABLE "User_Skills" (
 CREATE TABLE "Certificate_Users" (
   "certificate_id" integer REFERENCES "Certificates"("certificate_id"),
   "user_id" integer REFERENCES "Users"("user_id"),
+  "certificate_start_date" timestamp,
   "certificate_date" timestamp,
   "certificate_expiration_date" timestamp,
   "certificate_link" varchar,
@@ -1088,6 +1089,7 @@ BEGIN
             INSERT INTO "Certificate_Users" (
                 "certificate_id", 
                 "user_id", 
+                "certificate_start_date",
                 "certificate_date", 
                 "certificate_expiration_date",
                 "certificate_link", 
@@ -1095,6 +1097,7 @@ BEGIN
             ) VALUES (
                 cert_id,
                 user_id,
+                cert_date - interval '1 month', -- Fecha de inicio un mes antes
                 cert_date,
                 cert_date + interval '2 years', -- Expiración en 2 años
                 cert_link,
@@ -1109,17 +1112,20 @@ BEGIN
         END LOOP;
         
         cert_link := 'https://certificates.example.com/' || user_id || '/' || cert_id || '/in-progress';
-        
+        cert_date := (current_date - (floor(random() * 2 + 1)::int || ' months')::interval)::date;
+
         INSERT INTO "Certificate_Users" (
             "certificate_id", 
             "user_id", 
+            "certificate_start_date",
             "certificate_date", 
             "certificate_expiration_date",
             "certificate_link", 
             "status"
         ) VALUES (
             cert_id,
-            user_id,
+            user_id, 
+            cert_date, -- fecha actual menos 1-2 meses
             NULL, -- Fecha nula porque está en progreso
             NULL, -- Fecha de expiración nula
             cert_link,
@@ -1151,6 +1157,7 @@ BEGIN
             INSERT INTO "Certificate_Users" (
                 "certificate_id", 
                 "user_id", 
+                "certificate_start_date",
                 "certificate_date", 
                 "certificate_expiration_date",
                 "certificate_link", 
@@ -1158,6 +1165,7 @@ BEGIN
             ) VALUES (
                 cert_id,
                 user_id,
+                cert_date - interval '1 month', -- Fecha de inicio un mes antes
                 cert_date,
                 cert_date + interval '2 years', -- Expiración en 2 años
                 cert_link,
@@ -1172,17 +1180,20 @@ BEGIN
         END LOOP;
         
         cert_link := 'https://certificates.example.com/' || user_id || '/' || cert_id || '/in-progress';
-        
+        cert_date := (current_date - (floor(random() * 2 + 1)::int || ' months')::interval)::date;
+
         INSERT INTO "Certificate_Users" (
             "certificate_id", 
             "user_id", 
+            "certificate_start_date",
             "certificate_date", 
             "certificate_expiration_date",
             "certificate_link", 
             "status"
         ) VALUES (
             cert_id,
-            user_id,
+            user_id, 
+            cert_date, -- fecha actual menos 1-2 meses
             NULL, -- Fecha nula porque está en progreso
             NULL, -- Fecha de expiración nula
             cert_link,
@@ -1212,6 +1223,7 @@ BEGIN
         INSERT INTO "Certificate_Users" (
             "certificate_id", 
             "user_id", 
+            "certificate_start_date",
             "certificate_date", 
             "certificate_expiration_date",
             "certificate_link", 
@@ -1219,6 +1231,7 @@ BEGIN
         ) VALUES (
             cert_id,
             user_id,
+            cert_date - interval '1 month', -- Fecha de inicio un mes antes
             cert_date,
             cert_date + interval '2 years',
             cert_link,
@@ -1232,17 +1245,20 @@ BEGIN
         END LOOP;
         
         cert_link := 'https://certificates.example.com/' || user_id || '/' || in_progress_cert_id || '/in-progress';
-        
+        cert_date := (current_date - (floor(random() * 2 + 1)::int || ' months')::interval)::date;
+
         INSERT INTO "Certificate_Users" (
             "certificate_id", 
             "user_id", 
             "certificate_date", 
+            "certificate_start_date",
             "certificate_expiration_date",
             "certificate_link", 
             "status"
         ) VALUES (
             in_progress_cert_id,
             user_id,
+            cert_date, -- fecha actual menos 1-2 mesesq
             NULL,
             NULL,
             cert_link,
@@ -1260,6 +1276,7 @@ BEGIN
         INSERT INTO "Certificate_Users" (
             "certificate_id", 
             "user_id", 
+            "certificate_start_date",
             "certificate_date", 
             "certificate_expiration_date",
             "certificate_link", 
@@ -1267,6 +1284,7 @@ BEGIN
         ) VALUES (
             cert_id,
             user_id,
+            cert_date - interval '1 month', -- Fecha de inicio un mes antes
             cert_date,
             cert_date + interval '2 years',
             cert_link,
@@ -1280,10 +1298,12 @@ BEGIN
         END LOOP;
         
         cert_link := 'https://certificates.example.com/' || user_id || '/' || in_progress_cert_id || '/in-progress';
-        
+        cert_date := (current_date - (floor(random() * 2 + 1)::int || ' months')::interval)::date;
+
         INSERT INTO "Certificate_Users" (
             "certificate_id", 
             "user_id", 
+            "certificate_start_date",
             "certificate_date", 
             "certificate_expiration_date",
             "certificate_link", 
@@ -1291,6 +1311,7 @@ BEGIN
         ) VALUES (
             in_progress_cert_id,
             user_id,
+            cert_date, -- fecha actual menos 1-2 meses
             NULL,
             NULL,
             cert_link,
