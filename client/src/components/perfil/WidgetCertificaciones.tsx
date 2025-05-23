@@ -6,6 +6,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import CertificateModal from "./CertificateModal";
 import AddCertificateModal from "./AddCertificateModal";
+import Image from "next/image";
 
 interface Certificate {
   certificate_id: number;
@@ -15,9 +16,25 @@ interface Certificate {
   certificate_date: string;
   certificate_expiration_date: string;
   certificate_link: string;
+  certificate_status: string;
+  certificate_hours: number;
+  certificate_level: number;
   skills: string[];
   provider: string;
 }
+
+type RecommendedCertificate = {
+  certificate_id: number;
+  certificate_name: string;
+  certificate_desc: string;
+  certificate_link: string;
+  provider: string;
+  score: number;
+  certificate_estimated_time: number;
+  certificate_level: number;
+  skills: string[];
+  compatibility?: number;
+};
 
 interface Props {
   userId?: number; // Nuevo: opcional para uso en perfil
@@ -26,62 +43,101 @@ interface Props {
 export default function WidgetCertificaciones({ userId }: Props) {
   const { data: session } = useSession();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedCertificate, setSelectedCertificate] =
-    useState<Certificate | null>(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<
+    Certificate | RecommendedCertificate | null
+  >(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [addModalIsOpen, setAddModalIsOpen] = useState(false);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [recommendedCertificates, setRecommendedCertificates] = useState<
+    RecommendedCertificate[]
+  >([]);
 
   const toggleAccordion = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const calculateCompatibility = (
+    recommendations: RecommendedCertificate[]
+  ): RecommendedCertificate[] => {
+    const sorted = [...recommendations].sort((a, b) => b.score - a.score);
+    const maxScore = sorted[0]?.score || 1;
+    const minScore = sorted[sorted.length - 1]?.score || 0;
+
+    return sorted.map((cert, index) => {
+      // Normalize score to [0, 1]
+      const normalized = (cert.score - minScore) / (maxScore - minScore || 1);
+
+      // Scale to base compatibility range [60, 95]
+      const baseCompatibility = 60 + normalized * 35;
+
+      // Add randomness ±2.5%
+      const noise = (Math.random() - 0.5) * 5;
+      const compatibility = Math.min(
+        100,
+        Math.max(0, baseCompatibility + noise)
+      );
+
+      return {
+        ...cert,
+        compatibility: Math.round(compatibility),
+      };
+    });
+  };
+
   const fetchCertificates = async () => {
     try {
-      if (userId) {
-        // ✅ Forzar fetch por ID si viene desde el perfil
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user`, {
-          headers: { "user-id": userId.toString() },
-        });
-  
-        const certs = res.data.Certificate_Users?.map((cu: any) => ({
-          certificate_id: cu.certificate_id,
-          user_id: cu.user_id,
-          certificate_name: cu.Certificates?.certificate_name || "Sin nombre",
-          certificate_desc: cu.Certificates?.certificate_desc || "",
-          certificate_date: cu.certificate_date,
-          certificate_expiration_date: cu.certificate_expiration_date,
-          certificate_link: cu.certificate_link,
-          skills: [],
-          provider: cu.Certificates?.provider || "",
-        })) || [];
-  
-        setCertificates(certs);
-        return; // 👈 IMPORTANTE: no continuar a lógica de sesión
-      }
-  
       // 🔁 Solo si no hay userId, usar la sesión
       const sessionId = session?.sessionId;
       if (!sessionId) {
         console.error("Session ID is missing");
         return;
       }
-  
+
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_BASE}/course/certificates`,
         { headers: { "session-key": sessionId } }
       );
-  
+
       setCertificates(res.data);
+
+      const userIds = res.data[0]?.user_id;
+      const recommendedRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_FLASK_API_URL}/recommend/certificates/${userIds}`,
+        {
+          headers: {
+            "admin-password":
+              process.env.NEXT_PUBLIC_FLASK_API_ADMIN_PASSWORD_ML,
+          },
+        }
+      );
+      const processedRecommendations = calculateCompatibility(
+        recommendedRes.data.recommendations
+      );
+      setRecommendedCertificates(processedRecommendations);
     } catch (error) {
       console.error("Error fetching certificates:", error);
     }
   };
-  
 
   useEffect(() => {
     fetchCertificates();
   }, [userId]);
+
+  const completedCertificates = certificates.filter(
+    (cert) => cert.certificate_status === "completed"
+  );
+  const initialCompleted = completedCertificates.slice(0, 4);
+  const remainingCompleted = completedCertificates.slice(4);
+
+  const inProgress = certificates.filter(
+    (cert) => cert.certificate_status === "in progress"
+  );
+
+  const hasAccordionContent =
+    remainingCompleted.length > 0 ||
+    inProgress.length > 0 ||
+    recommendedCertificates.length > 0;
 
   return (
     <div className="card bg-base-100 shadow-xl col-span-2">
@@ -97,71 +153,200 @@ export default function WidgetCertificaciones({ userId }: Props) {
           >
             <IoMdAdd className="text-lg md:text-xl" />
           </button>
-
         </div>
 
-        <p className="text-secondary text-lg mt-2">Certificaciones Destacadas</p>
+        <p className="text-secondary text-lg mt-2">
+          Certificaciones Destacadas
+        </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-          {certificates.slice(0, 4).map((certificate) => (
+          {initialCompleted.map((certificate) => (
             <div
               key={certificate.certificate_id}
               onClick={() => {
                 setSelectedCertificate(certificate);
                 setModalIsOpen(true);
               }}
-              className="card bg-base-200 p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+              className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
             >
-              <p className="font-bold">{certificate.certificate_name}</p>
-              <p className="text-sm text-secondary">
+              {certificate.provider && (
+                <Image
+                  width={300}
+                  height={300}
+                  src={"/companies/" + certificate.provider + ".svg"}
+                  alt={certificate.certificate_name}
+                  className="w-30 h-30 object-contain"
+                />
+              )}
+              <p className="font-bold mt-1.5">{certificate.certificate_name}</p>
+              <p className="text-xs text-primary mt-1">
                 Completado:{" "}
-                {new Date(certificate.certificate_date).toLocaleDateString("es-MX", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {new Date(certificate.certificate_date).toLocaleDateString(
+                  "es-MX",
+                  {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }
+                )}
               </p>
             </div>
           ))}
+          {initialCompleted.length === 0 && (
+            <div className="flex flex-col items-center justify-center col-span-2 md:col-span-4 py-10">
+              <PiCertificate className="text-5xl text-primary" />
+              <p className="text-lg font-bold mt-2">
+                No tienes certificaciones completadas
+              </p>
+            </div>
+          )}
         </div>
 
         <div
           className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            isExpanded
+              ? "max-h-screen opacity-100 overflow-visible"
+              : "max-h-0 opacity-0 overflow-hidden"
           }`}
         >
-          <p className="text-secondary text-lg mt-2">Certificaciones en Curso</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            {certificates.slice(4).map((certificate) => (
+          {remainingCompleted.length > 0 && (
+            <div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                {remainingCompleted.map((certificate) => (
+                  <div
+                    key={certificate.certificate_id}
+                    onClick={() => {
+                      setSelectedCertificate(certificate);
+                      setModalIsOpen(true);
+                    }}
+                    className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+                  >
+                    {certificate.provider && (
+                      <Image
+                        width={300}
+                        height={300}
+                        src={"/companies/" + certificate.provider + ".svg"}
+                        alt={certificate.certificate_name}
+                        className="w-30 h-30 object-contain"
+                      />
+                    )}
+                    <p className="font-bold mt-1.5">
+                      {certificate.certificate_name}
+                    </p>
+                    <p className="text-xs text-primary mt-1">
+                      Completado:{" "}
+                      {new Date(
+                        certificate.certificate_date
+                      ).toLocaleDateString("es-MX", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="text-secondary text-lg mt-4">
+            Certificaciones en Curso
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+            {inProgress.map((certificate) => (
               <div
                 key={certificate.certificate_id}
                 onClick={() => {
                   setSelectedCertificate(certificate);
                   setModalIsOpen(true);
                 }}
-                className="card bg-base-200 p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+                className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
               >
-                <p className="font-bold">{certificate.certificate_name}</p>
-                <p className="text-sm text-secondary">
-                  Completado:{" "}
-                  {new Date(certificate.certificate_date).toLocaleDateString("es-MX", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                {certificate.provider && (
+                  <Image
+                    width={300}
+                    height={300}
+                    src={"/companies/" + certificate.provider + ".svg"}
+                    alt={certificate.certificate_name}
+                    className="w-30 h-30 object-contain"
+                  />
+                )}
+                <p className="font-bold mt-1.5">
+                  {certificate.certificate_name}
+                </p>
+                <p className="text-xs text-primary mt-1">
+                  Empezado:{" "}
+                  {new Date(certificate.certificate_date).toLocaleDateString(
+                    "es-MX",
+                    {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    }
+                  )}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Horas Estimadas: {certificate.certificate_hours} horas
                 </p>
               </div>
             ))}
+            {inProgress.length === 0 && (
+              <div className="flex flex-col items-center justify-center col-span-2 md:col-span-4 py-10">
+                <PiCertificate className="text-5xl text-primary" />
+                <p className="text-lg font-bold mt-2">
+                  No tienes certificaciones en curso
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         <div
           className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            isExpanded
+              ? "max-h-screen opacity-100 overflow-visible"
+              : "max-h-0 opacity-0 overflow-hidden"
           }`}
         >
-          <p className="text-secondary text-lg mt-2">Certificaciones Recomendadas</p>
-          <div className="flex justify-center items-center h-32 bg-base-200 border border-primary rounded-lg mt-4">
-            <h2 className="text-xl color-base-200">Próximamente...</h2>
+          <p className="text-secondary text-lg mt-2">
+            Certificaciones Recomendadas
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+            {recommendedCertificates.map((certificate) => (
+              <div
+                key={certificate.certificate_id}
+                onClick={() => {
+                  setSelectedCertificate(certificate);
+                  setModalIsOpen(true);
+                }}
+                className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+              >
+                {certificate.provider && (
+                  <Image
+                    width={300}
+                    height={300}
+                    src={"/companies/" + certificate.provider + ".svg"}
+                    alt={certificate.certificate_name}
+                    className="w-30 h-30 object-contain"
+                  />
+                )}
+                <p className="font-bold mt-1.5">
+                  {certificate.certificate_name}
+                </p>
+                <p className="text-xs text-primary mt-1">
+                  Compatibilidad: {certificate.compatibility}%
+                </p>
+                <div className="flex flex-row mt-2">
+                  {certificate.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="badge bg-accent text-base-100 text-xs mr-1 border-0 outline-none hover:outline-none focus:outline-none"
+                    >
+                      {skill.length > 10 ? skill.slice(0, 10) + "..." : skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -181,11 +366,20 @@ export default function WidgetCertificaciones({ userId }: Props) {
           />
         )}
 
-        <div className="flex justify-center items-center mt-6">
-          <button className="btn btn-circle btn-accent" onClick={toggleAccordion}>
-            {isExpanded ? <FaArrowUp /> : <FaArrowDown />}
-          </button>
-        </div>
+        {hasAccordionContent && (
+          <div className="flex justify-center items-center mt-6">
+            <button
+              className="btn btn-circle btn-accent"
+              onClick={toggleAccordion}
+            >
+              {isExpanded ? (
+                <FaArrowUp className="text-base-100" />
+              ) : (
+                <FaArrowDown className="text-base-100" />
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
