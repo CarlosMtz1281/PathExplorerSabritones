@@ -178,7 +178,7 @@ def recommend_certificates(user_id: int):
         )
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": e}), 500
 
 
 @app.route(
