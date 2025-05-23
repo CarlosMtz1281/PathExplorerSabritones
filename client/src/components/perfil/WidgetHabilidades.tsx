@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { SkillListProps, SkillAPI } from "@/types/Habilities";
 import { PiWrenchLight } from "react-icons/pi";
-import {
-  IoIosArrowDown,
-  IoMdAdd,
-  IoMdCheckmarkCircleOutline,
-  IoMdInformationCircle,
-} from "react-icons/io";
+import { IoIosArrowDown, IoMdAdd, IoMdInformationCircle } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -249,6 +244,21 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
     };
   }, [isDropdownOpen]);
 
+  const deleteSkill = async (skill: SkillAPI) => {
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_BASE}/employee/skills/${skill.skill_id}`,
+        {
+          headers: {
+            "session-key": status?.sessionId,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error deleting skill");
+    }
+  };
+
   return (
     <div className="card w-full h-full border border-base-300 bg-base-100">
       <div className="card body p-3 md:p-4">
@@ -439,6 +449,7 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
               <button
                 className={"btn btn-error"}
                 onClick={() => {
+                  deleteSkill(skillToDelete!);
                   if (skillToDelete?.skill_technical) {
                     setTechnicalSkills((prev) =>
                       prev.filter((skill) => skill !== skillToDelete)

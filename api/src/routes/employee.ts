@@ -134,6 +134,39 @@ router.get("/skills", async (req, res) => {
   }
 });
 
+router.delete("/skills/:skillId", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    const skillId = parseInt(req.params.skillId);
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "Session key is required in the headers." });
+    }
+    if (typeof userId !== "number") {
+      return res.status(400).json({ error: "Timeout session" });
+    }
+
+    const skill = await prisma.user_Skills.delete({
+      where: {
+        user_id_skill_id: {
+          user_id: userId,
+          skill_id: skillId,
+        },
+      },
+    });
+
+    if (!skill) {
+      return res.status(404).json({ error: "Skill not found." });
+    }
+
+    res.status(200).json({ message: "Skill deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting user skill:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 router.get("/getsSkillsId/:userId", async (req, res) => {
   try {
     const userId = parseInt(req.params.userId);
