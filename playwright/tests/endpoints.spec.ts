@@ -3,7 +3,7 @@ import { login } from './functions.spec';
 
 test('GET employee/user/:userId', async ({ request, page }) => {
 
-    const userId = await login(page);
+    const userId = await login(page, 'EMP');
 
     const response = await request.get(`http://localhost:3003/employee/user/${userId}`);
     expect(response.ok()).toBeTruthy();
@@ -32,7 +32,7 @@ test('GET employee/user/:userId', async ({ request, page }) => {
 });
 
 test('GET getProjectById/:projectId', async ({ request, page }) => {
-  await login(page); 
+  await login(page, 'CL'); 
 
   const projectId = 1; 
 

@@ -3,7 +3,7 @@ import { test, expect, Page } from '@playwright/test';
 
 test('Check employee profile', async ({ page }) => {
 
-    await login(page);
+    await login(page, 'EMP');
 
     // Click en la navbar
     await page.locator('[href="/dashboard/repo-empleados"]').click();

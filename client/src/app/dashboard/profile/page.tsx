@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
@@ -8,18 +9,15 @@ import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import WidgetPathExplorer from "@/components/perfil/WidgetPathExplorer";
 import { User } from "@/interfaces/User";
 import Image from "next/image";
-import { useParams } from "next/navigation";
 
 const Profile = () => {
-  const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
-
+  const { data: session, status } = useSession();
   const [userData, setUserData] = useState<User | null>(null);
 
-  const fetchUserData = async () => {
+  const fetchUserData = async (userId: string) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${id}`
+        `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${userId}`
       );
       if (!res.ok) {
         throw new Error("Failed to fetch user data");
@@ -33,10 +31,12 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    fetchUserData();
-  }, [id]);
+    if (session?.user && "id" in session.user) {
+      fetchUserData((session.user as any).id); // If you haven't extended the Session type
+    }
+  }, [session]);
 
-  if (!userData) {
+  if (status === "loading" || !userData) {
     return <div>Loading...</div>;
   }
 
@@ -56,7 +56,6 @@ const Profile = () => {
 
         {/* Profile Section */}
         <div className="flex flex-col md:flex-row justify-between gap-8 mt-20  W-full">
-          {/* Profile Image */}
           <div className="flex flex-col items-center ">
             <div className="avatar -mt-15 ml-5">
               <div className="w-50 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ">
@@ -71,13 +70,12 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Profile Info */}
           <div className="flex w-full ">
             <div className="flex justify-between items-center mt-10 w-full">
               <div>
                 <h2 className="text-3xl font-bold">{userData.name}</h2>
                 <p className="text-gray-500 mt-2">
-                  {userData.Country.country_name}{" "}
+                  {userData.Country.country_name}
                 </p>
                 <p className=" text-gray-500">{userData.mail}</p>
                 <p className=" text-gray-500">
@@ -87,7 +85,9 @@ const Profile = () => {
 
               <div className="mr-5 mt-5 " style={{ width: "25vw" }}>
                 <div className="flex items-center">
-                  <p className="text-primary text-xl font-bold">{userData.position_name}</p>
+                  <p className="text-primary text-xl font-bold">
+                    {userData.position_name}
+                  </p>
                   <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-primary ml-4">
                     <div className="text-2xl font-bold ">{userData.level}</div>
                   </div>
