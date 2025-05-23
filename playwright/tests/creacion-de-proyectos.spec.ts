@@ -2,7 +2,7 @@ import { login } from "./functions.spec";
 import { test, expect, Page } from '@playwright/test';
 
 test('Create a proyect', async ({ page }) => {
-    await login(page);
+    await login(page, 'DL');
 
     // Click en la nav
     await page.locator('[href="/dashboard/crea-projects"]').click();
@@ -82,7 +82,7 @@ test('Create a proyect', async ({ page }) => {
 });
 
 test('Create a proyect wrong', async ({ page }) => {
-    await login(page);
+    await login(page, 'DL');
 
     // Click en la nav
     await page.locator('[href="/dashboard/crea-projects"]').click();

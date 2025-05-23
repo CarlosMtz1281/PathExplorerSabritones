@@ -1,6 +1,17 @@
 import { test, expect, Page } from '@playwright/test';
 
-async function login(page: Page) {
+type UserType = 'DL' | 'CL' | 'PL' | 'EMP';
+
+const credentials: Record<UserType, { email: string; password: string }> = {
+  DL: { email: 'james.wilson@accenture.com', password: 'wilson123' },
+  CL: { email: 'michael.brown@accenture.com', password: 'brown123' },
+  PL: { email: 'christopher.taylor@accenture.com', password: 'taylor123' },
+  EMP: { email: 'william.green@accenture.com', password: 'green123' },
+};
+
+async function login(page: Page, type: UserType): Promise<number> {
+  const { email, password } = credentials[type];
+
   await page.goto('http://localhost:3000/login');
 
   // Finds log in button on title-page
@@ -9,8 +20,8 @@ async function login(page: Page) {
   await loginButton.click();
 
   // Fills inputs with data
-  await page.getByPlaceholder('email@accenture.com').fill('john.doe@example.com');
-  await page.getByPlaceholder('********').fill('password123');
+  await page.getByPlaceholder('email@accenture.com').fill(email);
+  await page.getByPlaceholder('********').fill(password);
 
   // Clicks for login button
   loginButton = page.getByRole('button', { name: 'Iniciar Sesión'});

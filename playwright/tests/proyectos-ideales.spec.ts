@@ -3,7 +3,7 @@ import { test, expect, Page } from '@playwright/test';
 
 test('Proyect information returns de correct data', async ({ request, page }) => {
 
-    await login(page);
+    await login(page, 'CL');
 
     // Click en la nav
     await page.locator('[href="/dashboard/repo-projects"]').click();
