@@ -156,6 +156,207 @@ router.get("/getProjectById/:projectId", async (req, res) => {
   }
 });
 
+router.get("/getProjectByIdCap/:projectId", async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.projectId);
+
+    if (isNaN(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+        
+    if (!userId || typeof userId !== "number") {
+        return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const capability_id = await prisma.capability.findFirst({
+      where: {
+        capability_lead_id: userId,
+      },
+      select: {
+        capability_id: true,
+      },
+    });
+
+    const project = await prisma.projects.findUnique({
+      where: {
+        project_id: projectId,
+      },
+      include: {
+        Project_Positions: {
+          include: {
+            Project_Position_Skills: {
+              include: {
+                Skills: true,
+              },
+            },
+            Project_Position_Certificates: {
+              include: {
+                Certificates: true,
+              },
+            },
+            Users: true,
+            Postulations: {
+              include: {
+                Users: {
+                  select: {
+                    user_id: true,
+                    name: true,
+                    mail: true,
+                  },
+                },
+                Meeting: true,
+              },
+            },
+          },
+          where: {
+            capability_id: capability_id?.capability_id,
+            user_id: null,
+          },
+        },
+        Country: true,
+        Users: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Get team members from Project_Positions where user_id is not null
+    const teamMembers = project.Project_Positions
+      .filter(position => position.user_id !== null)
+      .map(position => ({
+        user_id: position.user_id,
+        project_id: projectId,
+        Users: position.Users
+      }));
+
+    // Format dates and structure project data
+    const formattedProject = {
+      id: project.project_id,
+      name: project.project_name,
+      description: project.project_desc,
+      start_date: project.start_date
+        ? project.start_date.toLocaleDateString("es-ES")
+        : null,
+      end_date: project.end_date
+        ? project.end_date.toLocaleDateString("es-ES")
+        : null,
+      vacants: project.Project_Positions.filter((pos) => pos.user_id === null)
+        .length,
+      details: {
+        company: project.company_name,
+        country: project.Country?.country_name || "No country",
+        capability: project.Users?.name || "No capability",
+      },
+      positions: project.Project_Positions.map((position) => ({
+        position_id: position.position_id,
+        project_id: position.project_id,
+        position_name: position.position_name,
+        position_desc: position.position_desc,
+        user_id: position.user_id,
+        Project_Position_Skills: position.Project_Position_Skills,
+        Project_Position_Certificates: position.Project_Position_Certificates,
+        Postulations: position.Postulations,
+      })),
+      team_members: teamMembers,
+    };
+
+    res.status(200).json(formattedProject);
+  } catch (error) {
+    console.error("Error fetching project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/getFreeUsersOfCap", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+        
+    if (!userId || typeof userId !== "number") {
+        return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const capability = await prisma.capability.findFirst({
+      where: {
+        capability_lead_id: userId,
+      },
+      select: {
+        capability_id: true,
+        capability_name: true,
+        capability_lead_id: true,
+      },
+    });
+
+    if (!capability) {
+      return res.status(404).json({ error: "Capability not found for this user" });
+    }
+
+    // free users are those who are not assigned to any project position and are part of the same capability (include the capability lead and people leads)
+    const capabilityPeopleLeads = await prisma.capability_Employee.findMany({
+      where: {
+        capability_id: capability.capability_id
+      },
+      select: {
+        people_lead_id: true
+      }
+    });
+    const capability_Employees = await prisma.capability_Employee.findMany({
+      where: {
+        capability_id: capability.capability_id
+      },
+      select: {
+        employee_id: true
+      }
+    });
+
+    // add both
+    const allEmployees = capabilityPeopleLeads.map(lead => lead.people_lead_id).concat(capability_Employees.map(emp => emp.employee_id));
+
+    // Get users currently assigned to ACTIVE project positions (projects that haven't ended yet)
+    const assignedUsers = await prisma.project_Positions.findMany({
+      where: {
+        capability_id: capability.capability_id,
+        NOT: { user_id: null },
+        Projects: {
+          OR: [
+            { end_date: { gte: new Date() } }, // Project hasn't ended yet
+            { end_date: null } // Or project has no end date (ongoing)
+          ]
+        }
+      },
+      select: {
+        user_id: true
+      }
+    });
+
+    const assignedUserIds = assignedUsers.map(user => user.user_id);
+
+    // Get free users who are not assigned to any project position free users are allEmployees - assignedUsers
+    const freeUserIds = allEmployees.filter(userId => !assignedUserIds.includes(userId));
+    const freeUsers = await prisma.users.findMany({
+      where: {
+        user_id: { in: freeUserIds }
+      },
+      select: {
+        user_id: true,
+        name: true,
+        mail: true,
+        country_id: true,
+        role_id: true
+      }
+    });
+
+
+    res.status(200).json(freeUsers);
+  } catch (error) {
+    console.error("Error fetching free users:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.post("/create", async (req, res) => {
   const {
     project_name,
@@ -232,41 +433,140 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.get("/postulate/:user_id/:project_id/:position_id", async (req, res) => {
-  console.log("Postulating...");
-  console.log("Request params:", req.params);
-  try {
-    const { user_id, project_id, position_id } = req.params;
-    const userId = parseInt(user_id);
-    const projectId = parseInt(project_id);
-    const positionId = parseInt(position_id);
-    
-    console.log("Parsed values:", { userId, projectId, positionId });
+router.get("/projectsByCapability", async (req, res) => {
+  const userId = await getUserIdFromSession(req.headers["session-key"]);
+        
+  if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+  }
 
-    // More detailed validation
+  try {
+    const cap_lead_user_id = userId;
+    const leadId = Number(cap_lead_user_id);
+
+    const capability = await prisma.capability.findFirst({
+      where: {
+        capability_lead_id: leadId,
+      },
+      select: {
+        capability_id: true,
+        capability_name: true,
+      },
+    });
+
+    if (!capability) {
+      return res.status(404).json({ error: "Capability not found for this user" });
+    }
+
+    // Get all projects that have open project positions related to the capability
+    const projects = await prisma.projects.findMany({
+      where: {
+        Project_Positions: {
+          some: {
+            capability_id: capability.capability_id, // Use the capability_id here
+            user_id: null,
+          },
+        },
+      },
+      include: {
+        Project_Positions: {
+          where: {
+            capability_id: capability.capability_id,
+            user_id: null,
+          },
+          include: {
+            Project_Position_Skills: {
+              include: {
+                Skills: true,
+              },
+            },
+            Project_Position_Certificates: {
+              include: {
+                Certificates: true,
+              },
+            },
+            Project_Position_Areas: {
+              include: {
+                Areas: true,
+              },
+            },
+          },
+        },
+        Country: true,
+        Users: true, // This is the delivery lead
+      },
+    });
+
+    // Format the response to make it more client-friendly
+    const formattedProjects = projects.map(project => ({
+      project_id: project.project_id,
+      project_name: project.project_name,
+      company_name: project.company_name,
+      project_desc: project.project_desc,
+      start_date: project.start_date,
+      end_date: project.end_date,
+      country: project.Country,
+      delivery_lead: project.Users,
+      capability_name: capability.capability_name,
+      open_positions: project.Project_Positions.map(position => ({
+        position_id: position.position_id,
+        position_name: position.position_name,
+        position_desc: position.position_desc,
+        required_skills: position.Project_Position_Skills.map(skill => skill.Skills),
+        required_certificates: position.Project_Position_Certificates.map(cert => cert.Certificates),
+        required_areas: position.Project_Position_Areas.map(area => area.Areas),
+      })),
+    }));
+
+    res.json(formattedProjects);
+  } catch (error) {
+    console.error("Error fetching projects by capability:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/postulate", async (req, res) => {
+  try {
+    // Verify session
+    const sessionUserId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!sessionUserId || typeof sessionUserId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    // Validate request body - now accessing the body directly
+    const { user_id, position_id } = req.body;
+
+    console.log("Postulation request body:", req.body);
+    
+    if (user_id === undefined || position_id === undefined) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const userId = parseInt(user_id.toString());
+    const positionId = parseInt(position_id.toString());
+
     if (isNaN(userId)) {
       return res.status(400).json({ error: "Invalid user_id parameter" });
-    }
-    if (isNaN(projectId)) {
-      return res.status(400).json({ error: "Invalid project_id parameter" });
     }
     if (isNaN(positionId)) {
       return res.status(400).json({ error: "Invalid position_id parameter" });
     }
 
-    // Check if the position exists and belongs to the specified project
+    // Verify the position exists and is available
     const position = await prisma.project_Positions.findFirst({
       where: {
         position_id: positionId,
-        project_id: projectId
+        user_id: null // Ensure position is still available
       }
     });
 
     if (!position) {
-      return res.status(404).json({ error: "Position not found for this project" });
+      return res.status(404).json({ 
+        error: "Position not found or already filled" 
+      });
     }
 
-    // Check if a postulation already exists
+    // Check for existing postulation
     const existingPostulation = await prisma.postulations.findFirst({
       where: {
         project_position_id: positionId,
@@ -275,25 +575,42 @@ router.get("/postulate/:user_id/:project_id/:position_id", async (req, res) => {
     });
 
     if (existingPostulation) {
-      return res.status(400).json({ error: "You have already postulated for this position" });
+      return res.status(409).json({ 
+        error: "You have already postulated for this position" 
+      });
     }
 
-    // Create a new postulation record
+    // Create postulation
     const postulation = await prisma.postulations.create({
       data: {
         project_position_id: positionId,
         user_id: userId,
         postulation_date: new Date()
+      },
+      include: {
+        Project_Positions: {
+          include: {
+            Projects: true
+          }
+        }
       }
     });
 
     res.status(201).json({
+      success: true,
       message: "Postulation created successfully",
-      postulation
+      data: {
+        position_name: postulation.Project_Positions?.position_name,
+        project_name: postulation.Project_Positions?.Projects?.project_name
+      }
     });
+
   } catch (error) {
-    console.error("Error postulating:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error in postulation:", error);
+    res.status(500).json({ 
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : String(error)
+    });
   }
 });
 
