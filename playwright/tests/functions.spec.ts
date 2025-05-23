@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page, request } from '@playwright/test';
+
 
 type UserType = 'DL' | 'CL' | 'PL' | 'EMP';
 
@@ -11,27 +12,39 @@ const credentials: Record<UserType, { email: string; password: string }> = {
 
 async function login(page: Page, type: UserType): Promise<number> {
   const { email, password } = credentials[type];
-
+  
   await page.goto('http://localhost:3000/login');
 
-  // Finds log in button on title-page
   let loginButton = page.getByRole('button', { name: 'Login' });
   await loginButton.waitFor();
   await loginButton.click();
 
-  // Fills inputs with data
   await page.getByPlaceholder('email@accenture.com').fill(email);
   await page.getByPlaceholder('********').fill(password);
 
-  // Clicks for login button
   loginButton = page.getByRole('button', { name: 'Iniciar Sesión'});
   await loginButton.waitFor();
   await loginButton.click();
 
-  await expect(page).toHaveURL(/dashboard\/profile\/\d+$/);
+  await expect(page).toHaveURL(/dashboard\/profile$/);
 
-  const url = page.url();
-  return parseInt(url.split('/').pop()!);
+  const apiContext = await request.newContext({ baseURL: 'http://localhost:3003' });
+
+  const loginResponse = await apiContext.post('/general/login', {
+    data: { mail: email, password },
+  });
+
+  if (!loginResponse.ok()) {
+    throw new Error(`Login API failed: ${loginResponse.status()}`);
+  }
+
+  const json = await loginResponse.json();
+
+  if (!json.userId) {
+    throw new Error('userId not found in login response');
+  }
+
+  return json.userId;
 }
 
 export { login }
