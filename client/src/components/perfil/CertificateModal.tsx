@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import Image from "next/image";
 
 interface Certificate {
@@ -7,6 +8,7 @@ interface Certificate {
   certificate_name: string;
   certificate_desc: string;
   certificate_date: string;
+  certificate_start_date: string;
   certificate_expiration_date: string;
   certificate_link: string;
   certificate_status: string;
@@ -32,6 +34,19 @@ type RecommendedCertificate = {
 type CertificateModalProps = {
   certificate: Certificate | RecommendedCertificate;
   onClose: () => void;
+};
+
+const FallbackImage = ({ src, fallbackSrc, ...props }: any) => {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  return (
+    <Image
+      {...props}
+      src={imgSrc}
+      onError={() => setImgSrc(fallbackSrc)}
+      alt={props.alt || "Certificate image"}
+    />
+  );
 };
 
 const CertificateModal: React.FC<CertificateModalProps> = ({
@@ -72,7 +87,8 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
         {/* Certificate Header */}
         <div className="flex items-center gap-4 mb-4">
           {certificate.provider && (
-            <Image
+            <FallbackImage
+              fallbackSrc="/globe.svg"
               width={300}
               height={300}
               src={"/companies/" + certificate.provider + ".svg"}
@@ -146,14 +162,13 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
                 <div>
                   <h4 className="font-semibold text-base">Fecha de Inicio:</h4>
                   <p>
-                    {new Date(certificate.certificate_date).toLocaleDateString(
-                      "es-MX",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
+                    {new Date(
+                      certificate.certificate_start_date
+                    ).toLocaleDateString("es-MX", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
                 <div>

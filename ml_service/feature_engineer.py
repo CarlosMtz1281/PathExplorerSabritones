@@ -103,9 +103,14 @@ class RecommenderFeaturizer:
             )
             if not position_skills:
                 for position in position_data:  # if it's a list
-                    position_skills.extend(
-                        extract_skill_ids(position.get("skills", []))
-                    )
+                    if isinstance(position, dict) and "skills_id" in position:
+                        position_skills.extend(
+                            extract_skill_ids(position.get("skills_id", []))
+                        )
+                    elif isinstance(position, dict) and "skills" in position:
+                        position_skills.extend(
+                            extract_skill_ids(position.get("skills", []))
+                        )
             self._add_skills(
                 skill_vector,
                 skill_index,

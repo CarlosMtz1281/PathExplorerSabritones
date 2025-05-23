@@ -1696,6 +1696,11 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (69, 7), (69, 13), (69, 20), -- Node.js, SQL, API REST
 (75, 7), (75, 20), (75, 44), -- Node.js, API REST, Trabajo en Equipo
 (81, 7), (81, 28), (81, 47), -- Node.js, GraphQL, Metodologías Ágiles
+-- 123, 129, 135, 141
+(123, 7), (123, 13), (123, 20), -- Node.js, SQL, API REST
+(129, 7), (129, 20), (129, 44), -- Node.js, API REST, Trabajo en Equipo
+(135, 7), (135, 28), (135, 47), -- Node.js, GraphQL, Metodologías Ágiles
+(141, 1), (141, 8), (141, 13), -- Java, Spring Boot, SQL
 
 -- Frontend Developers
 (2, 3), (2, 5), (2, 20),   -- JavaScript, React, API REST
@@ -1712,6 +1717,7 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (105, 3), (105, 6), (105, 42), -- JavaScript, Angular, Comunicación
 (111, 4), (111, 5), (111, 20), -- TypeScript, React, API REST
 (117, 4), (117, 5), (117, 44), -- TypeScript, React, Trabajo en Equipo
+
 
 -- Capability 2: Ciencia de Datos (IDs 3,10,17,24,31,38,45,52,58,64,70,76,82,88,94,100,106,112,118)
 (3, 2), (3, 15), (3, 16),   -- Python, Aprendizaje Automático, Análisis de Datos
@@ -1733,6 +1739,11 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (106, 2), (106, 21), (106, 45), -- Python, TensorFlow, Resolución de Problemas
 (112, 15), (112, 22), (112, 29), -- Aprendizaje Automático, PyTorch, Apache Kafka
 (118, 2), (118, 16), (118, 42), -- Python, Análisis de Datos, Comunicación
+-- 124, 130, 136, 142
+(124, 15), (124, 21), (124, 22), -- Aprendizaje Automático, TensorFlow, PyTorch
+(130, 15), (130, 16), (130, 45), -- Aprendizaje Automático, Análisis de Datos, Resolución de Problemas
+(136, 2), (136, 21), (136, 29), -- Python, TensorFlow, Apache Kafka
+(142, 15), (142, 22), (142, 42), -- Aprendizaje Automático, PyTorch, Comunicación
 
 -- Capability 3: Arquitectura en la Nube (IDs 4,11,18,25,32,39,46,53,59,65,71,77,83,89,95,101,107,113,119)
 (4, 11), (4, 17), (4, 19),   -- AWS, DevOps, Microservicios
@@ -1754,6 +1765,11 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (107, 12), (107, 17), (107, 26), -- Azure, DevOps, Arquitectura Serverless
 (113, 9), (113, 10), (113, 45), -- Docker, Kubernetes, Resolución de Problemas
 (119, 11), (119, 17), (119, 19), -- AWS, DevOps, Microservicios
+-- 125, 131, 137, 143
+(125, 12), (125, 26), (125, 42), -- Azure, Arquitectura Serverless, Comunicación
+(131, 9), (131, 10), (131, 17), -- Docker, Kubernetes, DevOps
+(137, 11), (137, 19), (137, 47), -- AWS, Microservicios, Metodologías Ágiles
+(143, 12), (143, 17), (143, 26), -- Azure, DevOps, Arquitectura Serverless
 
 -- Capability 4: Calidad de Software QA (IDs 5,12,19,26,33,40,47,54,60,66,72,78,84,90,96,102,108,114,120)
 (5, 3), (5, 5), (5, 48),   -- JavaScript, React, Scrum
@@ -1775,6 +1791,11 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (108, 1), (108, 8), (108, 48), -- Java, Spring Boot, Scrum
 (114, 3), (114, 18), (114, 47), -- JavaScript, CI/CD, Metodologías Ágiles
 (120, 5), (120, 20), (120, 45), -- React, API REST, Resolución de Problemas
+-- 126, 132, 138, 144
+(126, 1), (126, 13), (126, 48), -- Java, SQL, Scrum
+(132, 3), (132, 7), (132, 18), -- JavaScript, Node.js, CI/CD
+(138, 5), (138, 20), (138, 45), -- React, API REST, Resolución de Problemas
+(144, 1), (144, 8), (144, 48), -- Java, Spring Boot, Scrum
 
 -- Capability 5: Diseño de UI/UX (IDs 6,13,20,27,34,41,48,55,61,67,73,79,85,91,97,103,109,115,121)
 (6, 5), (6, 28), (6, 42),   -- React, GraphQL, Comunicación
@@ -1796,6 +1817,11 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (109, 3), (109, 5), (109, 53), -- JavaScript, React, Creatividad
 (115, 4), (115, 28), (115, 49), -- TypeScript, GraphQL, Oratoria
 (121, 5), (121, 6), (121, 42), -- React, Angular, Comunicación
+-- 127, 133, 139, 145
+(127, 3), (127, 5), (127, 53), -- JavaScript, React, Creatividad
+(133, 4), (133, 5), (133, 49), -- TypeScript, React, Oratoria
+(139, 5), (139, 20), (139, 49), -- React, API REST, Oratoria
+(145, 5), (145, 6), (145, 42), -- React, Angular, Comunicación
 
 -- Capability 6: Ingeniería de DevOps (IDs 7,14,21,28,35,42,49,56,62,68,74,80,86,92,98,104,110,116,122)
 (7, 9), (7, 17), (7, 18),   -- Docker, DevOps, CI/CD
@@ -1816,7 +1842,12 @@ INSERT INTO "Project_Position_Skills" ("position_id", "skill_id") VALUES
 (104, 10), (104, 17), (104, 32), -- Kubernetes, DevOps, Jenkins
 (110, 9), (110, 33), (110, 47), -- Docker, Ansible, Metodologías Ágiles
 (116, 10), (116, 30), (116, 45), -- Kubernetes, Prometheus, Resolución de Problemas
-(122, 17), (122, 18), (122, 33); -- DevOps, CI/CD, Ansible
+(122, 17), (122, 18), (122, 33), -- DevOps, CI/CD, Ansible
+-- 128, 134, 140, 146
+(128, 9), (128, 10), (128, 45), -- Docker, Kubernetes, Resolución de Problemas
+(134, 17), (134, 18), (134, 32), -- DevOps, CI/CD, Jenkins
+(140, 9), (140, 10), (140, 33), -- Docker, Kubernetes, Ansible
+(146, 17), (146, 30), (146, 45); -- DevOps, Prometheus, Resolución de Problemas
 
 
 
