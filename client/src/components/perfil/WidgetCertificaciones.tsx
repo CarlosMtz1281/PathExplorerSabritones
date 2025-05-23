@@ -14,6 +14,7 @@ interface Certificate {
   certificate_name: string;
   certificate_desc: string;
   certificate_date: string;
+  certificate_start_date: string;
   certificate_expiration_date: string;
   certificate_link: string;
   certificate_status: string;
@@ -173,7 +174,7 @@ export default function WidgetCertificaciones({ userId }: Props) {
                   width={300}
                   height={300}
                   src={"/companies/" + certificate.provider + ".svg"}
-                  alt={certificate.certificate_name}
+                  alt={certificate.provider}
                   className="w-30 h-30 object-contain"
                 />
               )}
@@ -225,7 +226,7 @@ export default function WidgetCertificaciones({ userId }: Props) {
                         width={300}
                         height={300}
                         src={"/companies/" + certificate.provider + ".svg"}
-                        alt={certificate.certificate_name}
+                        alt={certificate.provider}
                         className="w-30 h-30 object-contain"
                       />
                     )}
@@ -266,7 +267,7 @@ export default function WidgetCertificaciones({ userId }: Props) {
                     width={300}
                     height={300}
                     src={"/companies/" + certificate.provider + ".svg"}
-                    alt={certificate.certificate_name}
+                    alt={certificate.provider}
                     className="w-30 h-30 object-contain"
                   />
                 )}
@@ -275,14 +276,13 @@ export default function WidgetCertificaciones({ userId }: Props) {
                 </p>
                 <p className="text-xs text-primary mt-1">
                   Empezado:{" "}
-                  {new Date(certificate.certificate_date).toLocaleDateString(
-                    "es-MX",
-                    {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    }
-                  )}
+                  {new Date(
+                    certificate.certificate_start_date
+                  ).toLocaleDateString("es-MX", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Horas Estimadas: {certificate.certificate_hours} horas
@@ -325,7 +325,7 @@ export default function WidgetCertificaciones({ userId }: Props) {
                     width={300}
                     height={300}
                     src={"/companies/" + certificate.provider + ".svg"}
-                    alt={certificate.certificate_name}
+                    alt={certificate.provider}
                     className="w-30 h-30 object-contain"
                   />
                 )}
@@ -336,14 +336,19 @@ export default function WidgetCertificaciones({ userId }: Props) {
                   Compatibilidad: {certificate.compatibility}%
                 </p>
                 <div className="flex flex-row mt-2">
-                  {certificate.skills.map((skill, index) => (
+                  {certificate.skills.slice(0, 3).map((skill, index) => (
                     <span
                       key={index}
                       className="badge bg-accent text-base-100 text-xs mr-1 border-0 outline-none hover:outline-none focus:outline-none"
                     >
-                      {skill.length > 10 ? skill.slice(0, 10) + "..." : skill}
+                      {skill.length > 6 ? skill.slice(0, 6) + ".." : skill}
                     </span>
                   ))}
+                  {certificate.skills.length > 3 && (
+                    <span className="flex items-center justify-center py-1 px-1 rounded-lg text-center bg-accent text-base-100 text-xs mr-1 border-0 outline-none hover:outline-none focus:outline-none">
+                      +{certificate.skills.length - 3}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

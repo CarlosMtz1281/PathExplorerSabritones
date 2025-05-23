@@ -55,6 +55,7 @@ router.get("/certificates", async (req, res) => {
       certificate_name: certificate.Certificates.certificate_name,
       certificate_desc: certificate.Certificates.certificate_desc,
       certificate_date: certificate.certificate_date,
+      certificate_start_date: certificate.certificate_start_date,
       certificate_expiration_date: certificate.certificate_expiration_date,
       certificate_link: certificate.certificate_link,
       certificate_status: certificate.status,
@@ -214,12 +215,10 @@ router.post("/add-certificate", async (req, res) => {
       },
     });
 
-    res
-      .status(201)
-      .json({
-        message: "Certificate added successfully",
-        certificate: newCertificate,
-      });
+    res.status(201).json({
+      message: "Certificate added successfully",
+      certificate: newCertificate,
+    });
   } catch (error) {
     console.error("Error adding certificate:", error);
     res.status(500).json({ error: "Failed to add certificate" });

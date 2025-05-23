@@ -7,6 +7,7 @@ interface Certificate {
   certificate_name: string;
   certificate_desc: string;
   certificate_date: string;
+  certificate_start_date: string;
   certificate_expiration_date: string;
   certificate_link: string;
   certificate_status: string;
@@ -146,14 +147,13 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
                 <div>
                   <h4 className="font-semibold text-base">Fecha de Inicio:</h4>
                   <p>
-                    {new Date(certificate.certificate_date).toLocaleDateString(
-                      "es-MX",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
+                    {new Date(
+                      certificate.certificate_start_date
+                    ).toLocaleDateString("es-MX", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
                 <div>
