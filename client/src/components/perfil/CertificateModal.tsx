@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import Image from "next/image";
 
 interface Certificate {
@@ -33,6 +34,19 @@ type RecommendedCertificate = {
 type CertificateModalProps = {
   certificate: Certificate | RecommendedCertificate;
   onClose: () => void;
+};
+
+const FallbackImage = ({ src, fallbackSrc, ...props }: any) => {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  return (
+    <Image
+      {...props}
+      src={imgSrc}
+      onError={() => setImgSrc(fallbackSrc)}
+      alt={props.alt || "Certificate image"}
+    />
+  );
 };
 
 const CertificateModal: React.FC<CertificateModalProps> = ({
@@ -73,7 +87,8 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
         {/* Certificate Header */}
         <div className="flex items-center gap-4 mb-4">
           {certificate.provider && (
-            <Image
+            <FallbackImage
+              fallbackSrc="/globe.svg"
               width={300}
               height={300}
               src={"/companies/" + certificate.provider + ".svg"}

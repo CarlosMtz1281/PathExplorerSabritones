@@ -11,6 +11,7 @@ interface Certificate {
   certificate_name: string;
   certificate_desc: string;
   certificate_date: string;
+  certificate_start_date: string;
   certificate_expiration_date: string;
   certificate_link: string;
   certificate_status: string;
@@ -23,6 +24,19 @@ interface Certificate {
 interface Props {
   userId?: number; // Nuevo: opcional para uso en perfil
 }
+
+const FallbackImage = ({ src, fallbackSrc, ...props }: any) => {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  return (
+    <Image
+      {...props}
+      src={imgSrc}
+      onError={() => setImgSrc(fallbackSrc)}
+      alt={props.alt || "Certificate image"}
+    />
+  );
+};
 
 export default function WidgetCertificaciones({ userId }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -58,7 +72,10 @@ export default function WidgetCertificaciones({ userId }: Props) {
             certificate_status: cu.status,
             certificate_hours: cu.Certificates?.certificate_estimated_time || 0,
             certificate_level: cu.Certificates?.certificate_level || 0,
-            skills: [],
+            skills:
+              cu.Certificates?.Certificate_Skills?.map(
+                (s: any) => s.Skills?.name
+              ) || [],
             provider: cu.Certificates?.provider || "",
           })) || [];
 
@@ -105,7 +122,8 @@ export default function WidgetCertificaciones({ userId }: Props) {
               className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
             >
               {certificate.provider && (
-                <Image
+                <FallbackImage
+                  fallbackSrc="/globe.svg"
                   width={300}
                   height={300}
                   src={"/companies/" + certificate.provider + ".svg"}
@@ -137,7 +155,9 @@ export default function WidgetCertificaciones({ userId }: Props) {
 
         <div
           className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            isExpanded
+              ? "max-h-screen opacity-100 overflow-visible"
+              : "max-h-0 opacity-0 overflow-hidden"
           }`}
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
@@ -151,7 +171,8 @@ export default function WidgetCertificaciones({ userId }: Props) {
                 className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
               >
                 {certificate.provider && (
-                  <Image
+                  <FallbackImage
+                    fallbackSrc="/globe.svg"
                     width={300}
                     height={300}
                     src={"/companies/" + certificate.provider + ".svg"}

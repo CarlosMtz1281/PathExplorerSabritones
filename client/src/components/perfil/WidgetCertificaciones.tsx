@@ -41,6 +41,19 @@ interface Props {
   userId?: number; // Nuevo: opcional para uso en perfil
 }
 
+const FallbackImage = ({ src, fallbackSrc, ...props }: any) => {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  return (
+    <Image
+      {...props}
+      src={imgSrc}
+      onError={() => setImgSrc(fallbackSrc)}
+      alt={props.alt || "Certificate image"}
+    />
+  );
+};
+
 export default function WidgetCertificaciones({ userId }: Props) {
   const { data: session } = useSession();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -170,7 +183,8 @@ export default function WidgetCertificaciones({ userId }: Props) {
               className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
             >
               {certificate.provider && (
-                <Image
+                <FallbackImage
+                  fallbackSrc="/globe.svg"
                   width={300}
                   height={300}
                   src={"/companies/" + certificate.provider + ".svg"}
@@ -222,7 +236,8 @@ export default function WidgetCertificaciones({ userId }: Props) {
                     className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
                   >
                     {certificate.provider && (
-                      <Image
+                      <FallbackImage
+                        fallbackSrc="/globe.svg"
                         width={300}
                         height={300}
                         src={"/companies/" + certificate.provider + ".svg"}
@@ -263,7 +278,8 @@ export default function WidgetCertificaciones({ userId }: Props) {
                 className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
               >
                 {certificate.provider && (
-                  <Image
+                  <FallbackImage
+                    fallbackSrc="/globe.svg"
                     width={300}
                     height={300}
                     src={"/companies/" + certificate.provider + ".svg"}
@@ -321,7 +337,8 @@ export default function WidgetCertificaciones({ userId }: Props) {
                 className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
               >
                 {certificate.provider && (
-                  <Image
+                  <FallbackImage
+                    fallbackSrc="/globe.svg"
                     width={300}
                     height={300}
                     src={"/companies/" + certificate.provider + ".svg"}
