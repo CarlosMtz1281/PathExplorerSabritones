@@ -1,7 +1,7 @@
 import { login } from "./functions.spec";
 import { test, expect, Page } from '@playwright/test';
 
-test('GET getProjectById/:projectId and validate UI render', async ({ request, page }) => {
+test('Proyect information returns de correct data', async ({ request, page }) => {
 
     await login(page);
 
