@@ -6,6 +6,7 @@ import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
 import WidgetPathExplorer from "@/components/perfil/WidgetPathExplorer";
+import WidgetMetas from "@/components/perfil/WidgetMetas";
 import { User } from "@/interfaces/User";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -111,6 +112,7 @@ const Profile = () => {
           className="flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] "
           style={{ width: "70vw", marginLeft: "2vw", marginBottom: "200px" }}
         >
+          <WidgetMetas />
           <WidgetCertificaciones />
           <WidgetTrayectoria />
           <WidgetHabilidades />
