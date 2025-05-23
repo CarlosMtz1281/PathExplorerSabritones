@@ -1881,6 +1881,11 @@ INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VA
 (105, 27), (105, 57), -- Blockchain Developer, Python Development
 (111, 39), (111, 53), -- React Native, React Development
 (117, 1), (117, 4),  -- Java SE 11 Developer, Java EE Enterprise Architect
+-- 123, 129, 135, 141
+(123, 45), (123, 54), -- Secure Java Coding, Backend with Node.js
+(129, 49), (129, 60), -- Full Stack Development, GraphQL Development
+(135, 41), (135, 42), -- iOS with Swift, Android with Kotlin
+(141, 27), (141, 57), -- Blockchain Developer, Python Development
 -- Capability 2: Ciencia de Datos
 (3, 17), (3, 20),    -- Data Science Professional, Deep Learning Specialization
 (10, 16), (10, 20),  -- Google ML Engineer, Deep Learning Specialization
@@ -1901,6 +1906,11 @@ INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VA
 (106, 11), (106, 16), -- Power BI Data Analyst, Google ML Engineer
 (112, 17), (112, 25), -- Data Science Professional, TensorFlow Developer
 (118, 13), (118, 58), -- Google Data Engineer, Data Visualization with Tableau
+-- 124, 130, 136, 142
+(124, 18), (124, 52), -- Machine Learning Specialization, Ethical AI Design
+(130, 11), (130, 20), -- Power BI Data Analyst, Deep Learning Specialization
+(136, 17), (136, 25), -- Data Science Professional, TensorFlow Developer
+(142, 13), (142, 58), -- Google Data Engineer, Data Visualization with Tableau
 -- Capability 3: Arquitectura en la Nube
 (4, 5), (4, 56),     -- AWS Solutions Architect, Cloud Security
 (11, 10), (11, 56),  -- Azure Solutions Architect, Cloud Security
@@ -1921,6 +1931,11 @@ INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VA
 (107, 10), (107, 32), -- Azure Solutions Architect, Serverless Architecture
 (113, 14), (113, 59), -- Google Associate Cloud Engineer, Distributed Systems
 (119, 5), (119, 15), -- AWS Solutions Architect, Google Cloud Architect
+-- 125, 131, 137, 143
+(125, 10), (125, 56), -- Azure Solutions Architect, Cloud Security
+(131, 14), (131, 59), -- Google Associate Cloud Engineer, Distributed Systems
+(137, 5), (137, 15), -- AWS Solutions Architect, Google Cloud Architect
+(143, 10), (143, 32), -- Azure Solutions Architect, Serverless Architecture
 -- Capability 4: Calidad de Software QA
 (5, 37), (5, 51),    -- ISTQB Foundation Level, Cybersecurity Analyst
 (12, 26), (12, 37),  -- Certified Ethical Hacker, ISTQB Foundation Level
@@ -1941,6 +1956,11 @@ INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VA
 (106, 37), (106, 51), -- ISTQB Foundation Level, Cybersecurity Analyst
 (114, 45), (114, 51), -- Secure Java Coding, Cybersecurity Analyst
 (120, 26), (120, 37), -- Certified Ethical Hacker, ISTQB Foundation Level
+-- 126, 132, 138, 144
+(126, 37), (126, 51), -- ISTQB Foundation Level, Cybersecurity Analyst
+(132, 45), (132, 51), -- Secure Java Coding, Cybersecurity Analyst
+(138, 26), (138, 37), -- Certified Ethical Hacker, ISTQB Foundation Level
+(144, 37), (144, 51), -- ISTQB Foundation Level, Cybersecurity Analyst
 -- Capability 5: Diseño de UI/UX
 (6, 35), (6, 53),    -- UX Design Certification, React Development
 (13, 36), (13, 58),  -- UI Design with Figma, Data Visualization with Tableau
@@ -1961,6 +1981,11 @@ INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VA
 (109, 36), (109, 39), -- UI Design with Figma, React Native Development
 (115, 35), (115, 36), -- UX Design Certification, UI Design with Figma
 (121, 36), (121, 53), -- UI Design with Figma, React Development
+-- 127, 133, 139, 145
+(127, 35), (127, 52), -- UX Design Certification, Ethical AI Design
+(133, 36), (133, 58), -- UI Design with Figma, Data Visualization with Tableau
+(139, 35), (139, 53), -- UX Design Certification, React Development
+(145, 36), (145, 39), -- UI Design with Figma, React Native Development
 -- Capability 6: Ingeniería de DevOps
 (7, 7), (7, 28),     -- AWS SysOps Administrator, Terraform Associate
 (14, 12), (14, 55),  -- Microsoft DevOps Engineer, DevOps in Azure
@@ -1980,7 +2005,12 @@ INSERT INTO "Project_Position_Certificates" ("position_id", "certificate_id") VA
 (104, 12), (104, 55), -- Microsoft DevOps Engineer, DevOps in Azure
 (110, 28), (110, 55), -- Terraform Associate, DevOps in Azure
 (116, 7), (116, 55), -- AWS SysOps Administrator, DevOps in Azure
-(122, 12), (122, 28); -- Microsoft DevOps Engineer, Terraform Associate
+(122, 12), (122, 28), -- Microsoft DevOps Engineer, Terraform Associate
+-- 128, 134, 140, 146
+(128, 23), (128, 44), -- Cisco DevNet Associate, Infrastructure Monitoring with Prometheus & Grafana
+(134, 7), (134, 55), -- AWS SysOps Administrator, DevOps in Azure
+(140, 12), (140, 55), -- Microsoft DevOps Engineer, DevOps in Azure
+(146, 28), (146, 55); -- Terraform Associate, DevOps in Azure
 
 
 
