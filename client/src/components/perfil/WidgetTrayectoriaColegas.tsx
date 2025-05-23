@@ -837,7 +837,7 @@
                     <div className="relative">
                       <input
                         type="date"
-                        className={`input input-bordered w-full ${formErrors.start_date ? 'input-error' : ''}`}
+                        className={`input input-bordered w-full${formErrors.start_date ? 'input-error' : ''}`}
                         value={experienceForm.start_date}
                         onChange={(e) => setExperienceForm({
                           ...experienceForm,

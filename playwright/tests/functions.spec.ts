@@ -17,6 +17,11 @@ async function login(page: Page) {
   await loginButton.waitFor();
   await loginButton.click();
 
-  await expect(page).toHaveURL('http://localhost:3000/dashboard/profile');
+  await expect(page).toHaveURL(/dashboard\/profile\/\d+$/);
 
+  const url = page.url();
+  return parseInt(url.split('/').pop()!);
 }
+
+export { login }
+
