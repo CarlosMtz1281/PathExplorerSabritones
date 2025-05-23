@@ -10,7 +10,7 @@ test('Check employee profile', async ({ page }) => {
 
     page.getByText("Amit Singh");
 
-    const targetRow = page.locator('tr', { hasText: 'Amit Singh' });
+    const targetRow = page.locator('tr', { hasText: 'Amanda Lopez' });
 
     const expandButton = targetRow.locator('[class="btn btn-ghost btn-sm"]');
     await expandButton.click();

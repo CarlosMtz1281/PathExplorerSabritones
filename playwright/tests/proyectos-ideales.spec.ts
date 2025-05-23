@@ -12,7 +12,7 @@ test('Proyect information returns de correct data', async ({ request, page }) =>
     await targetRow.click();
 
     //Entramos al projecto
-    const asignButton = targetRow.getByRole('button', { name: "Asignar"});
+    const asignButton = targetRow.getByRole('button', { name: "Postular"});
     await asignButton.click();
 
     // Sacamos el id del proyecto

@@ -16,6 +16,18 @@ router.get("/users", async (req, res) => {
   res.json(users);
 });
 
+router.get("/userID", async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+
+    res.status(200).json({ user_id: userId });
+  } catch (error: any) {
+    console.error("Error in /getMe:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 // Validate user login and returns sessionId
 router.post("/login", async (req, res) => {
   try {
