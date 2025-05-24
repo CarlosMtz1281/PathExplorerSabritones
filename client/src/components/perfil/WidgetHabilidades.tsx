@@ -1,16 +1,34 @@
 import { useEffect, useState } from "react";
 import { SkillListProps, SkillAPI } from "@/types/Habilities";
 import { PiWrenchLight } from "react-icons/pi";
-import { IoMdAdd } from "react-icons/io";
+import { IoIosArrowDown, IoMdAdd, IoMdInformationCircle } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { IoCheckmarkCircle, IoPencil, IoPencilSharp } from "react-icons/io5";
 
-const Skill = ({ skill }: { skill: string }) => {
+const Skill = ({
+  skill,
+  isEditing,
+  onDelete,
+}: {
+  skill: SkillAPI;
+  isEditing?: boolean;
+  onDelete?: (skill: SkillAPI) => void;
+}) => {
   return (
-    <span className={`badge badge-outline badge-primary px-8 py-3.5 text-xs`}>
-      {skill}
-    </span>
+    <div className="relative group">
+      <span
+        className={`badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 ${
+          isEditing
+            ? "border-error bg-error/20 text-error hover:scale-105 cursor-pointer"
+            : "badge-primary"
+        }`}
+        onClick={isEditing ? () => onDelete?.(skill) : undefined}
+      >
+        {skill.skill_name}
+      </span>
+    </div>
   );
 };
 
@@ -19,6 +37,8 @@ const SkillList = ({
   skills,
   titleWidth = "w-1/5",
   skillsWidth = "w-4/5",
+  isEditing,
+  onDelete,
 }: SkillListProps) => {
   return (
     <div className="flex w-full flex-row gap-2 items-start">
@@ -27,7 +47,12 @@ const SkillList = ({
       </div>
       <div className={`flex flex-wrap gap-x-7 gap-y-5 ${skillsWidth}`}>
         {skills?.map((skill, index) => (
-          <Skill key={index} skill={skill} />
+          <Skill
+            key={index}
+            skill={skill}
+            isEditing={isEditing}
+            onDelete={onDelete}
+          />
         ))}
       </div>
     </div>
@@ -68,7 +93,6 @@ const fetchUserSkills = async (sessionKey?: string, userId?: number) => {
   }
 };
 
-
 const postUserSkills = async (sessionKey: string, skills: number[]) => {
   try {
     const response = await axios.post(
@@ -88,25 +112,24 @@ const postUserSkills = async (sessionKey: string, skills: number[]) => {
 };
 
 const WidgetHabilidades = ({ userId }: { userId?: number }) => {
-
   const { data: status } = useSession();
   const [render, setRender] = useState(false);
-  const [technicalSkills, setTechnicalSkills] = useState<string[]>();
-  const [softSkills, setSoftSkills] = useState<string[]>([]);
+  const [technicalSkills, setTechnicalSkills] = useState<SkillAPI[]>([]);
+  const [softSkills, setSoftSkills] = useState<SkillAPI[]>([]);
   const [allSkills, setAllSkills] = useState<SkillAPI[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [skillToDelete, setSkillToDelete] = useState<SkillAPI | null>(null);
 
   useEffect(() => {
     const fetchSkills = async () => {
       const userSkills = await fetchUserSkills(status?.sessionId || "", userId);
       setTechnicalSkills(
-        userSkills
-          .filter((skill: SkillAPI) => skill.skill_technical === true)
-          .map((skill: SkillAPI) => skill.skill_name)
+        userSkills.filter((skill: SkillAPI) => skill.skill_technical === true)
       );
       setSoftSkills(
-        userSkills
-          .filter((skill: SkillAPI) => skill.skill_technical === false)
-          .map((skill: SkillAPI) => skill.skill_name)
+        userSkills.filter((skill: SkillAPI) => skill.skill_technical === false)
       );
     };
 
@@ -122,8 +145,7 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
           skills
             .filter(
               (skill: SkillAPI) =>
-                !technicalSkills?.includes(skill.skill_name) &&
-                !softSkills.includes(skill.skill_name)
+                !technicalSkills?.includes(skill) && !softSkills.includes(skill)
             )
             .map((skill: SkillAPI) =>
               skill?.skill_name.length > 30
@@ -183,15 +205,58 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
       ...(prev || []),
       ...selectedSkills
         .filter((skill) => skill.skill_technical === true)
-        .map((skill) => skill.skill_name),
+        .map((skill) => skill),
     ]);
     setSoftSkills((prev) => [
       ...(prev || []),
       ...selectedSkills
         .filter((skill) => skill.skill_technical === false)
-        .map((skill) => skill.skill_name),
+        .map((skill) => skill),
     ]);
     handleModalToggle();
+  };
+
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleEditSkills = () => {
+    setIsEditing(!isEditing);
+    setIsDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isDropdownOpen) {
+        const target = event.target as HTMLElement;
+        const isDropdown = target.closest(".dropdown-container");
+        const isToggleButton = target.closest(".dropdown-toggle");
+
+        if (!isDropdown && !isToggleButton) {
+          setIsDropdownOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
+  const deleteSkill = async (skill: SkillAPI) => {
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_BASE}/employee/skills/${skill.skill_id}`,
+        {
+          headers: {
+            "session-key": status?.sessionId,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error deleting skill");
+    }
   };
 
   return (
@@ -202,14 +267,48 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
             <PiWrenchLight />
             Habilidades
           </h2>
-          <button
-            className="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"
-            onClick={handleModalToggle}
-          >
-            <div className="flex items-center justify-center w-full h-full">
-              <IoMdAdd className="text-lg md:text-xl" />
+
+          {isEditing ? (
+            <button className="ml-auto" onClick={handleEditSkills}>
+              <IoCheckmarkCircle
+                className="text-success rounded-4xl hover:cursor-pointer"
+                size={37}
+              />
+            </button>
+          ) : (
+            <button
+              className="btn btn-circle btn-accent btn-xs md:btn-sm text-base-100 dropdown-toggle ml-auto"
+              onClick={handleDropdownToggle}
+            >
+              <div className="flex items-center justify-center w-full h-full">
+                <IoIosArrowDown
+                  className={`text-lg md:text-xl transition-transform ${
+                    isDropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                />{" "}
+              </div>
+            </button>
+          )}
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-32 mr-5 w-48 bg-base-100 rounded-md shadow-lg border border-base-300 z-50 dropdown-container">
+              <div className="py-1">
+                <button
+                  onClick={handleEditSkills}
+                  className="flex items-center px-4 py-2 text-sm text-base-content hover:bg-base-200 w-full text-left cursor-pointer"
+                >
+                  <IoPencil className="mr-2 text-primary" />
+                  Editar Habilidades
+                </button>
+                <button
+                  onClick={handleModalToggle}
+                  className="flex items-center px-4 py-2 text-sm text-base-content hover:bg-base-200 w-full text-left cursor-pointer"
+                >
+                  <IoMdAdd className="mr-2 text-primary" />
+                  Agregar Habilidad
+                </button>
+              </div>
             </div>
-          </button>
+          )}
         </div>
         <div className="flex flex-col gap-y-14 max-h-80 overflow-scroll pt-3 pb-6 scroll-pb-10">
           <SkillList
@@ -218,6 +317,11 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
             size="md"
             titleWidth="w-1/5"
             skillsWidth="w-4/5"
+            onDelete={(skill) => {
+              setSkillToDelete(skill);
+              setShowDeleteModal(true);
+            }}
+            isEditing={isEditing}
           />
 
           <SkillList
@@ -226,6 +330,11 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
             size="md"
             titleWidth="w-1/5"
             skillsWidth="w-4/5"
+            onDelete={(skill) => {
+              setSkillToDelete(skill);
+              setShowDeleteModal(true);
+            }}
+            isEditing={isEditing}
           />
         </div>
       </div>
@@ -314,6 +423,46 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
                 onClick={handleSubmitSkills}
               >
                 Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-100">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <div className="flex items-center gap-2 mb-4">
+              <IoMdInformationCircle className="text-error text-2xl" />
+              <h3 className="text-xl font-semibold">Eliminar habilidad</h3>
+            </div>
+            <p className="mb-6">
+              ¿Estás seguro que deseas eliminar la habilidad "
+              {skillToDelete?.skill_name}"?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className={"btn btn-error"}
+                onClick={() => {
+                  deleteSkill(skillToDelete!);
+                  if (skillToDelete?.skill_technical) {
+                    setTechnicalSkills((prev) =>
+                      prev.filter((skill) => skill !== skillToDelete)
+                    );
+                  } else {
+                    setSoftSkills((prev) =>
+                      prev.filter((skill) => skill !== skillToDelete)
+                    );
+                  }
+                  setShowDeleteModal(false);
+                }}
+              >
+                Eliminar
               </button>
             </div>
           </div>
