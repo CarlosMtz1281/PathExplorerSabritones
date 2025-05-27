@@ -9,6 +9,8 @@ import WidgetTrayectoriaColegas from "@/components/perfil/WidgetTrayectoriaColeg
 import WidgetTrayectoriaColegasEmpleado from "@/components/perfil/WidgetTrayectoriaColegaEmpleado";
 import WidgetHabilidadesColegas from "@/components/perfil/WidgetHabilidadesColegas";
 import WidgetFeedbackColegas from "@/components/perfil/WidgetFeedbackColegas";
+import WidgetPathExplorerEmpleado from "@/components/perfil/WidgetPathExplorerEmpleado";
+
 import Image from "next/image";
 import { User } from "@/interfaces/User";
 
@@ -118,7 +120,10 @@ const InfoColegas = () => {
 
       {/* Down Column - Widgets */}
       <div className="flex">
-        <div className="card w-[20vw] bg-base-100 shadow-lg p-6 rounded-lg h-auto"></div>
+      <div className="w-[20vw]">
+        <WidgetPathExplorerEmpleado />
+      </div>
+
         <div
           className="flex flex-col gap-10 pr-5 overflow-y-auto"
           style={{ width: "68vw", marginLeft: "2vw" }}
