@@ -1056,4 +1056,250 @@ router.delete("/deleteExperience/:positionId", async (req, res) => {
   }
 });
 
+router.get("/goals", async (req, res) => {
+  console.log("Fetching user goals...");
+  console.log(req.headers);
+  try {
+    const sessionKey = req.headers["session-key"];
+    if (!sessionKey) {
+      return res.status(401).json({ error: "Missing session-key header" });
+    }
+
+    const userId = await getUserIdFromSession(sessionKey);
+    if (!userId || typeof userId !== "number") {
+      return res.status(400).json({ error: "Invalid or expired session" });
+    }
+
+    // Fetch ONLY 3 most recent goals for the user, including related skills and user info
+    const goals = await prisma.goal_Users.findMany({
+      where: { user_id: userId },
+      orderBy: { create_date: "desc" },
+      take: 3, // <-- Only 3 goals
+      select: {
+        user_id: true,
+        goal_id: true,
+        create_date: true,
+        priority: true,
+        completed: true,
+        Goals: {
+          include: {
+            Goal_Skills: {
+              include: {
+                Skills: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Format the response to flatten the structure
+    const formattedGoals = goals.map((goalUser) => ({
+      user_id: goalUser.user_id,
+      goal_id: goalUser.goal_id,
+      created_at: goalUser.create_date,
+      priority: goalUser.priority,
+      completed: goalUser.completed,
+      goal: {
+        ...goalUser.Goals,
+        skills: goalUser.Goals.Goal_Skills.map((gs) => ({
+          skill_id: gs.skill_id,
+          skill_name: gs.Skills?.name,
+        })),
+      },
+    }));
+
+    res.status(200).json(formattedGoals);
+  } catch (error) {
+    console.error("Error fetching user goals:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/goals", async (req, res) => {
+  try {
+    const sessionKey = req.headers["session-key"];
+    if (!sessionKey) {
+      return res.status(401).json({ error: "Missing session-key header" });
+    }
+
+    const userId = await getUserIdFromSession(sessionKey);
+    if (!userId || typeof userId !== "number") {
+      return res.status(400).json({ error: "Invalid or expired session" });
+    }
+
+    const { goal_id } = req.body;
+
+    if (!goal_id) {
+      return res.status(400).json({ error: "Goal ID is required." });
+    }
+
+    // Check if user already has 3 goals
+    const userGoalsCount = await prisma.goal_Users.count({
+      where: { user_id: userId },
+    });
+
+    if (userGoalsCount >= 3) {
+      return res.status(400).json({ error: "You already have 3 goals. Remove one to add another." });
+    }
+
+    // Check if this goal is already assigned to the user
+    const alreadyAssigned = await prisma.goal_Users.findFirst({
+      where: { user_id: userId, goal_id },
+    });
+
+    if (alreadyAssigned) {
+      return res.status(400).json({ error: "This goal is already assigned to the user." });
+    }
+
+    // Create the relation between the user and the goal
+    await prisma.goal_Users.create({
+      data: {
+        user_id: userId,
+        goal_id,
+        create_date: new Date(),
+      },
+    });
+
+    res.status(201).json({ message: "Goal assigned to user successfully", goal_id });
+  } catch (error) {
+    console.error("Error assigning goal:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/all-goals", async (req, res) => {
+  try {
+    const goals = await prisma.goals.findMany({
+      include: {
+        Goal_Skills: {
+          include: {
+            Skills: true,
+          },
+        },
+      },
+      orderBy: { goal_id: "asc" },
+    });
+
+    const formattedGoals = goals.map((goal) => ({
+      goal_id: goal.goal_id,
+      goal_name: goal.goal_name,
+      goal_desc: goal.goal_desc,
+      
+      skills: goal.Goal_Skills.map((gs) => ({
+        skill_id: gs.skill_id,
+        skill_name: gs.Skills?.name,
+      })),
+    }));
+
+    res.status(200).json(formattedGoals);
+  } catch (error) {
+    console.error("Error fetching all goals:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.patch("/goals", async (req, res) => {
+  try {
+    const sessionKey = req.headers["session-key"];
+    if (!sessionKey) {
+      return res.status(401).json({ error: "Missing session-key header" });
+    }
+
+    const userId = await getUserIdFromSession(sessionKey);
+    if (!userId || typeof userId !== "number") {
+      return res.status(400).json({ error: "Invalid or expired session" });
+    }
+
+    const { goal_id, completed, priority } = req.body;
+
+    if (!goal_id) {
+      return res.status(400).json({ error: "Goal ID is required." });
+    }
+    console.log("GOALLL", priority, completed);
+    if (typeof completed === "undefined" && !priority) {
+      return res.status(400).json({ error: "At least one of completed or priority must be provided." });
+    }
+
+    // Find the goal-user relation
+    const goalUser = await prisma.goal_Users.findFirst({
+      where: { user_id: userId, goal_id },
+    });
+
+    if (!goalUser) {
+      return res.status(404).json({ error: "Goal not assigned to this user." });
+    }
+
+    // Update the goal-user relation
+    await prisma.goal_Users.updateMany({
+      where: { user_id: userId, goal_id },
+      data: {
+        ...(typeof completed !== "undefined" && { completed }),
+        ...(priority && { priority }),
+      },
+    });
+
+    res.status(200).json({ message: "Goal updated successfully." });
+  } catch (error) {
+    console.error("Error updating goal:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/completed-goals", async (req, res) => {
+  try {
+    const sessionKey = req.headers["session-key"];
+    if (!sessionKey) {
+      return res.status(401).json({ error: "Missing session-key header" });
+    }
+
+    const userId = await getUserIdFromSession(sessionKey);
+    if (!userId || typeof userId !== "number") {
+      return res.status(400).json({ error: "Invalid or expired session" });
+    }
+
+    const completedGoals = await prisma.goal_Users.findMany({
+      where: {
+        user_id: userId,
+        completed: true,
+      },
+      orderBy: { create_date: "desc" },
+      select: {
+        user_id: true,
+        goal_id: true,
+        create_date: true,
+        priority: true,
+        Goals: {
+          include: {
+            Goal_Skills: {
+              include: {
+                Skills: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedGoals = completedGoals.map((goalUser) => ({
+      user_id: goalUser.user_id,
+      goal_id: goalUser.goal_id,
+      created_at: goalUser.create_date,
+      priority: goalUser.priority,
+      goal: {
+        ...goalUser.Goals,
+        skills: goalUser.Goals.Goal_Skills.map((gs) => ({
+          skill_id: gs.skill_id,
+          skill_name: gs.Skills?.name,
+        })),
+      },
+    }));
+
+    res.status(200).json(formattedGoals);
+  } catch (error) {
+    console.error("Error fetching completed goals:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
