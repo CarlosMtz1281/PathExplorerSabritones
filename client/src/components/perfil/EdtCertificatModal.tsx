@@ -7,12 +7,12 @@ interface EditGoalModalProps {
   onClose: () => void;
   goalId: number;
   goalName: string;
-  currentPriority: "Alta" | "Media" | "Baja";
+  currentPriority: "high" | "medium" | "low";
   onGoalUpdated?: () => void;
 }
 
 const priorityIcon = {
-  Alta: (
+  high: (
     <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
       <path
         d="M12 19V5M12 5l-5 5M12 5l5 5"
@@ -23,7 +23,7 @@ const priorityIcon = {
       />
     </svg>
   ),
-  Media: (
+  medium: (
     <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
       <path
         d="M5 12h14"
@@ -34,7 +34,7 @@ const priorityIcon = {
       />
     </svg>
   ),
-  Baja: (
+  low: (
     <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
       <path
         d="M12 5v14M12 19l-5-5M12 19l5-5"
@@ -55,14 +55,14 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
   currentPriority,
   onGoalUpdated,
 }) => {
-  const [priority, setPriority] = useState<"Alta" | "Media" | "Baja">(currentPriority);
+  const [priority, setPriority] = useState<"high" | "medium" | "low">(currentPriority);
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
 
   if (!isOpen) return null;
 
   const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPriority(e.target.value as "Alta" | "Media" | "Baja");
+    setPriority(e.target.value as "high" | "medium" | "low");
   };
 
   const handleUpdate = async () => {
@@ -104,7 +104,7 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
         {
           goal_id: goalId,
           priority: priority,
-          completed: false
+          completed: true
         },
         {
           headers: {
@@ -132,7 +132,7 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
         {/* Close Button */}
         <button
           className="absolute top-4 right-4 bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-full w-8 h-8 flex items-center justify-center text-xl"
-          onClick={onClose}
+          onClick={() => { onClose(); }}
         >
           ×
         </button>
@@ -152,9 +152,9 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
               onChange={handlePriorityChange}
               disabled={loading}
             >
-              <option value="Alta">Alta</option>
-              <option value="Media">Media</option>
-              <option value="Baja">Baja</option>
+              <option value="high">Alta</option>
+              <option value="medium">Media</option>
+              <option value="low">Baja</option>
             </select>
             {priorityIcon[priority]}
           </div>
@@ -162,7 +162,7 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
 
         <div className="flex justify-between mt-8 gap-2">
           <button
-            className="bg-accent text-white font-bold py-2 px-6 rounded-lg cursor-pointer"
+            className="bg-primary text-white font-bold py-2 px-6 rounded-lg cursor-pointer"
             onClick={handleUpdate}
             disabled={loading}
           >

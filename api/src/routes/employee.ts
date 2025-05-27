@@ -1017,6 +1017,7 @@ router.get("/goals", async (req, res) => {
         goal_id: true,
         create_date: true,
         priority: true,
+        completed: true,
         Goals: {
           include: {
             Goal_Skills: {
@@ -1034,7 +1035,8 @@ router.get("/goals", async (req, res) => {
       user_id: goalUser.user_id,
       goal_id: goalUser.goal_id,
       created_at: goalUser.create_date,
-      prioriry: goalUser.priority,
+      priority: goalUser.priority,
+      completed: goalUser.completed,
       goal: {
         ...goalUser.Goals,
         skills: goalUser.Goals.Goal_Skills.map((gs) => ({
@@ -1120,6 +1122,7 @@ router.get("/all-goals", async (req, res) => {
       goal_id: goal.goal_id,
       goal_name: goal.goal_name,
       goal_desc: goal.goal_desc,
+      
       skills: goal.Goal_Skills.map((gs) => ({
         skill_id: gs.skill_id,
         skill_name: gs.Skills?.name,
@@ -1179,4 +1182,61 @@ router.patch("/goals", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+router.get("/completed-goals", async (req, res) => {
+  try {
+    const sessionKey = req.headers["session-key"];
+    if (!sessionKey) {
+      return res.status(401).json({ error: "Missing session-key header" });
+    }
+
+    const userId = await getUserIdFromSession(sessionKey);
+    if (!userId || typeof userId !== "number") {
+      return res.status(400).json({ error: "Invalid or expired session" });
+    }
+
+    const completedGoals = await prisma.goal_Users.findMany({
+      where: {
+        user_id: userId,
+        completed: true,
+      },
+      orderBy: { create_date: "desc" },
+      select: {
+        user_id: true,
+        goal_id: true,
+        create_date: true,
+        priority: true,
+        Goals: {
+          include: {
+            Goal_Skills: {
+              include: {
+                Skills: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedGoals = completedGoals.map((goalUser) => ({
+      user_id: goalUser.user_id,
+      goal_id: goalUser.goal_id,
+      created_at: goalUser.create_date,
+      priority: goalUser.priority,
+      goal: {
+        ...goalUser.Goals,
+        skills: goalUser.Goals.Goal_Skills.map((gs) => ({
+          skill_id: gs.skill_id,
+          skill_name: gs.Skills?.name,
+        })),
+      },
+    }));
+
+    res.status(200).json(formattedGoals);
+  } catch (error) {
+    console.error("Error fetching completed goals:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
