@@ -4,42 +4,31 @@ import Image from "next/image";
 import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
+  FaHome,
   FaUser,
-  FaSignOutAlt,
+  FaCog,
+  FaClipboardList,
   FaChevronLeft,
   FaChevronRight,
-  FaSuitcase,
+  FaSignOutAlt,
   FaGgCircle,
+  FaAddressCard,
+  FaDochub,
+  FaProcedures,
+  FaRProject,
+  FaSuitcase,
   FaUserTie,
-  FaFolderOpen,
-  FaUserPlus,
-  FaTruckMoving,
-  FaAddressBook,
-  FaLightbulb
 } from "react-icons/fa";
+import { FaUpwork } from "react-icons/fa6";
 
 export default function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const { data: session } = useSession();
-  const roleId = session?.user?.role_id || 0;
-  const userId = session?.user?.id;
-
 
   const handleLogout = async () => {
     await signOut({
       redirect: true,
       callbackUrl: "/login",
     });
-  };
-
-  const rolePermissions = {
-    showProjects: [1,2,3,4,5],
-    showDeliveryProjects: [4],
-    showCreateProjects: [4],
-    showCreateUsers: [5],
-    showRepoEmpleados: [1,2,3,4,5],
-    showPLDashboard: [2,3],
-    showCLDashboard: [3],
   };
 
   return (
@@ -63,127 +52,110 @@ export default function Navbar() {
       </div>
 
       <ul className="flex flex-col gap-4 flex-grow items-start mt-30">
-        {/* Todos los roles: Perfil */}
         <li className="w-full">
           <a
-            href={`/dashboard/profile/${userId}`}
+            href={`/dashboard/profile`}
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaUser className="w-6 h-6" />
             {!isCollapsed && <h3 className="text-xl font-semibold">Perfil</h3>}
           </a>
         </li>
+        <li className="w-full">
+          <a
+            href="/dashboard/repo-projects"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaSuitcase className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold"> Proyectos</h3>
+            )}
+          </a>
+        </li>
+        <li className="w-full">
+          <a
+            href="/dashboard/delivery-projects"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaSuitcase className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold"> Delivery proyectos</h3>
+            )}
+          </a>
+        </li>
+        <li className="w-full mt-2">
+          <a
+            href="/dashboard/crea-projects"
+            className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaSuitcase className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold leading-tight">
+                Crear Proyectos
+              </h3>
+            )}
+          </a>
+        </li>
+        <li className="w-full mt-2">
+          <a
+            href="/dashboard/create-users"
+            className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaGgCircle className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold">Crear Usuarios</h3>
+            )}
+          </a>
+        </li>
+        <li className="w-full">
+          <a
+            href="/dashboard/repo-empleados"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaUser className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold">Empleados</h3>
+            )}
+          </a>
+        </li>
 
+        <li className="w-full">
+          <a
+            href="/dashboard/pl-dashboard"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaUserTie className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold">Dashboard de PL</h3>
+            )}
+          </a>
+        </li>
 
-        {rolePermissions.showProjects.includes(roleId) && (
-          <li className="w-full">
-            <a
-              href="/dashboard/repo-projects"
-              className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
-              <FaFolderOpen className="w-5 h-5" />
-              {!isCollapsed && <h3 className="text-xl font-semibold">Proyectos</h3>}
-            </a>
-          </li>
-        )}
-
-        {rolePermissions.showDeliveryProjects.includes(roleId) && (
-          <li className="w-full">
-            <a
-              href="/dashboard/delivery-projects"
-              className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
-              <FaTruckMoving className="w-5 h-5" />
-              {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Delivery proyectos</h3>
-              )}
-            </a>
-          </li>
-        )}
-
-        {rolePermissions.showCreateProjects.includes(roleId) && (
-          <li className="w-full mt-2">
-            <a
-              href="/dashboard/crea-projects"
-              className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
-              <FaSuitcase className="w-5 h-5" />
-              {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Crear Proyectos</h3>
-              )}
-            </a>
-          </li>
-        )}
-
-        {rolePermissions.showCreateUsers.includes(roleId) && (
-          <li className="w-full mt-2">
-            <a
-              href="/dashboard/create-users"
-              className="btn btn-ghost flex items-center gap-4 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
-              <FaUserPlus className="w-5 h-5" />
-              {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Crear Usuarios</h3>
-              )}
-            </a>
-          </li>
-        )}
-
-        {rolePermissions.showRepoEmpleados.includes(roleId) && (
-          <li className="w-full">
-            <a
-              href="/dashboard/repo-empleados"
-              className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
-              <FaAddressBook  className="w-5 h-5" />
-              {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Empleados</h3>
-              )}
-            </a>
-          </li>
-        )}
-
-        {rolePermissions.showPLDashboard.includes(roleId) && (
-          <li className="w-full">
-            <a
-              href="/dashboard/pl-dashboard"
-              className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
-              <FaLightbulb  className="w-5 h-5" />
-              {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Dashboard de PL</h3>
-              )}
-            </a>
-          </li>
-        )}
-
-        {rolePermissions.showCLDashboard.includes(roleId) && (
-          <li className="w-full">
-            <a
-              href="/dashboard/cl-dashboard"
-              className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
-            >
-              <FaUserTie className="w-5 h-5" />
-              {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Dashboard de CL</h3>
-              )}
-            </a>
-          </li>
-        )}
+        <li className="w-full">
+          <a
+            href="/dashboard/cl-dashboard"
+            className="btn btn-ghost flex items-center gap-2 w-full text-base-300 hover:text-primary hover:bg-base-200 justify-start"
+          >
+            <FaUserTie className="w-5 h-5" />
+            {!isCollapsed && (
+              <h3 className="text-xl font-semibold">Dashboard de CL</h3>
+            )}
+          </a>
+        </li>
       </ul>
 
-      {/* Logout */}
+      {/* Logout Button */}
       <button
         onClick={handleLogout}
         className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-red-500 hover:bg-base-200 justify-start mb-4"
       >
         <FaSignOutAlt className="w-5 h-5" />
         {!isCollapsed && (
-          <h3 className="text-xl font-semibold">Cerrar Sesión</h3>
+          <h3 className="text-xl font-semibold">Cerrar Sessión</h3>
         )}
       </button>
 
-      {/* Collapse */}
+      {/* Collapse Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="btn btn-ghost text-base-100 hover:text-primary mt-auto flex items-center justify-center"
