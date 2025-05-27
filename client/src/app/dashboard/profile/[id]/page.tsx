@@ -9,12 +9,32 @@ import WidgetPathExplorer from "@/components/perfil/WidgetPathExplorer";
 import { User } from "@/interfaces/User";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+
+
 
 const Profile = () => {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const loggedInUserId = String(session?.user?.id);
+
   const [userData, setUserData] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (status === "loading") return;
+  
+    if (id && loggedInUserId && id !== loggedInUserId) {
+      // Redirige al perfil correcto si intenta ver otro
+      router.replace(`/dashboard/profile/${loggedInUserId}`);
+    }
+  }, [id, loggedInUserId, router, status]);
+  
 
   const fetchUserData = async () => {
     try {
