@@ -9,6 +9,7 @@ const protectedRoutes: Record<string, number[]> = {
   "/dashboard/pl-dashboard": [2,3],
   "/dashboard/cl-dashboard": [3],
   "/dashboard/repo-empleados": [1,2,3,4,5],
+  
 };
 
 export async function middleware(request: NextRequest) {

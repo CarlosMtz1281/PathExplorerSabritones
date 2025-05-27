@@ -48,13 +48,6 @@ export default function RepoProjects() {
   const { data: session } = useSession();
   const router = useRouter();
   
-  useEffect(() => {
-    if (session?.user?.role_id !== 3) {
-      alert("❌ No tienes permisos para acceder a esta página.");
-      router.push("/dashboard");
-    }
-  }, [session, router]);
-
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
