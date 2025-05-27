@@ -13,13 +13,14 @@ router.get("/", async (req, res) => {
   res.json({ message: "Employee base" });
 });
 
-
 router.get("/user/:userId", async (req, res) => {
   try {
     const userId = parseInt(req.params.userId);
 
     if (!userId) {
-      return res.status(400).json({ error: "User ID is required in the headers." });
+      return res
+        .status(400)
+        .json({ error: "User ID is required in the headers." });
     }
 
     const user = await prisma.users.findUnique({
@@ -34,7 +35,15 @@ router.get("/user/:userId", async (req, res) => {
         Permits: true,
         Certificate_Users: {
           include: {
-            Certificates: true,
+            Certificates: {
+              include: {
+                Certificate_Skills: {
+                  include: {
+                    Skills: true,
+                  },
+                },
+              },
+            },
           },
         },
         Employee_Position: {
@@ -48,12 +57,12 @@ router.get("/user/:userId", async (req, res) => {
         },
         Project_Positions: {
           where: {
-            user_id: userId
+            user_id: userId,
           },
           include: {
-            Projects: true
-          }
-        }
+            Projects: true,
+          },
+        },
       },
     });
 
@@ -63,22 +72,25 @@ router.get("/user/:userId", async (req, res) => {
 
     // Check if user is in any active project
     const currentDate = new Date();
-    const isInProject = user.Project_Positions.some(position => {
-      return position.Projects.end_date === null || 
-             new Date(position.Projects.end_date) > currentDate;
+    const isInProject = user.Project_Positions.some((position) => {
+      return (
+        position.Projects.end_date === null ||
+        new Date(position.Projects.end_date) > currentDate
+      );
     });
 
     // Extract level and position name from the most recent employee position
     const currentPosition = user.Employee_Position[0];
     const level = currentPosition?.level || null;
-    const positionName = currentPosition?.Work_Position?.position_name || "Sin posición";
+    const positionName =
+      currentPosition?.Work_Position?.position_name || "Sin posición";
 
     // Format the response
     const formattedUser = {
       ...user,
       level,
       position_name: positionName,
-      in_project: isInProject
+      in_project: isInProject,
     };
 
     res.status(200).json(formattedUser);
@@ -87,7 +99,6 @@ router.get("/user/:userId", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
-
 
 router.get("/skills", async (req, res) => {
   try {
@@ -119,6 +130,39 @@ router.get("/skills", async (req, res) => {
     res.status(200).json(formattedSkills);
   } catch (error) {
     console.error("Error fetching user skills:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+router.delete("/skills/:skillId", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    const skillId = parseInt(req.params.skillId);
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "Session key is required in the headers." });
+    }
+    if (typeof userId !== "number") {
+      return res.status(400).json({ error: "Timeout session" });
+    }
+
+    const skill = await prisma.user_Skills.delete({
+      where: {
+        user_id_skill_id: {
+          user_id: userId,
+          skill_id: skillId,
+        },
+      },
+    });
+
+    if (!skill) {
+      return res.status(404).json({ error: "Skill not found." });
+    }
+
+    res.status(200).json({ message: "Skill deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting user skill:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 });
@@ -223,18 +267,18 @@ router.get("/getCapabilityTeamMembers/:userId", async (req, res) => {
       const peopleLead = await prisma.capability_People_Lead.findFirst({
         where: { capability_pl_id: userId },
       });
-      
+
       if (peopleLead) {
         capabilityId = peopleLead.capability_id;
       }
     }
-    
+
     // If not an employee or people lead, check if user is a capability lead
     if (!capabilityId) {
       const capabilityLead = await prisma.capability.findFirst({
         where: { capability_lead_id: userId },
       });
-      
+
       if (capabilityLead) {
         capabilityId = capabilityLead.capability_id;
       }
@@ -392,26 +436,23 @@ router.patch("/checkstaff", async (req, res) => {
 
     // Check if user is assigned to any active project positions
     const activeProjects = await prisma.project_Positions.findMany({
-      where: { 
+      where: {
         user_id: userId,
         Projects: {
-          OR: [
-            { end_date: null },
-            { end_date: { gt: today } }
-          ]
-        }
+          OR: [{ end_date: null }, { end_date: { gt: today } }],
+        },
       },
       select: {
-        project_id: true
-      }
+        project_id: true,
+      },
     });
 
     // If user has any active project positions, they're not staff
     const isStaff = activeProjects.length === 0;
 
-    res.status(200).json({ 
+    res.status(200).json({
       message: "Staff status updated successfully",
-      isStaff: isStaff
+      isStaff: isStaff,
     });
   } catch (err) {
     console.error("Error checking staff status:", err);
@@ -432,35 +473,37 @@ router.patch("/checkstaffall", async (req, res) => {
           select: {
             Projects: {
               select: {
-                end_date: true
-              }
-            }
-          }
-        }
-      }
+                end_date: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // Determine staff status for each user
-    const updates = usersWithProjects.map(user => {
-      const isInActiveProject = user.Project_Positions.some(position => {
-        return position.Projects.end_date === null || 
-               new Date(position.Projects.end_date) > today;
+    const updates = usersWithProjects.map((user) => {
+      const isInActiveProject = user.Project_Positions.some((position) => {
+        return (
+          position.Projects.end_date === null ||
+          new Date(position.Projects.end_date) > today
+        );
       });
 
       return {
         user_id: user.user_id,
         isStaff: !isInActiveProject,
-        in_project: isInActiveProject // for backward compatibility
+        in_project: isInActiveProject, // for backward compatibility
       };
     });
 
-    const staffCount = updates.filter(u => u.isStaff).length;
+    const staffCount = updates.filter((u) => u.isStaff).length;
     const nonStaffCount = updates.length - staffCount;
 
     res.status(200).json({
       message: `Staff status updated for all users`,
       staff_count: staffCount,
-      non_staff_count: nonStaffCount
+      non_staff_count: nonStaffCount,
     });
   } catch (err) {
     console.error("Error updating staff statuses:", err);
@@ -541,22 +584,32 @@ router.get("/list", async (req, res) => {
       const capabilityLead =
         capEntry?.Users_Capability_Employee_employee_idToUsers?.name || "N/A";
 
-      const skills = user.User_Skills?.map((us) => us.Skills.name || "N/A") || [];
+      const skills =
+        user.User_Skills?.map((us) => us.Skills.name || "N/A") || [];
 
       const certifications =
-        user.Certificate_Users?.map((cu) => cu.Certificates.certificate_name || "N/A") || [];
+        user.Certificate_Users?.map(
+          (cu) => cu.Certificates.certificate_name || "N/A"
+        ) || [];
 
       const projects =
-        user.Project_Positions?.map((pp) => pp.Projects?.project_name).filter(Boolean) || [];
+        user.Project_Positions?.map((pp) => pp.Projects?.project_name).filter(
+          Boolean
+        ) || [];
 
       const positions_from_projects =
-        user.Project_Positions?.map((pp) => pp.position_name).filter(Boolean) || [];
+        user.Project_Positions?.map((pp) => pp.position_name).filter(Boolean) ||
+        [];
 
       const positions_from_employee =
-        user.Employee_Position?.map((ep) => ep.Work_Position?.position_name).filter(Boolean) || [];
+        user.Employee_Position?.map(
+          (ep) => ep.Work_Position?.position_name
+        ).filter(Boolean) || [];
 
       // Fusiona ambas listas de posiciones si quieres mantener ambas fuentes
-      const all_positions = [...new Set([...positions_from_employee, ...positions_from_projects])];
+      const all_positions = [
+        ...new Set([...positions_from_employee, ...positions_from_projects]),
+      ];
 
       return {
         user_id: user.user_id,
@@ -569,7 +622,8 @@ router.get("/list", async (req, res) => {
         skills,
         certifications,
         project_names: projects.length > 0 ? projects : ["Staff"],
-        position_names: all_positions.length > 0 ? all_positions : ["Sin posición"],
+        position_names:
+          all_positions.length > 0 ? all_positions : ["Sin posición"],
       };
     });
 
@@ -580,14 +634,15 @@ router.get("/list", async (req, res) => {
   }
 });
 
-
 router.get("/experience", async (req, res) => {
   try {
     // 🔍 Usa query param si existe, si no usa sesión
     let userId = req.query.userId ? parseInt(req.query.userId as string) : null;
 
     if (!userId) {
-      const sessionResult = await getUserIdFromSession(req.headers["session-key"]);
+      const sessionResult = await getUserIdFromSession(
+        req.headers["session-key"]
+      );
       if (sessionResult === "timeout" || typeof sessionResult !== "number") {
         return res.status(400).json({ error: "Missing or invalid user ID" });
       }
@@ -616,8 +671,8 @@ router.get("/experience", async (req, res) => {
         },
         Feedback: true, // Include feedback directly
         Project_Position_Areas: {
-          include: { Areas: true }
-        }
+          include: { Areas: true },
+        },
       },
     });
 
@@ -678,12 +733,14 @@ router.post("/addExperience", async (req, res) => {
       return res.status(400).json({ error: "Timeout session" });
     }
 
-    const { company, position_name, position_desc, start_date, end_date } = req.body;
+    const { company, position_name, position_desc, start_date, end_date } =
+      req.body;
 
     // Validación de datos requeridos
     if (!company || !position_name || !start_date || !end_date) {
-      return res.status(400).json({ 
-        error: "Missing required fields. Company, position name, start date and end date are required."
+      return res.status(400).json({
+        error:
+          "Missing required fields. Company, position name, start date and end date are required.",
       });
     }
 
@@ -692,7 +749,7 @@ router.post("/addExperience", async (req, res) => {
       data: {
         position_name,
         position_desc: position_desc || "",
-        company
+        company,
       },
     });
 
@@ -715,7 +772,7 @@ router.post("/addExperience", async (req, res) => {
     //   end_date,
     // });
     // Respuesta exitosa
-    res.status(201).json({ 
+    res.status(201).json({
       message: "Experience added successfully",
       data: {
         position_id: position.position_id,
@@ -723,8 +780,8 @@ router.post("/addExperience", async (req, res) => {
         position_name,
         position_desc: position_desc || "",
         start_date,
-        end_date
-      }
+        end_date,
+      },
     });
   } catch (error) {
     console.error("Error adding experience:", error);
@@ -752,12 +809,14 @@ router.put("/updateExperience/:positionId", async (req, res) => {
       return res.status(400).json({ error: "Invalid position ID" });
     }
 
-    const { company, position_name, position_desc, start_date, end_date } = req.body;
+    const { company, position_name, position_desc, start_date, end_date } =
+      req.body;
 
     // Validación de datos requeridos
     if (!company || !position_name || !start_date || !end_date) {
-      return res.status(400).json({ 
-        error: "Missing required fields. Company, position name, start date and end date are required."
+      return res.status(400).json({
+        error:
+          "Missing required fields. Company, position name, start date and end date are required.",
       });
     }
 
@@ -765,13 +824,13 @@ router.put("/updateExperience/:positionId", async (req, res) => {
     const existingPosition = await prisma.employee_Position.findFirst({
       where: {
         user_id: userId,
-        position_id: positionId
-      }
+        position_id: positionId,
+      },
     });
 
     if (!existingPosition) {
-      return res.status(404).json({ 
-        error: "Position not found or doesn't belong to user" 
+      return res.status(404).json({
+        error: "Position not found or doesn't belong to user",
       });
     }
 
@@ -781,7 +840,7 @@ router.put("/updateExperience/:positionId", async (req, res) => {
       data: {
         position_name,
         position_desc: position_desc || "",
-        company
+        company,
       },
     });
 
@@ -790,8 +849,8 @@ router.put("/updateExperience/:positionId", async (req, res) => {
       where: {
         position_id_user_id: {
           user_id: userId,
-          position_id: positionId
-        }
+          position_id: positionId,
+        },
       },
       data: {
         start_date: new Date(start_date),
@@ -799,7 +858,7 @@ router.put("/updateExperience/:positionId", async (req, res) => {
       },
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
       message: "Experience updated successfully",
       data: {
         position_id: updatedPosition.position_id,
@@ -807,8 +866,8 @@ router.put("/updateExperience/:positionId", async (req, res) => {
         position_name,
         position_desc: position_desc || "",
         start_date,
-        end_date
-      }
+        end_date,
+      },
     });
   } catch (error) {
     console.error("Error updating experience:", error);
@@ -857,7 +916,9 @@ router.get("/is-subordinate", async (req, res) => {
     const targetId = parseInt(req.query.target as string);
 
     if (isNaN(viewerId) || isNaN(targetId)) {
-      return res.status(400).json({ subordinado: false, error: "Invalid parameters" });
+      return res
+        .status(400)
+        .json({ subordinado: false, error: "Invalid parameters" });
     }
 
     const viewer = await prisma.users.findUnique({
@@ -866,7 +927,9 @@ router.get("/is-subordinate", async (req, res) => {
     });
 
     if (!viewer) {
-      return res.status(404).json({ subordinado: false, error: "Viewer not found" });
+      return res
+        .status(404)
+        .json({ subordinado: false, error: "Viewer not found" });
     }
 
     // 👤 People Lead: verifica si el target es su subordinado directo
@@ -949,19 +1012,19 @@ router.delete("/deleteExperience/:positionId", async (req, res) => {
     const existingPosition = await prisma.employee_Position.findFirst({
       where: {
         user_id: userId,
-        position_id: positionId
-      }
+        position_id: positionId,
+      },
     });
 
     if (!existingPosition) {
-      return res.status(404).json({ 
-        error: "Position not found or doesn't belong to user" 
+      return res.status(404).json({
+        error: "Position not found or doesn't belong to user",
       });
     }
 
     // Obtener información sobre la posición antes de borrar
     const positionInfo = await prisma.work_Position.findUnique({
-      where: { position_id: positionId }
+      where: { position_id: positionId },
     });
 
     // Eliminar la relación employee_Position primero (debido a las restricciones de clave foránea)
@@ -969,23 +1032,23 @@ router.delete("/deleteExperience/:positionId", async (req, res) => {
       where: {
         position_id_user_id: {
           user_id: userId,
-          position_id: positionId
-        }
-      }
+          position_id: positionId,
+        },
+      },
     });
 
     // Eliminar la posición de trabajo
     await prisma.work_Position.delete({
-      where: { position_id: positionId }
+      where: { position_id: positionId },
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
       message: "Experience deleted successfully",
       data: {
         position_id: positionId,
         company: positionInfo?.company,
-        position_name: positionInfo?.position_name
-      }
+        position_name: positionInfo?.position_name,
+      },
     });
   } catch (error) {
     console.error("Error deleting experience:", error);

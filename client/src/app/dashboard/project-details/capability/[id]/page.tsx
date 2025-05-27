@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 // Updated interfaces with more precise types
 interface Skill {
@@ -88,8 +89,17 @@ interface Project {
 }
 
 const ProjectDetails = () => {
-  const { id } = useParams();
   const { data: session } = useSession();
+    const router = useRouter();
+    
+    useEffect(() => {
+      if (session?.user?.role_id !== 3) {
+        alert("❌ No tienes permisos para acceder a esta página.");
+        router.push("/dashboard");
+      }
+    }, [session, router]);
+
+  const { id } = useParams();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,16 +119,20 @@ const ProjectDetails = () => {
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
-        setLoading(true);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/project/getProjectById/${id}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`Error fetching project: ${response.status}`);
+        const sessionId = session?.sessionId;
+        
+        if (!sessionId) {
+          console.error("Session ID is missing");
+          return;
         }
 
-        const data = await response.json();
+        setLoading(true);
+  
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getProjectByIdCap/${id}`, {
+          headers: { "sessionId": sessionId },
+        });
+
+        const data = await res.data;
         console.log("Project data:", data);
         setProject(data);
 
@@ -151,20 +165,14 @@ const ProjectDetails = () => {
 
       try {
         setLoadingTeam(true);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE}/employee/getCapabilityTeamMembers/${session.user.id}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
 
-        if (!response.ok) {
-          throw new Error(`Error fetching capability team: ${response.status}`);
-        }
+        const sessionId = session?.sessionId;
+  
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getFreeUsersOfCap`, {
+          headers: { "sessionId": sessionId },
+        });
 
-        const data = await response.json();
+        const data = await res.data;
         setCapabilityTeamMembers(data);
         console.log("Capability team members:", data);
       } catch (err) {
@@ -196,82 +204,10 @@ const ProjectDetails = () => {
         }
 
         // Fetch position skills if not already included in the project data
-        if (
-          !position.Project_Position_Skills ||
-          position.Project_Position_Skills.length === 0
-        ) {
-          const skillsResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE}/project/getPositionSkills/${selectedVacancy}`
-          );
+        setPositionSkills(position.Project_Position_Skills.map((pps) => pps.Skills));
 
-          if (skillsResponse.ok) {
-            const skillsData = await skillsResponse.json();
-            setPositionSkills(skillsData);
-
-            // Update the position in the project object
-            const updatedPositions = project.positions.map((p) => {
-              if (p.position_id === selectedVacancy) {
-                return {
-                  ...p,
-                  Project_Position_Skills: skillsData.map((skill: Skill) => ({
-                    position_id: selectedVacancy,
-                    skill_id: skill.skill_id,
-                    Skills: skill,
-                  })),
-                };
-              }
-              return p;
-            });
-
-            setProject({ ...project, positions: updatedPositions });
-          }
-        } else {
-          // Use the skills already in the position data
-          setPositionSkills(
-            position.Project_Position_Skills.map((pps) => pps.Skills)
-          );
-        }
-
-        // Fetch position certificates if not already included
-        if (
-          !position.Project_Position_Certificates ||
-          position.Project_Position_Certificates.length === 0
-        ) {
-          const certsResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE}/project/getPositionCertificates/${selectedVacancy}`
-          );
-
-          if (certsResponse.ok) {
-            const certsData = await certsResponse.json();
-            setPositionCertificates(certsData);
-
-            // Update the position in the project object
-            const updatedPositions = project.positions.map((p) => {
-              if (p.position_id === selectedVacancy) {
-                return {
-                  ...p,
-                  Project_Position_Certificates: certsData.map(
-                    (cert: Certificate) => ({
-                      position_id: selectedVacancy,
-                      certificate_id: cert.certificate_id,
-                      Certificates: cert,
-                    })
-                  ),
-                };
-              }
-              return p;
-            });
-
-            setProject({ ...project, positions: updatedPositions });
-          }
-        } else {
           // Use the certificates already in the position data
-          setPositionCertificates(
-            position.Project_Position_Certificates.map(
-              (ppc) => ppc.Certificates
-            )
-          );
-        }
+        setPositionCertificates(position.Project_Position_Certificates.map((ppc) => ppc.Certificates));
       } catch (error) {
         console.error("Error fetching position requirements:", error);
       } finally {
@@ -451,47 +387,34 @@ const ProjectDetails = () => {
   const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
   async function handlePostular(
-    user_id: number,
-    position_id: number
-  ): Promise<void> {
-    const project_id = id;
+  user_id: number,
+  position_id: number
+): Promise<void> {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate/${user_id}/${project_id}/${position_id}`
-      );
-      console.log("Postulation successful:", response.data);
-      alert("Postulation submitted successfully!");
-
-      // Update the project state to include the new postulation
-      if (project) {
-        const updatedProject = { ...project };
-        // Find the position that was just postulated for
-        const positionIndex = updatedProject.positions.findIndex(
-          (pos) => pos.position_id === position_id
-        );
-
-        if (positionIndex !== -1) {
-          // Initialize Postulations array if it doesn't exist
-          if (!updatedProject.positions[positionIndex].Postulations) {
-            updatedProject.positions[positionIndex].Postulations = [];
-          }
-
-          // Add the new postulation to the position
-          updatedProject.positions[positionIndex].Postulations?.push({
-            postulation_id: response.data.postulation_id || Date.now(), // Use response id or fallback
-            user_id: user_id,
-            Users: {
-              user_id: user_id,
-              name: session?.user?.name || "",
-              mail: session?.user?.email || "",
-            },
-            Meeting: null,
-          });
-
-          // Update the project state
-          setProject(updatedProject);
-        }
+      const sessionId = session?.sessionId;
+      
+      if (!sessionId) {
+        console.error("Session ID is missing");
+        alert("Your session has expired. Please log in again.");
+        return;
       }
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate`,
+        {  // Send data directly in the body
+          user_id,
+          position_id
+        },
+        {
+          headers: { 
+            "sessionId": sessionId,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      console.log("Postulation successful:", response.data);
+      alert("Postulación exitosa!");
     } catch (error: any) {
       console.error("Error during postulation:", error);
       if (error.response && error.response.data && error.response.data.error) {

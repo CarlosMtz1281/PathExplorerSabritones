@@ -3,7 +3,7 @@ import { test, expect, Page } from '@playwright/test';
 
 test('Profile returns the correct user data', async ({ request, page }) => {
 
-    const userId = await login(page);
+    const userId = await login(page, 'EMP');
 
     const response = await request.get(`http://localhost:3003/employee/user/${userId}`);
     const apiData = await response.json();
@@ -28,7 +28,7 @@ test('Profile returns the correct user data', async ({ request, page }) => {
 
 test('Register Experience', async ({ page }) => {
 
-    await login(page);
+    await login(page, 'EMP');
 
     // Botón para abrir sub menú de trayectoria
     await page.locator('[class="btn btn-circle btn-accent btn-xs md:btn-sm text-base-100"]').click();
@@ -60,7 +60,7 @@ test('Register Experience', async ({ page }) => {
 
 test('Register Skill', async ({ page }) => {
 
-    await login(page);
+    await login(page, 'EMP');
 
     await page.locator('[class="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"]').nth(1).click();
 

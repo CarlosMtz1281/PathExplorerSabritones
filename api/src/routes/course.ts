@@ -55,8 +55,12 @@ router.get("/certificates", async (req, res) => {
       certificate_name: certificate.Certificates.certificate_name,
       certificate_desc: certificate.Certificates.certificate_desc,
       certificate_date: certificate.certificate_date,
+      certificate_start_date: certificate.certificate_start_date,
       certificate_expiration_date: certificate.certificate_expiration_date,
       certificate_link: certificate.certificate_link,
+      certificate_status: certificate.status,
+      certificate_hours: certificate.Certificates.certificate_estimated_time,
+      certificate_level: certificate.Certificates.certificate_level,
       provider: certificate.Certificates.provider, // Fetch the provider
       skills: certificate.Certificates.Certificate_Skills.map(
         (skill) => skill.Skills.name
@@ -153,14 +157,24 @@ router.get("/providers-and-certifications", async (req, res) => {
 
 router.post("/add-certificate", async (req, res) => {
   const sessionKey = req.headers["session-key"];
-  const { certificate_id, certificate_date, certificate_expiration_date, certificate_link, certificate_status } = req.body;
+  const {
+    certificate_id,
+    certificate_date,
+    certificate_expiration_date,
+    certificate_link,
+    certificate_status,
+  } = req.body;
 
   if (!sessionKey) {
-    return res.status(400).json({ error: "Session key is required in headers" });
+    return res
+      .status(400)
+      .json({ error: "Session key is required in headers" });
   }
 
   if (!certificate_id || !certificate_date || !certificate_status) {
-    return res.status(400).json({ error: "Certificate ID, date, and status are required" });
+    return res
+      .status(400)
+      .json({ error: "Certificate ID, date, and status are required" });
   }
 
   try {
@@ -182,7 +196,9 @@ router.post("/add-certificate", async (req, res) => {
     });
 
     if (existingCertificate) {
-      return res.status(400).json({ error: "User already has this certification" });
+      return res
+        .status(400)
+        .json({ error: "User already has this certification" });
     }
 
     // Add the certificate for the user
@@ -192,12 +208,17 @@ router.post("/add-certificate", async (req, res) => {
         certificate_id: Number(certificate_id),
         status: certificate_status,
         certificate_date: new Date(certificate_date),
-        certificate_expiration_date: certificate_expiration_date ? new Date(certificate_expiration_date) : null,
+        certificate_expiration_date: certificate_expiration_date
+          ? new Date(certificate_expiration_date)
+          : null,
         certificate_link: certificate_link || null,
       },
     });
 
-    res.status(201).json({ message: "Certificate added successfully", certificate: newCertificate });
+    res.status(201).json({
+      message: "Certificate added successfully",
+      certificate: newCertificate,
+    });
   } catch (error) {
     console.error("Error adding certificate:", error);
     res.status(500).json({ error: "Failed to add certificate" });

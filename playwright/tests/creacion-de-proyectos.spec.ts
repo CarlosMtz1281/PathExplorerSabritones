@@ -2,7 +2,7 @@ import { login } from "./functions.spec";
 import { test, expect, Page } from '@playwright/test';
 
 test('Create a proyect', async ({ page }) => {
-    await login(page);
+    await login(page, 'DL');
 
     // Click en la nav
     await page.locator('[href="/dashboard/crea-projects"]').click();
@@ -14,7 +14,7 @@ test('Create a proyect', async ({ page }) => {
     await page.getByPlaceholder("Empresa").fill("BBVA");
 
     // País (Región)
-    await page.locator('select.select-bordered').first().selectOption({ label: 'United Kingdom' });
+    await page.locator('select.select-bordered').first().selectOption({ label: 'Reino Unido' });
 
     const startDateInput = page.locator('[class="input input-bordered w-full mt-2 pl-6 pr-10 py-5"]');
     await startDateInput.click();
@@ -34,17 +34,20 @@ test('Create a proyect', async ({ page }) => {
     await nombreDelPuesto.click();
     await nombreDelPuesto.fill("Front-End Engineer");
 
+    // Capability
+    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'Diseño de UI y UX'});
+
     let cantidad = page.locator('[class="input input-bordered w-full"]').nth(1);
     await cantidad.click();
     await cantidad.fill("3");
 
     // Habilidades (React, Communication)
-    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'React' });
-    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'Communication' });
+    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'React' });
+    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'Comunicación' });
 
     // Certificaciones (AWS, Google)
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'AWS Certified Developer - Associate' });
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'Google Professional Data Engineer' });
+    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'AWS Certified Developer - Associate' });
+    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'Google Professional Data Engineer' });
 
     await page.getByRole('button', { name: "Agregar"}).nth(1).click();
 
@@ -57,17 +60,20 @@ test('Create a proyect', async ({ page }) => {
     await nombreDelPuesto.click();
     await nombreDelPuesto.fill("Back-End Engineer");
 
+    // Capability
+    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'Arquitectura en la nube'});
+
     cantidad = page.locator('[class="input input-bordered w-full"]').nth(1);
     await cantidad.click();
     await cantidad.fill("3");
 
     // Habilidades (Node.js, SQL)
-    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'Node.js' });
-    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'SQL' });
+    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'Node.js' });
+    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'SQL' });
 
     // Certificaciones (Oracle, Google)
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'Oracle Database SQL Certified Associate' });
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'Google Associate Cloud Engineer' });
+    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'Oracle Database SQL Certified Associate' });
+    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'Google Associate Cloud Engineer' });
 
     await page.getByRole('button', { name: "Agregar"}).nth(1).click();
 
@@ -82,7 +88,7 @@ test('Create a proyect', async ({ page }) => {
 });
 
 test('Create a proyect wrong', async ({ page }) => {
-    await login(page);
+    await login(page, 'DL');
 
     // Click en la nav
     await page.locator('[href="/dashboard/crea-projects"]').click();

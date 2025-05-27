@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { PiCertificate } from "react-icons/pi";
-import { IoMdAdd } from "react-icons/io";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 import CertificateModal from "./CertificateModal";
-import AddCertificateModal from "./AddCertificateModal";
+import Image from "next/image";
 
 interface Certificate {
   certificate_id: number;
@@ -13,8 +11,12 @@ interface Certificate {
   certificate_name: string;
   certificate_desc: string;
   certificate_date: string;
+  certificate_start_date: string;
   certificate_expiration_date: string;
   certificate_link: string;
+  certificate_status: string;
+  certificate_hours: number;
+  certificate_level: number;
   skills: string[];
   provider: string;
 }
@@ -23,13 +25,24 @@ interface Props {
   userId?: number; // Nuevo: opcional para uso en perfil
 }
 
+const FallbackImage = ({ src, fallbackSrc, ...props }: any) => {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  return (
+    <Image
+      {...props}
+      src={imgSrc}
+      onError={() => setImgSrc(fallbackSrc)}
+      alt={props.alt || "Certificate image"}
+    />
+  );
+};
+
 export default function WidgetCertificaciones({ userId }: Props) {
-  const { data: session } = useSession();
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCertificate, setSelectedCertificate] =
     useState<Certificate | null>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [addModalIsOpen, setAddModalIsOpen] = useState(false);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
 
   const toggleAccordion = () => {
@@ -41,47 +54,50 @@ export default function WidgetCertificaciones({ userId }: Props) {
       if (userId) {
         //Forzar fetch por ID si viene desde el perfil
 
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${userId}`);
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE}/employee/user/${userId}`
+        );
 
-  
-        const certs = res.data.Certificate_Users?.map((cu: any) => ({
-          certificate_id: cu.certificate_id,
-          user_id: cu.user_id,
-          certificate_name: cu.Certificates?.certificate_name || "Sin nombre",
-          certificate_desc: cu.Certificates?.certificate_desc || "",
-          certificate_date: cu.certificate_date,
-          certificate_expiration_date: cu.certificate_expiration_date,
-          certificate_link: cu.certificate_link,
-          skills: [],
-          provider: cu.Certificates?.provider || "",
-        })) || [];
-  
+        console.log("Res:", res.data);
+
+        const certs =
+          res.data.Certificate_Users?.map((cu: any) => ({
+            certificate_id: cu.certificate_id,
+            user_id: cu.user_id,
+            certificate_name: cu.Certificates?.certificate_name || "Sin nombre",
+            certificate_desc: cu.Certificates?.certificate_desc || "",
+            certificate_date: cu.certificate_date,
+            certificate_expiration_date: cu.certificate_expiration_date,
+            certificate_link: cu.certificate_link,
+            certificate_status: cu.status,
+            certificate_hours: cu.Certificates?.certificate_estimated_time || 0,
+            certificate_level: cu.Certificates?.certificate_level || 0,
+            skills:
+              cu.Certificates?.Certificate_Skills?.map(
+                (s: any) => s.Skills?.name
+              ) || [],
+            provider: cu.Certificates?.provider || "",
+          })) || [];
+
         setCertificates(certs);
-        return; 
-      }
-  
-
-      const sessionId = session?.sessionId;
-      if (!sessionId) {
-        console.error("Session ID is missing");
         return;
       }
-  
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_BASE}/course/certificates`,
-        { headers: { "session-key": sessionId } }
-      );
-  
-      setCertificates(res.data);
     } catch (error) {
       console.error("Error fetching certificates:", error);
     }
   };
-  
 
   useEffect(() => {
     fetchCertificates();
   }, [userId]);
+
+  const completedCertificates = certificates.filter(
+    (cert) => cert.certificate_status === "completed"
+  );
+  const initialCompleted = completedCertificates.slice(0, 4);
+  const remainingCompleted = completedCertificates.slice(4);
+
+  const hasAccordionContent = remainingCompleted.length > 0;
 
   return (
     <div className="card bg-base-100 shadow-xl col-span-2">
@@ -91,71 +107,96 @@ export default function WidgetCertificaciones({ userId }: Props) {
             <PiCertificate />
             Certificaciones
           </h2>
-          
-           
-
         </div>
-
-        <p className="text-secondary text-lg mt-2">Certificaciones Destacadas</p>
+        <p className="text-secondary text-lg mt-2">
+          Certificaciones Destacadas
+        </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-          {certificates.slice(0, 4).map((certificate) => (
+          {initialCompleted.map((certificate) => (
             <div
               key={certificate.certificate_id}
               onClick={() => {
                 setSelectedCertificate(certificate);
                 setModalIsOpen(true);
               }}
-              className="card bg-base-200 p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+              className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
             >
-              <p className="font-bold">{certificate.certificate_name}</p>
-              <p className="text-sm text-secondary">
+              {certificate.provider && (
+                <FallbackImage
+                  fallbackSrc="/globe.svg"
+                  width={300}
+                  height={300}
+                  src={"/companies/" + certificate.provider + ".svg"}
+                  alt={certificate.certificate_name}
+                  className="w-30 h-30 object-contain"
+                />
+              )}
+              <p className="font-bold mt-1.5">{certificate.certificate_name}</p>
+              <p className="text-xs text-primary mt-1">
                 Completado:{" "}
-                {new Date(certificate.certificate_date).toLocaleDateString("es-MX", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {new Date(certificate.certificate_date).toLocaleDateString(
+                  "es-MX",
+                  {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }
+                )}
               </p>
             </div>
           ))}
+          {initialCompleted.length === 0 && (
+            <div className="flex flex-col items-center justify-center col-span-2 md:col-span-4 py-10">
+              <PiCertificate className="text-5xl text-primary" />
+              <p className="text-lg font-bold mt-2">No tiene certificaciones</p>
+            </div>
+          )}
         </div>
 
         <div
           className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            isExpanded
+              ? "max-h-screen opacity-100 overflow-visible"
+              : "max-h-0 opacity-0 overflow-hidden"
           }`}
         >
-          <p className="text-secondary text-lg mt-2">Certificaciones en Curso</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            {certificates.slice(4).map((certificate) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+            {remainingCompleted.map((certificate) => (
               <div
                 key={certificate.certificate_id}
                 onClick={() => {
                   setSelectedCertificate(certificate);
                   setModalIsOpen(true);
                 }}
-                className="card bg-base-200 p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
+                className="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"
               >
-                <p className="font-bold">{certificate.certificate_name}</p>
-                <p className="text-sm text-secondary">
+                {certificate.provider && (
+                  <FallbackImage
+                    fallbackSrc="/globe.svg"
+                    width={300}
+                    height={300}
+                    src={"/companies/" + certificate.provider + ".svg"}
+                    alt={certificate.certificate_name}
+                    className="w-30 h-30 object-contain"
+                  />
+                )}
+                <p className="font-bold mt-1.5">
+                  {certificate.certificate_name}
+                </p>
+                <p className="text-xs text-primary mt-1">
                   Completado:{" "}
-                  {new Date(certificate.certificate_date).toLocaleDateString("es-MX", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {new Date(certificate.certificate_date).toLocaleDateString(
+                    "es-MX",
+                    {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    }
+                  )}
                 </p>
               </div>
             ))}
           </div>
-        </div>
-
-        <div
-          className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          
         </div>
 
         {modalIsOpen && selectedCertificate && (
@@ -165,20 +206,20 @@ export default function WidgetCertificaciones({ userId }: Props) {
           />
         )}
 
-        {addModalIsOpen && !userId && (
-          <AddCertificateModal
-            onClose={() => {
-              setAddModalIsOpen(false);
-              fetchCertificates(); // Refresca
-            }}
-          />
+        {hasAccordionContent && (
+          <div className="flex justify-center items-center mt-6">
+            <button
+              className="btn btn-circle btn-accent"
+              onClick={toggleAccordion}
+            >
+              {isExpanded ? (
+                <FaArrowUp className="text-base-100" />
+              ) : (
+                <FaArrowDown className="text-base-100" />
+              )}
+            </button>
+          </div>
         )}
-
-        <div className="flex justify-center items-center mt-6">
-          <button className="btn btn-circle btn-accent" onClick={toggleAccordion}>
-            {isExpanded ? <FaArrowUp /> : <FaArrowDown />}
-          </button>
-        </div>
       </div>
     </div>
   );

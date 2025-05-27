@@ -11,6 +11,7 @@ type Project = {
     capability: string;
     company?: string;
     country: string;
+    deliveryLead: string;
   };
 };
 
@@ -41,9 +42,9 @@ export const RepoProjectTable = ({
       <table className="project-table">
         <thead>
           <tr className="table-header">
-            <th className="name-header">Nombre</th>
-            <th className="date-header">Fecha</th>
-            <th className="vacancies-header"># de Vacantes</th>
+            <th className="name-header">Nombre de proyecto</th>
+            <th className="date-header">Fechas</th>
+            <th className="vacancies-header"># de Vacantes de Capability</th>
           </tr>
         </thead>
         <tbody>
@@ -97,16 +98,20 @@ export const RepoProjectTable = ({
                       <div className="details-content">
                         <div className="details-delivery-empresa">
                           <div>
-                            <strong>Delivery Lead</strong>
+                            <strong>Capability</strong>
                             <p>{project.details.capability}</p>
                           </div>
                           <div>
                             <strong>Empresa</strong>
-                            <p>{project.details.company}</p>
+                            <p>{project.details.company || 'No especificado'}</p>
                           </div>
                           <div>
-                            <strong>Region</strong>
+                            <strong>Región</strong>
                             <p>{project.details.country}</p>
+                          </div>
+                          <div>
+                            <strong>Delivery Lead</strong>
+                            <p>{project.details.deliveryLead}</p>
                           </div>
                         </div>
                         <div className="details-button-container">
@@ -114,13 +119,17 @@ export const RepoProjectTable = ({
                             <a
                               href={`/dashboard/project-details/delivery/${project.id}`}
                             >
-                              <button>Asignar</button>
+                              <button className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-focus transition-colors">
+                                Asignar
+                              </button>
                             </a>
                           ) : (
                             <a
                               href={`/dashboard/project-details/capability/${project.id}`}
                             >
-                              <button>Postular</button>
+                              <button className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-focus transition-colors">
+                                Postular
+                              </button>
                             </a>
                           )}
                         </div>

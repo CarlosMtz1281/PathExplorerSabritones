@@ -3,14 +3,14 @@ import { test, expect, Page } from '@playwright/test';
 
 test('Check employee profile', async ({ page }) => {
 
-    await login(page);
+    await login(page, 'EMP');
 
     // Click en la navbar
     await page.locator('[href="/dashboard/repo-empleados"]').click();
 
     page.getByText("Amit Singh");
 
-    const targetRow = page.locator('tr', { hasText: 'Amit Singh' });
+    const targetRow = page.locator('tr', { hasText: 'Amanda Lopez' });
 
     const expandButton = targetRow.locator('[class="btn btn-ghost btn-sm"]');
     await expandButton.click();
