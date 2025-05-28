@@ -1,8 +1,11 @@
-import { login } from "./functions.spec";
+import { qase } from "playwright-qase-reporter";
+import { login } from "./functions";
 import { test, expect, Page } from '@playwright/test';
 
 test('Profile returns the correct user data', async ({ request, page }) => {
 
+    qase.id(46);
+    
     const userId = await login(page, 'EMP');
 
     const response = await request.get(`http://localhost:3003/employee/user/${userId}`);
@@ -27,6 +30,7 @@ test('Profile returns the correct user data', async ({ request, page }) => {
 });
 
 test('Register Experience', async ({ page }) => {
+    qase.id(51);
 
     await login(page, 'EMP');
 
@@ -59,6 +63,7 @@ test('Register Experience', async ({ page }) => {
 });
 
 test('Register Skill', async ({ page }) => {
+    qase.id(53);
 
     await login(page, 'EMP');
 
@@ -68,8 +73,8 @@ test('Register Skill', async ({ page }) => {
     await page.getByPlaceholder('Buscar habilidad...').fill("python");
 
     await page.getByRole('button', { name: 'Python' }).click();
-    await expect(page.getByText('Python')).toBeVisible();
+    await expect(page.locator('[class="text-xs"]').getByText('Python')).toBeVisible();
 
     await page.getByRole('button', { name: "Agregar"}).click();
-    await expect(page.getByText('Python')).toBeVisible();
+    await expect(page.locator('[class="badge badge-outline badge-primary px-8 py-3.5 text-xs"]').getByText('Python')).toBeVisible();
 });

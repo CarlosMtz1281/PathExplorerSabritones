@@ -1,16 +1,18 @@
-import { login } from "./functions.spec";
+import { qase } from "playwright-qase-reporter";
+import { login } from "./functions";
 import { test, expect, Page } from '@playwright/test';
 
 test('Check employee profile', async ({ page }) => {
+    qase.id(16);
 
     await login(page, 'EMP');
 
     // Click en la navbar
     await page.locator('[href="/dashboard/repo-empleados"]').click();
 
-    page.getByText("Amit Singh");
+    page.getByText("Abigail Parker");
 
-    const targetRow = page.locator('tr', { hasText: 'Amanda Lopez' });
+    const targetRow = page.locator('tr', { hasText: 'Abigail Parker' });
 
     const expandButton = targetRow.locator('[class="btn btn-ghost btn-sm"]');
     await expandButton.click();
