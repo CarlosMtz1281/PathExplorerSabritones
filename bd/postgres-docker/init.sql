@@ -185,7 +185,8 @@ CREATE TABLE "Postulations" (
   "postulation_id" SERIAL PRIMARY KEY,
   "project_position_id" integer REFERENCES "Project_Positions"("position_id"),
   "user_id" integer REFERENCES "Users"("user_id"),
-  "postulation_date" timestamp
+  "postulation_date" timestamp,
+  "valid" boolean DEFAULT TRUE
 );
 
 -- juntas entre capability lead y empleados postulado

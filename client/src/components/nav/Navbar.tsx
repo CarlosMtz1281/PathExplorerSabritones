@@ -33,7 +33,7 @@ export default function Navbar() {
 
   const rolePermissions = {
     showProjects: [1, 2, 3, 4, 5],
-    showDeliveryProjects: [4],
+    showDLDashboard: [4],
     showCreateProjects: [4],
     showCreateUsers: [5],
     showRepoEmpleados: [1, 2, 3, 4, 5],
@@ -85,15 +85,15 @@ export default function Navbar() {
           </li>
         )}
 
-        {rolePermissions.showDeliveryProjects.includes(roleId) && (
+        {rolePermissions.showDLDashboard.includes(roleId) && (
           <li className="w-full">
             <a
-              href="/dashboard/delivery-projects"
+              href="/dashboard/dl-dashboard"
               className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
             >
               <FaTruckMoving className="w-5 h-5" />
               {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Delivery proyectos</h3>
+                <h3 className="text-xl font-semibold">Delivery dashboard</h3>
               )}
             </a>
           </li>
