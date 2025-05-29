@@ -150,6 +150,7 @@ model Postulations {
   project_position_id Int?
   user_id             Int?
   postulation_date    DateTime?          @db.Timestamp(6)
+  valid               Boolean?           @default(true)
   Meeting             Meeting[]
   Project_Positions   Project_Positions? @relation(fields: [project_position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_project_position")
   Users               Users?             @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_postulations_user")
