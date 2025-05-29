@@ -10,6 +10,7 @@ type Project = {
   project_id: number;
   project_name: string;
   company_name: string;
+  capability_name: string;
   project_desc: string;
   start_date: string;
   end_date: string;
