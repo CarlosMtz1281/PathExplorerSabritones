@@ -825,7 +825,7 @@ router.get("/employeesByProject/:projectId", async (req, res) => {
   }
 });
 
-router.put("/closeProject", async (req, res) => {
+router.patch("/closeProject", async (req, res) => {
   try {
     const { projectId } = req.body;
     if (!projectId) {
