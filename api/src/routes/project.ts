@@ -749,4 +749,119 @@ router.get("/getCurrentProjectsDL", async (req, res) => {
   }
 });
 
+router.get("/employeesByProject/:projectId", async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.projectId);
+    if (isNaN(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const role = await prisma.users.findUnique({
+      where: { user_id: userId },
+      select: { role_id: true },
+    });
+
+    if (role?.role_id !== 4) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const project = await prisma.projects.findUnique({
+      where: { project_id: projectId },
+      include: {
+        Project_Positions: {
+          where: { user_id: { not: null } },
+          include: {
+            Users: {
+              select: {
+                user_id: true,
+                name: true,
+                mail: true,
+                country_id: true,
+              },
+            },
+            Feedback: {
+              select: {
+                desc: true,
+                score: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const employees = project.Project_Positions.map((position) => ({
+      user_id: position.Users.user_id,
+      name: position.Users.name,
+      position_name: position.position_name,
+      feedbacks: position.Feedback.map((feedback) => ({
+        desc: feedback.desc,
+        score: feedback.score,
+      })),
+    }));
+
+    const allRolesInProject = project.Project_Positions.map(
+      (position) => position.position_name
+    );
+    const uniqueRoles = Array.from(new Set(allRolesInProject));
+
+    const response = {
+      employees,
+      uniqueRoles,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching employees by project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/closeProject", async (req, res) => {
+  try {
+    const { projectId } = req.body;
+    if (!projectId) {
+      return res.status(400).json({ error: "Project ID is required" });
+    }
+
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const role = await prisma.users.findUnique({
+      where: { user_id: userId },
+      select: { role_id: true },
+    });
+
+    if (role?.role_id !== 4) {
+      return res.status(403).json({ error: "Unauthorized to close project" });
+    }
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const updatedProject = await prisma.projects.update({
+      where: { project_id: projectId },
+      data: { end_date: today },
+    });
+
+    res.status(200).json({
+      message: "Project closed successfully",
+      project: updatedProject,
+    });
+  } catch (error) {
+    console.error("Error closing project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
