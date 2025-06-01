@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import ReactDOM from "react-dom";
 import {
@@ -9,8 +10,29 @@ import {
   FaRegCalendar,
   FaRegBuilding,
 } from "react-icons/fa";
+import axios from "axios";
+
+type Feedback = {
+  desc: string;
+  score: number;
+};
+
+type Employee = {
+  user_id: number;
+  name: string;
+  position_name: string;
+  feedbacks: Feedback[];
+};
 
 type PropsModal = {
+  project: {
+    id: number;
+    name: string;
+    description: string;
+    start_date: string;
+    end_date: string;
+    company: string;
+  };
   toggleModal: () => void;
 };
 
@@ -40,9 +62,6 @@ const FeedbackPopup = ({ top, left, value, onChange, onClose }: any) => {
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      <button className="btn btn-xs btn-primary mt-2 float-right">
-        Guardar
-      </button>
     </div>,
     document.body
   );
@@ -51,23 +70,18 @@ const FeedbackPopup = ({ top, left, value, onChange, onClose }: any) => {
 const SubordinateCard = ({
   subordinate,
   onFeedbackToggle,
-  isFeedbackOpen,
 }: {
-  subordinate: any;
+  subordinate: Employee;
   onFeedbackToggle: (id: number, e: React.MouseEvent) => void;
-  isFeedbackOpen: boolean;
 }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/dashboard/info-colegas/${subordinate.id}`);
+    router.push(`/dashboard/info-colegas/${subordinate.user_id}`);
   };
 
   return (
-    <div
-      key={subordinate.id}
-      className="bg-base-100 p-4 rounded-lg border border-base-300 flex flex-col gap-2 relative"
-    >
+    <div className="bg-base-100 p-4 rounded-lg border border-base-300 flex flex-col gap-2 relative">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <div className="avatar mr-4">
@@ -83,9 +97,7 @@ const SubordinateCard = ({
           </div>
           <div>
             <h4 className="font-bold text-lg">{subordinate.name}</h4>
-            <p className="text-sm text-gray-600">
-              {subordinate.position} {subordinate.level}
-            </p>
+            <p className="text-sm text-gray-600">{subordinate.position_name}</p>
           </div>
         </div>
 
@@ -94,10 +106,11 @@ const SubordinateCard = ({
             {[1, 2, 3, 4, 5].map((star) => (
               <input
                 key={star}
-                type="radio"
-                name={`rating-${subordinate.id}`}
-                className="mask mask-star-2 bg-yellow-500"
                 aria-label={`${star} star`}
+                type="radio"
+                name={`rating-${subordinate.user_id}`}
+                className="mask mask-star-2 bg-orange-400"
+                defaultChecked={subordinate.feedbacks[0]?.score === star}
               />
             ))}
           </div>
@@ -110,7 +123,7 @@ const SubordinateCard = ({
             <FaRegCommentDots
               className="text-xl cursor-pointer"
               title="Feedback"
-              onMouseDown={(e) => onFeedbackToggle(subordinate.id, e)}
+              onMouseDown={(e) => onFeedbackToggle(subordinate.user_id, e)}
             />
           </div>
         </div>
@@ -119,10 +132,17 @@ const SubordinateCard = ({
   );
 };
 
-const SubordinatesList = ({ subordinates }: { subordinates: any[] }) => {
+const SubordinatesList = ({
+  subordinates,
+  feedbackText,
+  changeFeedback,
+}: {
+  subordinates: any[];
+  feedbackText: Record<number, string>;
+  changeFeedback: (id: number, value: string) => void;
+}) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [feedbackText, setFeedbackText] = useState<Record<number, string>>({});
   const [popupPos, setPopupPos] = useState<{ top: number; left: number }>({
     top: 0,
     left: 0,
@@ -156,10 +176,9 @@ const SubordinatesList = ({ subordinates }: { subordinates: any[] }) => {
     <div className="flex flex-col min-h-[50vh] max-h-[50vh] gap-4 bg-base-200 p-6 overflow-y-auto rounded-2xl">
       {subordinates.map((subordinate: any) => (
         <SubordinateCard
-          key={subordinate.id}
+          key={subordinate.user_id}
           subordinate={subordinate}
           onFeedbackToggle={handleToggleFeedback}
-          isFeedbackOpen={isPopupOpen}
         />
       ))}
 
@@ -168,9 +187,7 @@ const SubordinatesList = ({ subordinates }: { subordinates: any[] }) => {
           top={popupPos.top}
           left={popupPos.left}
           value={feedbackText[selectedId] || ""}
-          onChange={(val: string) =>
-            setFeedbackText((prev) => ({ ...prev, [selectedId]: val }))
-          }
+          onChange={(val: string) => changeFeedback(selectedId, val)}
           onClose={() => {
             closePopup();
           }}
@@ -180,13 +197,74 @@ const SubordinatesList = ({ subordinates }: { subordinates: any[] }) => {
   );
 };
 
-const ModalFeedback = ({ toggleModal }: PropsModal) => {
+const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
+  const { data: session } = useSession();
   const [isProjectTerminating, setIsProjectTerminating] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string>("all");
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+  const [feedbackText, setFeedbackText] = useState<Record<number, string>>({});
+
+  const fetchData = async () => {
+    try {
+      const sessionId = session?.sessionId;
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/employeesByProject/${project.id}`,
+        { headers: { "session-key": sessionId } }
+      );
+      setEmployees(response.data.employees);
+      setRoles(response.data.uniqueRoles);
+      const initialFeedback: Record<number, string> = {};
+      response.data.employees.forEach((emp: Employee) => {
+        initialFeedback[emp.user_id] = emp.feedbacks[0]?.desc || "";
+      });
+      setFeedbackText(initialFeedback);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  const handleTerminateProject = async () => {
+    try {
+      const sessionId = session?.sessionId;
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/closeProject`,
+        { projectId: project.id },
+        { headers: { "session-key": sessionId } }
+      );
+      toggleModal();
+    } catch (error) {
+      console.error("Error terminating project:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedRole === "all") {
+      setFilteredEmployees(employees);
+    } else {
+      setFilteredEmployees(
+        employees.filter((employee) => employee.position_name === selectedRole)
+      );
+    }
+  }, [selectedRole, employees]);
+
+  useEffect(() => {
+    fetchData();
+  }, [project.id, session]);
+
+  const changeFeedback = (id: number, value: string) => {
+    setFeedbackText((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
       <div className="bg-base-100 rounded-lg h-9/12 shadow-lg w-9/12 p-12 relative flex flex-col gap-6">
         <div className="flex flex-row">
-          <p className="font-bold text-3xl">Detalles de Migración a la nube</p>
+          <p className="font-bold text-3xl">Detalles de {project.name}</p>
           <button
             className="btn btn-lg btn-circle btn-ghost absolute right-4 top-4"
             onClick={toggleModal}
@@ -210,9 +288,7 @@ const ModalFeedback = ({ toggleModal }: PropsModal) => {
               </button>
               <button
                 className="btn btn-error text-white px-6"
-                onClick={() => {
-                  toggleModal();
-                }}
+                onClick={handleTerminateProject}
               >
                 Confirmar
               </button>
@@ -223,28 +299,32 @@ const ModalFeedback = ({ toggleModal }: PropsModal) => {
             <div className="flex flex-col w-1/3 h-full gap-8">
               <div className="flex items-center text-lg mt-5">
                 <FaRegCalendar className="text-xl" />
-                <span className="ml-2">Fecha</span>
+                <span className="ml-2">
+                  {project.start_date} - {project.end_date}
+                </span>
               </div>
               <div className="flex items-center text-lg">
                 <FaRegBuilding className="text-xl" />
-                <span className="ml-2">Empresa</span>
+                <span className="ml-2">{project.company}</span>
               </div>
               <div>
                 <p className="text-lg font-bold">Descripcion</p>
-                <p className="text-gray-600">
-                  Migración de infraestructura a la nube para mejorar la
-                  escalabilidad y reducir costos operativos.
-                </p>
+                <p className="text-gray-600">{project.description}</p>
               </div>
               <div>
                 <p className="text-lg font-bold">Filtrar por Rol</p>
-                <select className="select select-bordered w-full mt-2 focus:outline-none">
+                <select
+                  className="select select-bordered w-full mt-2 focus:outline-none"
+                  onChange={(e) => {
+                    setSelectedRole(e.target.value);
+                  }}
+                >
                   <option value="all">Todos</option>
-                  <option value="developer">Desarrollador</option>
-                  <option value="designer">Diseñador</option>
-                  <option value="manager">Gerente de Proyectos</option>
-                  <option value="analyst">Analista de Datos</option>
-                  <option value="tester">Tester</option>
+                  {roles.map((role, index) => (
+                    <option key={index} value={role}>
+                      {role}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="justify-end flex-1 flex items-end">
@@ -259,38 +339,9 @@ const ModalFeedback = ({ toggleModal }: PropsModal) => {
             <div className="w-2/3 h-full flex flex-col">
               <div className="overflow-y-auto">
                 <SubordinatesList
-                  subordinates={[
-                    {
-                      id: 1,
-                      name: "Juan Pérez",
-                      position: "Desarrollador",
-                      level: "Senior",
-                    },
-                    {
-                      id: 2,
-                      name: "Ana Gómez",
-                      position: "Diseñadora",
-                      level: "Junior",
-                    },
-                    {
-                      id: 3,
-                      name: "Luis Rodríguez",
-                      position: "Gerente de Proyectos",
-                      level: "Senior",
-                    },
-                    {
-                      id: 4,
-                      name: "María López",
-                      position: "Analista de Datos",
-                      level: "Intermedio",
-                    },
-                    {
-                      id: 5,
-                      name: "Carlos Sánchez",
-                      position: "Tester",
-                      level: "Junior",
-                    },
-                  ]}
+                  subordinates={filteredEmployees}
+                  feedbackText={feedbackText}
+                  changeFeedback={changeFeedback}
                 />
               </div>
               <div className="flex w-full items-center justify-end mt-4 flex-1 pr-5">

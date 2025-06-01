@@ -7,6 +7,15 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import ModalFeedback from "../ModalFeedback";
 
+type Project = {
+  id: number;
+  name: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  company: string;
+};
+
 const CurrentProjects = () => {
   const { data: session } = useSession();
   const [showCalendarInput, setShowCalendarInput] = useState(false);
@@ -15,6 +24,7 @@ const CurrentProjects = () => {
   const [endDate, setEndDate] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -59,13 +69,13 @@ const CurrentProjects = () => {
     }
   };
 
+  const selectedProjectHandle = (project: Project) => {
+    setSelectedProject(project);
+  };
+
   useEffect(() => {
     fetchProjects();
   }, [session]);
-
-  useEffect(() => {
-    console.log("Projects fetched:", projects);
-  }, [projects]);
 
   return (
     <div className="flex w-full bg-base-100 p-5 rounded-md border border-base-300 mb-6">
@@ -128,9 +138,12 @@ const CurrentProjects = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {firstSixProjects.map((project, index) => (
-            <div key={index} className="w-full">
+            <div
+              className="w-full"
+              key={index}
+              onClick={() => selectedProjectHandle(project)}
+            >
               <ProjectCardDL
-                key={index}
                 name={project.name}
                 description={project.description}
                 start_date={project.start_date}
@@ -156,7 +169,6 @@ const CurrentProjects = () => {
               remainingProjects.map((project, index) => (
                 <div key={index} className="w-full">
                   <ProjectCardDL
-                    key={index}
                     name={project.name}
                     description={project.description}
                     start_date={project.start_date}
@@ -188,7 +200,9 @@ const CurrentProjects = () => {
             </button>
           </div>
         )}
-        {showModal && <ModalFeedback toggleModal={toggleModal} />}
+        {showModal && (
+          <ModalFeedback project={selectedProject} toggleModal={toggleModal} />
+        )}
       </div>
     </div>
   );
