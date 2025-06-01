@@ -1,7 +1,18 @@
 import { FaUserFriends, FaRegCommentDots } from "react-icons/fa";
 import { BsCalendar3 } from "react-icons/bs";
+import { countryFlag } from "../CountryFlag";
 
 type ProjectCardProps = {
+  name: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  country: string;
+  company: string;
+  people: number;
+  feedbacks: number;
+  daysRemaining: number;
+  percentCompletedDays: number;
   toggleModal: () => void;
 };
 
@@ -12,36 +23,40 @@ export default function ProjectCardDL(props: ProjectCardProps) {
       onClick={props.toggleModal}
     >
       <div className="flex flex-col">
-        <div className="flex justify-between">
-          <h2 className="text-lg font-bold">🇲🇽 Migración a la nube</h2>
-          <span className="text-xs text-gray-400">01/06/2024 - 15/03/2025</span>
+        <div className="flex flex-row w-full justify-between">
+          <div className="max-w-7/12">
+            <h2 className="text-lg font-bold">
+              {countryFlag(props.country)} {props.name}
+            </h2>
+          </div>
+          <span className="text-xs text-gray-400">
+            {props.start_date} - {props.end_date}
+          </span>
         </div>
-        <p className="text-gray-400 text-sm">Banco Nacional</p>
+        <p className="text-gray-400 text-sm">{props.company}</p>
         <div className="min-h-14 items-start text-start ">
-          <p className="text-gray-400 text-sm mt-2">
-            Migración de infraestructura on-premise a AWS
-          </p>
+          <p className="text-gray-400 text-sm mt-2">{props.description}</p>
         </div>
       </div>
 
       <div className="flex flex-row gap-x-5 items-center mt-6 text-sm">
         <div className="flex items-center gap-2">
           <FaUserFriends className="text-lg" />
-          <span className="text-xs">15 personas</span>
+          <span className="text-xs">{props.people} personas</span>
         </div>
         <div className="flex items-center gap-2">
           <FaRegCommentDots className="text-lg" />
-          <span className="text-xs">7 feedbacks</span>
+          <span className="text-xs">{props.feedbacks} feedbacks</span>
         </div>
         <div className="flex items-center gap-2">
           <BsCalendar3 className="text-lg" />
-          <span className="text-xs">37 días restantes</span>
+          <span className="text-xs">{props.daysRemaining} días restantes</span>
         </div>
       </div>
 
       <progress
         className="progress progress-success w-full mt-4"
-        value="85"
+        value={props.percentCompletedDays}
         max="100"
       ></progress>
     </div>

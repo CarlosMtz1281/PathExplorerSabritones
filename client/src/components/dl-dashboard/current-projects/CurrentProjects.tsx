@@ -3,19 +3,21 @@
 import { FaArrowDown, FaArrowUp, FaCalendarAlt } from "react-icons/fa";
 import ProjectCardDL from "./ProjectCardDL";
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 const CurrentProjects = () => {
+  const { data: session } = useSession();
   const [showCalendarInput, setShowCalendarInput] = useState(false);
   const [showProjects, setShowProjects] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [projects, setProjects] = useState<any[]>([]);
 
   const toggleModal = () => {
     setShowModal(!showModal);
   };
-
-  const projects = [<ProjectCardDL toggleModal={toggleModal} />];
 
   const firstSixProjects = projects.slice(0, 6);
   const remainingProjects = projects.slice(6);
@@ -43,10 +45,31 @@ const CurrentProjects = () => {
     };
   }, [showCalendarInput]);
 
+  const fetchProjects = async () => {
+    try {
+      const sessionId = session?.sessionId;
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/getCurrentProjectsDL`,
+        { headers: { "session-key": sessionId } }
+      );
+      setProjects(response.data);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, [session]);
+
+  useEffect(() => {
+    console.log("Projects fetched:", projects);
+  }, [projects]);
+
   return (
     <div className="flex w-full bg-base-100 p-5 rounded-md border border-base-300 mb-6">
       <div className="w-full">
-        <h2 className="text-3xl font-bold mb-4">Futuros Proyectos</h2>
+        <h2 className="text-3xl font-bold mb-4">Proyectos en Curso</h2>
         <div className="w-full h-px bg-base-300 mb-4"></div>
         <div className="flex flex-row w-full h-14 px-8 mb-4">
           <input
@@ -105,7 +128,20 @@ const CurrentProjects = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {firstSixProjects.map((project, index) => (
             <div key={index} className="w-full">
-              {project}
+              <ProjectCardDL
+                key={index}
+                name={project.name}
+                description={project.description}
+                start_date={project.start_date}
+                end_date={project.end_date}
+                country={project.country}
+                company={project.company}
+                people={project.people}
+                feedbacks={project.feedbacks}
+                daysRemaining={project.daysRemaining}
+                percentCompletedDays={project.percentCompletedDays}
+                toggleModal={toggleModal}
+              />
             </div>
           ))}
           <div
@@ -118,7 +154,20 @@ const CurrentProjects = () => {
             {showProjects &&
               remainingProjects.map((project, index) => (
                 <div key={index} className="w-full">
-                  {project}
+                  <ProjectCardDL
+                    key={index}
+                    name={project.name}
+                    description={project.description}
+                    start_date={project.start_date}
+                    end_date={project.end_date}
+                    country={project.country}
+                    company={project.company}
+                    people={project.people}
+                    feedbacks={project.feedbacks}
+                    daysRemaining={project.daysRemaining}
+                    percentCompletedDays={project.percentCompletedDays}
+                    toggleModal={toggleModal}
+                  />
                 </div>
               ))}
           </div>
