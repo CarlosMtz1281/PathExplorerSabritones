@@ -5,6 +5,7 @@ import ProjectCardDL from "./ProjectCardDL";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import ModalFeedback from "../ModalFeedback";
 
 const CurrentProjects = () => {
   const { data: session } = useSession();
@@ -125,7 +126,7 @@ const CurrentProjects = () => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {firstSixProjects.map((project, index) => (
             <div key={index} className="w-full">
               <ProjectCardDL
@@ -187,6 +188,7 @@ const CurrentProjects = () => {
             </button>
           </div>
         )}
+        {showModal && <ModalFeedback toggleModal={toggleModal} />}
       </div>
     </div>
   );
