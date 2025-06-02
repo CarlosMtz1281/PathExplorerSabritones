@@ -786,6 +786,7 @@ router.get("/employeesByProject/:projectId", async (req, res) => {
             },
             Feedback: {
               select: {
+                feedback_id: true,
                 desc: true,
                 score: true,
               },
@@ -802,7 +803,9 @@ router.get("/employeesByProject/:projectId", async (req, res) => {
       user_id: position.Users.user_id,
       name: position.Users.name,
       position_name: position.position_name,
+      position_id: position.position_id,
       feedbacks: position.Feedback.map((feedback) => ({
+        feedback_id: feedback.feedback_id,
         desc: feedback.desc,
         score: feedback.score,
       })),
@@ -860,6 +863,78 @@ router.patch("/closeProject", async (req, res) => {
     });
   } catch (error) {
     console.error("Error closing project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/feedbacks", async (req, res) => {
+  try {
+    const { projectId, feedbacks } = req.body;
+    if (!projectId || !Array.isArray(feedbacks)) {
+      return res.status(400).json({ error: "Invalid request data" });
+    }
+
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const role = await prisma.users.findUnique({
+      where: { user_id: userId },
+      select: { role_id: true },
+    });
+
+    if (role?.role_id !== 4) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized to update feedbacks" });
+    }
+
+    const updatedFeedbacks = await Promise.all(
+      feedbacks.map(async (feedback) => {
+        const { feedback_id, position_id, desc, score } = feedback;
+
+        if (
+          !position_id ||
+          typeof desc !== "string" ||
+          typeof score !== "number"
+        ) {
+          throw new Error("Invalid feedback data");
+        }
+
+        if (feedback_id) {
+          return prisma.feedback.upsert({
+            where: {
+              feedback_id: feedback_id,
+            },
+            create: {
+              position_id,
+              desc,
+              score,
+            },
+            update: {
+              desc,
+              score,
+            },
+          });
+        } else {
+          return prisma.feedback.create({
+            data: {
+              position_id,
+              desc,
+              score,
+            },
+          });
+        }
+      })
+    );
+
+    res.status(200).json({
+      message: "Feedbacks updated successfully",
+      feedbacks: updatedFeedbacks,
+    });
+  } catch (error) {
+    console.error("Error updating feedbacks:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
