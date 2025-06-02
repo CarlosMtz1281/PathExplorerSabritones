@@ -52,10 +52,10 @@ const FeedbackPopup = ({ top, left, value, onChange, onClose }: any) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  return ReactDOM.createPortal(
+  return (
     <div
       ref={popupRef}
-      className="fixed bg-base-100 border rounded-lg shadow-lg w-[400px] p-3 z-[9999]"
+      className="absolute bg-base-100 border rounded-lg shadow-lg w-[400px] p-3 z-[9999]"
       style={{ top, left }}
     >
       <p className="font-bold mb-1">Feedback</p>
@@ -64,8 +64,7 @@ const FeedbackPopup = ({ top, left, value, onChange, onClose }: any) => {
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-    </div>,
-    document.body
+    </div>
   );
 };
 
@@ -158,6 +157,7 @@ const SubordinatesList = ({
     top: 0,
     left: 0,
   });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const closePopup = () => {
     setIsPopupOpen(false);
@@ -166,13 +166,20 @@ const SubordinatesList = ({
 
   const handleToggleFeedback = (id: number, event: React.MouseEvent) => {
     event.stopPropagation();
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const offsetY = 30;
 
-    setPopupPos({
-      top: rect.top + window.scrollY + offsetY,
-      left: rect.left - 360,
-    });
+    const button = event.currentTarget as HTMLElement;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const buttonRect = button.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    // Compute position relative to the scroll container
+    const top = buttonRect.top - containerRect.top + container.scrollTop + 8; // 8px padding below button
+    const left = buttonRect.left - containerRect.left - 420; // Popup appears to the left
+
+    const maxTop = container.scrollHeight - 150;
+    setPopupPos({ top: Math.min(top, maxTop), left });
 
     if (selectedId === id) {
       closePopup();
@@ -184,7 +191,10 @@ const SubordinatesList = ({
   };
 
   return (
-    <div className="flex flex-col min-h-[50vh] max-h-[50vh] gap-4 bg-base-200 p-6 overflow-y-auto rounded-2xl">
+    <div
+      ref={containerRef}
+      className="flex flex-col min-h-[50vh] max-h-[50vh] gap-4 bg-base-200 p-6 overflow-y-auto rounded-2xl relative"
+    >
       {subordinates.map((subordinate: any) => (
         <SubordinateCard
           key={subordinate.user_id}
