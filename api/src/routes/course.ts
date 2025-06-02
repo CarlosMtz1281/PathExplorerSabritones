@@ -3,8 +3,26 @@ import express from "express";
 import dotenv from "dotenv";
 import prisma from "../db/prisma";
 import { getUserIdFromSession, updateSession } from "../utils/session";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 dotenv.config();
+
+const uploadDir = path.join(__dirname, '../../uploads/certificates');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -155,7 +173,7 @@ router.get("/providers-and-certifications", async (req, res) => {
   }
 });
 
-router.post("/add-certificate", async (req, res) => {
+router.post("/add-certificate", upload.single('pdf'), async (req, res) => {
   const sessionKey = req.headers["session-key"];
   const {
     certificate_id,
@@ -164,6 +182,13 @@ router.post("/add-certificate", async (req, res) => {
     certificate_link,
     certificate_status,
   } = req.body;
+
+  // Handle uploaded file
+  let certificateUri = null;
+  if (req.file) {
+    // Save relative path to the file for access from the client
+    certificateUri = `/uploads/certificates/${req.file.filename}`;
+  }
 
   if (!sessionKey) {
     return res
@@ -212,6 +237,7 @@ router.post("/add-certificate", async (req, res) => {
           ? new Date(certificate_expiration_date)
           : null,
         certificate_link: certificate_link || null,
+        certificate_uri: certificateUri,
       },
     });
 

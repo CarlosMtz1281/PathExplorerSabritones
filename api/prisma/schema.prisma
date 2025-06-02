@@ -57,6 +57,7 @@ model Certificate_Users {
   certificate_date            DateTime?    @db.Timestamp(6)
   certificate_expiration_date DateTime?    @db.Timestamp(6)
   certificate_link            String?      @db.VarChar
+  certificate_uri             String?      @db.VarChar
   status                      String?      @db.VarChar
   Certificates                Certificates @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_users_certificate")
   Users                       Users        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_certificate_users_user")

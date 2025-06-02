@@ -105,27 +105,32 @@ const handleSubmit = async (e: React.FormEvent) => {
       return;
     }
 
-    const payload = {
-      certificate_id: certifications.find(
-        (cert) => cert.certificate_name === formData.certificate_name
-      )?.certificate_id,
-      certificate_date: formData.issue_date,
-      certificate_expiration_date: formData.expiration_date || null,
-      certificate_link: formData.link || null,
-      certificate_status: formData.status,
-    };
+    const certificate_id = certifications.find(
+      (cert) => cert.certificate_name === formData.certificate_name
+    )?.certificate_id;
 
-    if (!payload.certificate_id || !payload.certificate_date || !payload.certificate_status) {
+    if (!certificate_id || !formData.issue_date || !formData.status) {
       console.error("Certificate ID, date, and status are required");
       return;
     }
 
+    const formPayload = new FormData();
+    formPayload.append("certificate_id", String(certificate_id));
+    formPayload.append("certificate_date", formData.issue_date);
+    formPayload.append("certificate_expiration_date", formData.expiration_date || "");
+    formPayload.append("certificate_link", formData.link || "");
+    formPayload.append("certificate_status", formData.status);
+    if (formData.pdf) {
+      formPayload.append("pdf", formData.pdf);
+    }
+
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_BASE}/course/add-certificate`,
-      payload,
+      formPayload,
       {
         headers: {
           "session-key": sessionKey,
+          'Content-Type': 'multipart/form-data',
         },
       }
     );
@@ -350,7 +355,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   PDF Certificate
                 </label>
                 <input
-                    disabled
                   type="file"
                   accept="application/pdf"
                   onChange={handleFileChange}
