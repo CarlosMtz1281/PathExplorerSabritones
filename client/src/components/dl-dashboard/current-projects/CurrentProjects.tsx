@@ -65,7 +65,7 @@ const CurrentProjects = () => {
       );
       setProjects(response.data);
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      alert("Error al cargar los proyectos");
     }
   };
 

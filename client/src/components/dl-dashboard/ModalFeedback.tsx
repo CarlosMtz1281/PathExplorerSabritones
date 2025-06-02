@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 
 type Feedback = {
+  feedback_id: number;
   desc: string;
   score: number;
 };
@@ -21,6 +22,7 @@ type Employee = {
   user_id: number;
   name: string;
   position_name: string;
+  position_id: number;
   feedbacks: Feedback[];
 };
 
@@ -70,9 +72,13 @@ const FeedbackPopup = ({ top, left, value, onChange, onClose }: any) => {
 const SubordinateCard = ({
   subordinate,
   onFeedbackToggle,
+  score,
+  setScore,
 }: {
   subordinate: Employee;
   onFeedbackToggle: (id: number, e: React.MouseEvent) => void;
+  score: number;
+  setScore: (score: number) => void;
 }) => {
   const router = useRouter();
 
@@ -111,6 +117,7 @@ const SubordinateCard = ({
                 name={`rating-${subordinate.user_id}`}
                 className="mask mask-star-2 bg-orange-400"
                 defaultChecked={subordinate.feedbacks[0]?.score === star}
+                onChange={() => setScore(star)}
               />
             ))}
           </div>
@@ -136,10 +143,14 @@ const SubordinatesList = ({
   subordinates,
   feedbackText,
   changeFeedback,
+  scoreState,
+  setScore,
 }: {
   subordinates: any[];
   feedbackText: Record<number, string>;
   changeFeedback: (id: number, value: string) => void;
+  scoreState: Record<number, number>;
+  setScore: (id: number, score: number) => void;
 }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -179,6 +190,8 @@ const SubordinatesList = ({
           key={subordinate.user_id}
           subordinate={subordinate}
           onFeedbackToggle={handleToggleFeedback}
+          score={scoreState[subordinate.user_id] || 0}
+          setScore={(score: number) => setScore(subordinate.user_id, score)}
         />
       ))}
 
@@ -205,6 +218,7 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [feedbackText, setFeedbackText] = useState<Record<number, string>>({});
+  const [scoreState, setScoreState] = useState<Record<number, number>>({});
 
   const fetchData = async () => {
     try {
@@ -216,12 +230,15 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
       setEmployees(response.data.employees);
       setRoles(response.data.uniqueRoles);
       const initialFeedback: Record<number, string> = {};
+      const initialScore: Record<number, number> = {};
       response.data.employees.forEach((emp: Employee) => {
         initialFeedback[emp.user_id] = emp.feedbacks[0]?.desc || "";
+        initialScore[emp.user_id] = emp.feedbacks[0]?.score || 0;
       });
       setFeedbackText(initialFeedback);
+      setScoreState(initialScore);
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      alert("Error al obtener los empleados del proyecto");
     }
   };
 
@@ -235,7 +252,7 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
       );
       toggleModal();
     } catch (error) {
-      console.error("Error terminating project:", error);
+      alert("Error al terminar el proyecto");
     }
   };
 
@@ -258,6 +275,42 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
       ...prev,
       [id]: value,
     }));
+  };
+
+  const handleSaveFeedbacks = async () => {
+    try {
+      const sessionId = session?.sessionId;
+
+      const feedbacksToSubmit = employees
+        .map((emp) => {
+          const feedback = emp.feedbacks[0];
+
+          return {
+            feedback_id: feedback?.feedback_id,
+            position_id: emp.position_id,
+            desc: feedbackText[emp.user_id] || "",
+            score: scoreState[emp.user_id] || 0,
+          };
+        })
+        .filter(
+          (feedback) => feedback.desc.trim() !== "" || feedback.score > 0
+        );
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE}/project/feedbacks`,
+        {
+          projectId: project.id,
+          feedbacks: feedbacksToSubmit,
+        },
+        {
+          headers: { "session-key": sessionId },
+        }
+      );
+
+      alert("Feedbacks guardados correctamente");
+    } catch (error) {
+      alert("Error al guardar feedbacks");
+    }
   };
 
   return (
@@ -342,10 +395,20 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
                   subordinates={filteredEmployees}
                   feedbackText={feedbackText}
                   changeFeedback={changeFeedback}
+                  scoreState={scoreState}
+                  setScore={(id: number, score: number) => {
+                    setScoreState((prev) => ({
+                      ...prev,
+                      [id]: score,
+                    }));
+                  }}
                 />
               </div>
               <div className="flex w-full items-center justify-end mt-4 flex-1 pr-5">
-                <button className="btn btn-primary border-0 px-10">
+                <button
+                  className="btn btn-primary border-0 px-10"
+                  onClick={handleSaveFeedbacks}
+                >
                   Guardar Cambios
                 </button>
               </div>
