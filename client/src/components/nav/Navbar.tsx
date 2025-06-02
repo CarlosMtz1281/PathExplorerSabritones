@@ -41,8 +41,17 @@ export default function Navbar() {
     showCLDashboard: [3],
   };
 
+  const handleMouseEnter = () => setIsCollapsed(false);
+  const handleMouseLeave = () => setIsCollapsed(true);
+
+
+
+
   return (
     <div
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+
       className={`h-screen ${
         isCollapsed ? "w-20" : "w-64"
       } bg-secondary shadow-lg flex flex-col p-4 transition-all duration-300`}
@@ -61,7 +70,7 @@ export default function Navbar() {
         />
       </div>
 
-      <ul className="flex flex-col gap-4 flex-grow items-start mt-30">
+      <ul className="flex flex-col gap-4 flex-grow items-start mt-10">
         {/* Perfil visible para todos */}
         <li className="w-full">
           <a
@@ -69,7 +78,7 @@ export default function Navbar() {
             className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
           >
             <FaUser className="w-6 h-6" />
-            {!isCollapsed && <h3 className="text-xl font-semibold">Perfil</h3>}
+            {!isCollapsed && <h3 className="text-lg">Perfil</h3>}
           </a>
         </li>
 
@@ -80,7 +89,7 @@ export default function Navbar() {
               className="btn btn-ghost flex items-center gap-2 w-full text-base-100 hover:text-primary hover:bg-base-200 justify-start"
             >
               <FaFolderOpen className="w-5 h-5" />
-              {!isCollapsed && <h3 className="text-xl font-semibold">Proyectos</h3>}
+              {!isCollapsed && <h3 className="text-lg">Proyectos</h3>}
             </a>
           </li>
         )}
@@ -93,7 +102,7 @@ export default function Navbar() {
             >
               <FaTruckMoving className="w-5 h-5" />
               {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Delivery dashboard</h3>
+                <h3 className="text-lg">Delivery dashboard</h3>
               )}
             </a>
           </li>
@@ -107,7 +116,7 @@ export default function Navbar() {
             >
               <FaSuitcase className="w-5 h-5" />
               {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Crear Proyectos</h3>
+                <h3 className="text-lg">Crear Proyectos</h3>
               )}
             </a>
           </li>
@@ -121,7 +130,7 @@ export default function Navbar() {
             >
               <FaUserPlus className="w-5 h-5" />
               {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Crear Usuarios</h3>
+                <h3 className="text-lg">Crear Usuarios</h3>
               )}
             </a>
           </li>
@@ -135,7 +144,7 @@ export default function Navbar() {
             >
               <FaAddressBook className="w-5 h-5" />
               {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Empleados</h3>
+                <h3 className="text-lg">Empleados</h3>
               )}
             </a>
           </li>
@@ -149,7 +158,7 @@ export default function Navbar() {
             >
               <FaLightbulb className="w-5 h-5" />
               {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Dashboard de PL</h3>
+                <h3 className="text-lg font-semibold">Dashboard de PL</h3>
               )}
             </a>
           </li>
@@ -163,7 +172,7 @@ export default function Navbar() {
             >
               <FaUserTie className="w-5 h-5" />
               {!isCollapsed && (
-                <h3 className="text-xl font-semibold">Dashboard de CL</h3>
+                <h3 className="text-lg font-semibold">Dashboard de CL</h3>
               )}
             </a>
           </li>
@@ -181,17 +190,7 @@ export default function Navbar() {
         )}
       </button>
 
-      {/* Collapse */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="btn btn-ghost text-base-100 hover:text-primary mt-auto flex items-center justify-center"
-      >
-        {isCollapsed ? (
-          <FaChevronRight className="w-5 h-5" />
-        ) : (
-          <FaChevronLeft className="w-5 h-5" />
-        )}
-      </button>
+     
     </div>
   );
 }
