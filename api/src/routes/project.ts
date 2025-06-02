@@ -850,7 +850,6 @@ router.patch("/closeProject", async (req, res) => {
     }
 
     const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
 
     const updatedProject = await prisma.projects.update({
       where: { project_id: projectId },
