@@ -11,15 +11,18 @@ type ProjectCardProps = {
   company: string;
   people: number;
   feedbacks: number;
-  daysRemaining: number;
-  percentCompletedDays: number;
+  daysRemaining?: number;
+  percentCompletedDays?: number;
   toggleModal: () => void;
+  closed?: boolean;
 };
 
 export default function ProjectCardDL(props: ProjectCardProps) {
+  const { closed = false } = props;
+
   return (
     <div
-      className="card bg-base-200 p-4 rounded-2xl hover:bg-base-100 hover:shadow-xl hover:scale-105 transition-transform duration-300 hover:cursor-pointer"
+      className="card bg-base-200 h-full p-4 rounded-2xl hover:bg-base-100 hover:shadow-xl hover:scale-105 transition-transform duration-300 hover:cursor-pointer"
       onClick={props.toggleModal}
     >
       <div className="flex flex-col">
@@ -30,7 +33,8 @@ export default function ProjectCardDL(props: ProjectCardProps) {
             </h2>
           </div>
           <span className="text-xs text-gray-400">
-            {props.start_date} - {props.end_date}
+            {props.start_date} -{" "}
+            {props.end_date ? props.end_date : "Indefinido"}
           </span>
         </div>
         <p className="text-gray-400 text-sm">{props.company}</p>
@@ -39,7 +43,7 @@ export default function ProjectCardDL(props: ProjectCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-row gap-x-5 items-center mt-6 text-sm">
+      <div className="flex flex-row gap-x-5 items-end mt-6 text-sm flex-1">
         <div className="flex items-center gap-2">
           <FaUserFriends className="text-lg" />
           <span className="text-xs">{props.people} personas</span>
@@ -48,17 +52,25 @@ export default function ProjectCardDL(props: ProjectCardProps) {
           <FaRegCommentDots className="text-lg" />
           <span className="text-xs">{props.feedbacks} feedbacks</span>
         </div>
-        <div className="flex items-center gap-2">
-          <BsCalendar3 className="text-lg" />
-          <span className="text-xs">{props.daysRemaining} días restantes</span>
-        </div>
+        {closed === false && (
+          <div className="flex items-center gap-2">
+            <BsCalendar3 className="text-lg" />
+            <span className="text-xs">
+              {!props.end_date
+                ? "Fecha por confirmar"
+                : `${props.daysRemaining} días restantes`}
+            </span>
+          </div>
+        )}
       </div>
 
-      <progress
-        className="progress progress-success w-full mt-4"
-        value={props.percentCompletedDays}
-        max="100"
-      ></progress>
+      {closed === false && (
+        <progress
+          className="progress progress-success w-full mt-4"
+          value={props.percentCompletedDays}
+          max="100"
+        />
+      )}
     </div>
   );
 }
