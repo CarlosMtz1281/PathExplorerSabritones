@@ -21,7 +21,7 @@ import { usePathname } from "next/navigation";
 
 
 export default function Navbar() {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: session } = useSession();
   const roleId = session?.user?.role_id || 0;
   const userId = session?.user?.id;
@@ -81,7 +81,7 @@ export default function Navbar() {
         <a
             href={`/dashboard/profile`}
             className={`btn btn-ghost flex items-center gap-2 w-full justify-start
-              color-neutral-content hover:text-primary hover:bg-base-200
+              text-whitehover:text-primary hover:bg-base-200
               ${isActive("/dashboard/profile") ? "bg-base-200 text-primary" : ""}
             `}
           >
@@ -94,12 +94,12 @@ export default function Navbar() {
         <li className="w-full">
         <a
           href="/dashboard/repo-projects"
-          className={`btn btn-ghost flex items-center gap-2 w-full color-primary-content hover:text-primary hover:bg-base-200 justify-start
+          className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
             ${isActive("/dashboard/repo-projects") ? "bg-base-200 text-primary" : ""}
           `}
         >
           <FaFolderOpen className="w-5 h-5" />
-          {!isCollapsed && <h3 className="text-lg font-normal">Proyectos</h3>}
+          {!isCollapsed && <h3 className="text-lg font-norma">Proyectos</h3>}
         </a>
         </li>
       )}
@@ -108,7 +108,7 @@ export default function Navbar() {
         <li className="w-full">
         <a
           href="/dashboard/dl-dashboard"
-          className={`btn btn-ghost flex items-center gap-2 w-full color-neutral-content hover:text-primary hover:bg-base-200 justify-start
+          className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
             ${isActive("/dashboard/dl-dashboard") ? "bg-base-200 text-primary" : ""}
           `}
         >
@@ -124,7 +124,7 @@ export default function Navbar() {
         <li className="w-full mt-2">
         <a
           href="/dashboard/crea-projects"
-          className={`btn btn-ghost flex items-center gap-4 w-full color-neutral-content hover:text-primary hover:bg-base-200 justify-start
+          className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
             ${isActive("/dashboard/crea-projects") ? "bg-base-200 text-primary" : ""}
           `}
         >
@@ -140,7 +140,7 @@ export default function Navbar() {
         <li className="w-full mt-2">
         <a
           href="/dashboard/create-users"
-          className={`btn btn-ghost flex items-center gap-4 w-full color-neutral-content hover:text-primary hover:bg-base-200 justify-start
+          className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
             ${isActive("/dashboard/create-users") ? "bg-base-200 text-primary" : ""}
           `}
         >
@@ -156,7 +156,7 @@ export default function Navbar() {
         <li className="w-full">
         <a
           href="/dashboard/repo-empleados"
-          className={`btn btn-ghost flex items-center gap-2 w-full color-neutral-content hover:text-primary hover:bg-base-200 justify-start
+          className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
             ${isActive("/dashboard/repo-empleados") ? "bg-base-200 text-primary" : ""}
           `}
         >
@@ -172,7 +172,7 @@ export default function Navbar() {
         <li className="w-full">
         <a
           href="/dashboard/pl-dashboard"
-          className={`btn btn-ghost flex items-center gap-2 w-full color-neutral-content hover:text-primary hover:bg-base-200 justify-start
+          className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
             ${isActive("/dashboard/pl-dashboard") ? "bg-base-200 text-primary" : ""}
           `}
         >
@@ -188,7 +188,7 @@ export default function Navbar() {
         <li className="w-full">
         <a
           href="/dashboard/cl-dashboard"
-          className={`btn btn-ghost flex items-center gap-2 w-full color-neutral-content hover:text-primary hover:bg-base-200 justify-start
+          className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
             ${isActive("/dashboard/cl-dashboard") ? "bg-base-200 text-primary" : ""}
           `}
         >
@@ -209,7 +209,7 @@ export default function Navbar() {
       {/* Logout */}
       <button
       onClick={handleLogout}
-      className="btn btn-ghost flex items-center gap-2 w-full text-base-content hover:text-red-500 hover:bg-base-200 justify-start mb-4"
+      className="btn btn-ghost flex items-center gap-2 w-full text-white hover:text-red-500 hover:bg-base-200 justify-start mb-4"
       >
       <FaSignOutAlt className="w-5 h-5" />
       {!isCollapsed && (
