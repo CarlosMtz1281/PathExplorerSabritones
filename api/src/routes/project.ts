@@ -700,7 +700,7 @@ router.get("/getCurrentProjectsDL", async (req, res) => {
       where: {
         delivery_lead_user_id: userId,
         start_date: { lte: currentDate },
-        end_date: { gte: currentDate },
+        OR: [{ end_date: { gte: currentDate } }, { end_date: null }],
       },
       include: {
         Country: { select: { country_name: true } },
@@ -850,6 +850,8 @@ router.patch("/closeProject", async (req, res) => {
     }
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    today.setHours(today.getHours() - 6);
 
     const updatedProject = await prisma.projects.update({
       where: { project_id: projectId },
@@ -934,6 +936,67 @@ router.post("/feedbacks", async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating feedbacks:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/getPastProjectsDL", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const role = await prisma.users.findUnique({
+      where: { user_id: userId },
+      select: { role_id: true },
+    });
+
+    if (role?.role_id !== 4) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized to view past projects" });
+    }
+
+    const currentDate = new Date();
+    const projects = await prisma.projects.findMany({
+      where: {
+        delivery_lead_user_id: userId,
+        end_date: { lt: currentDate },
+      },
+      include: {
+        Country: { select: { country_name: true } },
+        Project_Positions: {
+          include: {
+            Feedback: true,
+          },
+        },
+      },
+    });
+
+    const formattedProjects = projects.map((project) => ({
+      id: project.project_id,
+      name: project.project_name,
+      description: project.project_desc,
+      start_date: project.start_date
+        ? project.start_date.toLocaleDateString("es-ES")
+        : null,
+      end_date: project.end_date
+        ? project.end_date.toLocaleDateString("es-ES")
+        : null,
+      country: project.Country?.country_name || "No country",
+      company: project.company_name,
+      people: project.Project_Positions.length,
+      feedbacks: project.Project_Positions.reduce(
+        (acc, position) =>
+          acc + (position.Feedback ? position.Feedback.length : 0),
+        0
+      ),
+    }));
+
+    res.status(200).json(formattedProjects);
+  } catch (error) {
+    console.error("Error fetching past projects for DL:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import CurrentProjects from "@/components/dl-dashboard/current-projects/CurrentProjects";
+import PastProjects from "@/components/dl-dashboard/past-projects/PastProjects";
 
 interface Project {
   projectId: number;
@@ -717,6 +718,7 @@ const DashboardDL = () => {
         </div>
       </div>
       <CurrentProjects />
+      <PastProjects />
 
       {/* Modal de Detalles del Proyecto */}
       {isFuturProjModalOpen && selectedProject && (

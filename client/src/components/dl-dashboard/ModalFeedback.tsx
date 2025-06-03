@@ -36,6 +36,7 @@ type PropsModal = {
     company: string;
   };
   toggleModal: () => void;
+  closed?: boolean;
 };
 
 // Feedback popup as fixed portal
@@ -220,7 +221,11 @@ const SubordinatesList = ({
   );
 };
 
-const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
+const ModalFeedback = ({
+  project,
+  toggleModal,
+  closed = false,
+}: PropsModal) => {
   const { data: session } = useSession();
   const [isProjectTerminating, setIsProjectTerminating] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -260,7 +265,7 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
         { projectId: project.id },
         { headers: { "session-key": sessionId } }
       );
-      toggleModal();
+      window.location.reload();
     } catch (error) {
       alert("Error al terminar el proyecto");
     }
@@ -279,6 +284,14 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
   useEffect(() => {
     fetchData();
   }, [project.id, session]);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   const changeFeedback = (id: number, value: string) => {
     setFeedbackText((prev) => ({
@@ -318,6 +331,7 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
       );
 
       alert("Feedbacks guardados correctamente");
+      toggleModal();
     } catch (error) {
       alert("Error al guardar feedbacks");
     }
@@ -390,14 +404,16 @@ const ModalFeedback = ({ project, toggleModal }: PropsModal) => {
                   ))}
                 </select>
               </div>
-              <div className="justify-end flex-1 flex items-end">
-                <button
-                  className="btn btn-primary border-0 px-10 py-5 w-full mb-3"
-                  onClick={() => setIsProjectTerminating(true)}
-                >
-                  Terminar Proyecto
-                </button>
-              </div>
+              {closed === false && (
+                <div className="justify-end flex-1 flex items-end">
+                  <button
+                    className="btn btn-primary border-0 px-10 py-5 w-full mb-3"
+                    onClick={() => setIsProjectTerminating(true)}
+                  >
+                    Terminar Proyecto
+                  </button>
+                </div>
+              )}
             </div>
             <div className="w-2/3 h-full flex flex-col">
               <div className="overflow-y-auto">
