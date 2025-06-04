@@ -6,6 +6,7 @@ import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
+import WidgetMeetings from "@/components/perfil/WidgetMeetings";
 import WidgetPathExplorer from "@/components/perfil/WidgetPathExplorer";
 import WidgetMetas from "@/components/perfil/WidgetMetas";
 import { User } from "@/interfaces/User";
@@ -105,7 +106,8 @@ const Profile = () => {
       </div>
 
       <div className="flex">
-        <div className="w-[25vw]">
+        <div className="w-[25vw] gap-10 flex flex-col pr-5 max-h-[calc(100vh-4rem)]">
+          <WidgetMeetings />
           <WidgetPathExplorer />
         </div>
         <div

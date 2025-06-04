@@ -335,7 +335,7 @@ router.post("/scheduleMeeting", async (req, res) => {
     const newMeeting = await prisma.meeting.create({
       data: {
         meeting_date: combinedDate,
-        meeting_link: meetingLink || `meeting-${postulationId}-${combinedDate.getTime()}`,
+        meeting_link: meetingLink,
         postulation_id: postulationId
       }
     });
