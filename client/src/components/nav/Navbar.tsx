@@ -21,7 +21,7 @@ import { usePathname } from "next/navigation";
 
 
 export default function Navbar() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const { data: session } = useSession();
   const roleId = session?.user?.role_id || 0;
   const userId = session?.user?.id;

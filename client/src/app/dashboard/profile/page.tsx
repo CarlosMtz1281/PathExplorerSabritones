@@ -43,7 +43,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-base-200 px-4 md:px-8 py-8 gap-8">
+    <div className="flex flex-col min-h-screen bg-base-200 px-4 md:px-8 py-8 gap-8 overflow-x-hidden ">
       <div className="card w-full bg-base-100 shadow-lg p-6 rounded-lg relative">
         {/* Background Banner */}
         <div className="absolute top-0 left-0 w-full h-35 rounded-t-lg">
@@ -111,14 +111,15 @@ const Profile = () => {
           <WidgetPathExplorer />
         </div>
         <div
-          className="flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] "
-          style={{ width: "70vw", marginLeft: "2vw", marginBottom: "200px" }}
+          className="flex flex-col gap-10 pr-5 "
+          style={{ width: "70vw", marginLeft: "2vw",  }}
         >
           <WidgetMetas />
           <WidgetCertificaciones />
           <WidgetTrayectoria />
           <WidgetHabilidades />
         </div>
+
       </div>
     </div>
   );
