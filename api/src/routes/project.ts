@@ -1001,4 +1001,102 @@ router.get("/getPastProjectsDL", async (req, res) => {
   }
 });
 
+
+router.get("/getMeetings", async (req, res) => {
+  try {
+    // Get user ID from session
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    // Get all meetings where the user is either:
+    // 1. The participant (through postulation)
+    // 2. The delivery lead of the project
+    // 3. The capability lead of the position's capability
+    const meetings = await prisma.meeting.findMany({
+      where: {
+        OR: [
+          // Meetings where user is the participant
+          {
+            Postulations: {
+              user_id: userId,
+              valid: true, // Ensure postulation is valid
+            }
+          },
+          // Meetings where user is the delivery lead of the project
+          {
+            Postulations: {
+              Project_Positions: {
+                Projects: {
+                  delivery_lead_user_id: userId
+                }
+              },
+              valid: true // Ensure postulation is valid
+            }
+          }
+        ],
+        // add condition of postulation being valid
+      },
+      include: {
+        Postulations: {
+          include: {
+            Users: {
+              select: {
+                user_id: true,
+                name: true,
+                mail: true
+              }
+            },
+            Project_Positions: {
+              include: {
+                Projects: {
+                  select: {
+                    project_id: true,
+                    project_name: true,
+                    company_name: true
+                  }
+                },
+                Capability: {
+                  select: {
+                    capability_id: true,
+                    capability_name: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        meeting_date: 'asc' // Sort by meeting date ascending
+      }
+    });
+
+    // Format the response
+    const formattedMeetings = meetings.map(meeting => ({
+      meeting_id: meeting.meeting_id,
+      meeting_date: meeting.meeting_date,
+      meeting_link: meeting.meeting_link,
+      participant: meeting.Postulations.Users,
+      project: {
+        id: meeting.Postulations.Project_Positions.Projects.project_id,
+        name: meeting.Postulations.Project_Positions.Projects.project_name,
+        company: meeting.Postulations.Project_Positions.Projects.company_name
+      },
+      position: {
+        id: meeting.Postulations.Project_Positions.position_id,
+        name: meeting.Postulations.Project_Positions.position_name,
+        capability: meeting.Postulations.Project_Positions.Capability
+      },
+      postulation_date: meeting.Postulations.postulation_date
+    }));
+
+    res.status(200).json(formattedMeetings);
+  } catch (error) {
+    console.error("Error fetching meetings:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
