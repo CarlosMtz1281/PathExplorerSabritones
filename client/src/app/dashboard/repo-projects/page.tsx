@@ -102,7 +102,7 @@ export default function RepoProjects() {
       }
 
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/projectsByCapability`, {
-        headers: { "sessionId": sessionId },
+        headers: { "session-key": sessionId },
       });
 
       console.log("Response data:", res.data);

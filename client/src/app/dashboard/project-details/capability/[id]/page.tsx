@@ -6,12 +6,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-// Updated interfaces with more precise types
+// Interfaces
 interface Skill {
   skill_id: number;
   name: string;
   technical: boolean;
-  skill_name?: string; // For compatibility with different API responses
+  skill_name?: string;
 }
 
 interface Certificate {
@@ -61,6 +61,7 @@ interface TeamMember {
   matchedSkills?: Skill[];
   matchedCertificates?: Certificate[];
   totalMatches?: number;
+  isInProject?: boolean;
 }
 
 interface Project {
@@ -90,14 +91,14 @@ interface Project {
 
 const ProjectDetails = () => {
   const { data: session } = useSession();
-    const router = useRouter();
-    
-    useEffect(() => {
-      if (session?.user?.role_id !== 3) {
-        alert("❌ No tienes permisos para acceder a esta página.");
-        router.push("/dashboard");
-      }
-    }, [session, router]);
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (session?.user?.role_id !== 3) {
+      alert("❌ No tienes permisos para acceder a esta página.");
+      router.push("/dashboard");
+    }
+  }, [session, router]);
 
   const { id } = useParams();
   const [project, setProject] = useState<Project | null>(null);
@@ -105,22 +106,20 @@ const ProjectDetails = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedVacancy, setSelectedVacancy] = useState<number | null>(null);
   const [candidates, setCandidates] = useState<TeamMember[]>([]);
-  const [capabilityTeamMembers, setCapabilityTeamMembers] = useState<
-    TeamMember[]
-  >([]);
+  const [capabilityTeamMembers, setCapabilityTeamMembers] = useState<TeamMember[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(true);
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [positionSkills, setPositionSkills] = useState<Skill[]>([]);
-  const [positionCertificates, setPositionCertificates] = useState<
-    Certificate[]
-  >([]);
+  const [positionCertificates, setPositionCertificates] = useState<Certificate[]>([]);
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
+  const [currentTeam, setCurrentTeam] = useState<TeamMember[]>([]);
+  const [loadingCurrentTeam, setLoadingCurrentTeam] = useState(true);
 
-  // Fetch project details
+  // Fetch project details and current team
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
         const sessionId = session?.sessionId;
-        
         if (!sessionId) {
           console.error("Session ID is missing");
           return;
@@ -128,35 +127,49 @@ const ProjectDetails = () => {
 
         setLoading(true);
   
+        // Fetch project data
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getProjectByIdCap/${id}`, {
-          headers: { "sessionId": sessionId },
+          headers: { "session-key": sessionId },
         });
 
+        //console.log("Project data:", res.data);
+
         const data = await res.data;
-        console.log("Project data:", data);
         setProject(data);
 
+        // Fetch current team members
+        const teamRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getTeamMembers/${id}`, {
+          headers: { "session-key": sessionId },
+        });
+
+        //console.log("Current team data:", teamRes.data);
+
+        const teamData = teamRes.data;
+        setCurrentTeam(teamData.map((member: any) => ({
+          user_id: member.user_id,
+          name: member.name,
+          mail: member.mail,
+          position: member.position_name || "Miembro del equipo"
+        })));
+
         // Set initial selected vacancy if vacant positions exist
-        const vacantPositions = data.positions.filter(
-          (p) => p.user_id === null
-        );
+        const vacantPositions = data.positions.filter((p) => p.user_id === null);
         if (vacantPositions.length > 0) {
           setSelectedVacancy(vacantPositions[0].position_id);
         }
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
         console.error("Error fetching project details:", err);
       } finally {
         setLoading(false);
+        setLoadingCurrentTeam(false);
       }
     };
 
     if (id) {
       fetchProjectDetails();
     }
-  }, [id]);
+  }, [id, session]);
 
   // Fetch capability team members based on current user's session
   useEffect(() => {
@@ -168,8 +181,8 @@ const ProjectDetails = () => {
 
         const sessionId = session?.sessionId;
   
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getFreeUsersOfCap`, {
-          headers: { "sessionId": sessionId },
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getAllUsersOfCap`, {
+          headers: { "session-key": sessionId },
         });
 
         const data = await res.data;
@@ -309,9 +322,20 @@ const ProjectDetails = () => {
         );
 
         // Sort candidates by total matches in descending order
-        candidateData.sort(
-          (a, b) => (b.totalMatches || 0) - (a.totalMatches || 0)
-        );
+        candidateData.sort((a, b) => {
+          // Primero ordena por mayor coincidencias y despues por disponibilidad
+          if (b.totalMatches !== a.totalMatches) {
+            return b.totalMatches - a.totalMatches;
+          }
+          // Si tienen el mismo número de coincidencias, ordena por si están en el proyecto
+          if (b.isInProject !== a.isInProject) {
+            return b.isInProject ? -1 : 1; // Los que están en el proyecto van primero
+          }
+
+          // Si ambos están en el proyecto o ninguno, no cambia el orden
+          return 0;
+        });
+
         setCandidates(candidateData);
       } catch (error) {
         console.error("Error fetching candidates:", error);
@@ -330,13 +354,9 @@ const ProjectDetails = () => {
   // Calculate project duration in months
   const calculateDuration = (startDate: string, endDate: string | null) => {
     if (!endDate) return "En progreso";
-
     const start = new Date(startDate.split("/").reverse().join("-"));
     const end = new Date(endDate.split("/").reverse().join("-"));
-
-    const months =
-      (end.getFullYear() - start.getFullYear()) * 12 +
-      (end.getMonth() - start.getMonth());
+    const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
     return `${months} ${months === 1 ? "mes" : "meses"}`;
   };
 
@@ -378,13 +398,8 @@ const ProjectDetails = () => {
   }
 
   const vacantPositions = getVacantPositions();
-  const selectedPosition = project.positions.find(
-    (p) => p.position_id === selectedVacancy
-  );
+  const selectedPosition = project.positions.find((p) => p.position_id === selectedVacancy);
   const duration = calculateDuration(project.start_date, project.end_date);
-
-  // Get filled positions (team members)
-  const filledPositions = project.positions.filter((p) => p.user_id !== null);
 
   async function handlePostular(
   user_id: number,
@@ -599,29 +614,37 @@ const ProjectDetails = () => {
           {/* Current Team Section */}
           <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 mb-8">
             <h2 className="text-2xl font-bold text-primary mb-4">
-              Equipo Actual ({filledPositions.length})
+              Equipo Actual ({currentTeam.length})
             </h2>
 
-            {filledPositions.length > 0 ? (
-              <div className="space-y-4 overflow-y-auto max-h-[calc(40vh-5rem)]">
-                {filledPositions.map((position) => (
-                  <div
-                    key={position.position_id}
-                    className="flex items-center justify-between bg-base-200 p-4 rounded-lg shadow-sm border border-base-300"
-                  >
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary">
-                        {position.position_name}
-                      </h3>
-                      <p className="text-sm text-secondary">
-                        {position.position_desc}
-                      </p>
-                    </div>
-                    <div className="badge badge-success p-3">
-                      Posición ocupada
-                    </div>
-                  </div>
-                ))}
+            {loadingCurrentTeam ? (
+              <div className="flex justify-center py-8">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            ) : currentTeam.length > 0 ? (
+              <div className="overflow-y-auto max-h-[calc(40vh-5rem)]">
+                <table className="table w-full">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Posición</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentTeam.map((member) => (
+                      <tr key={member.user_id}>
+                        <td>{member.name}</td>
+                        <td>{member.mail}</td>
+                        <td>
+                          <span className="badge badge-success">
+                            {member.position}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-40">
@@ -648,25 +671,53 @@ const ProjectDetails = () => {
 
           {/* Candidates Section */}
           <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 overflow-y-auto max-h-[calc(55vh-5rem)]">
-            <h2 className="text-2xl font-bold text-primary mb-4">
-              Candidatos Disponibles ({candidates.length})
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-primary">
+                Candidatos Disponibles (
+                {showOnlyAvailable 
+                  ? candidates.filter(c => !c.isInProject).length 
+                  : candidates.length
+                })
+              </h2>
+              <label className="cursor-pointer label">
+                <span className="label-text mr-2">Mostrar solo disponibles</span> 
+                <input 
+                  type="checkbox" 
+                  className="toggle toggle-primary" 
+                  checked={showOnlyAvailable}
+                  onChange={() => setShowOnlyAvailable(!showOnlyAvailable)}
+                />
+              </label>
+            </div>
 
             {loadingTeam ? (
               <div className="flex justify-center py-8">
                 <span className="loading loading-spinner loading-lg"></span>
               </div>
-            ) : candidates.length > 0 ? (
+            ) : (showOnlyAvailable 
+                ? candidates.filter(c => !c.isInProject) 
+                : candidates
+            ).length > 0 ? (
               <div className="space-y-4">
-                {candidates.map((candidate) => (
+                {(showOnlyAvailable 
+                  ? candidates.filter(c => !c.isInProject) 
+                  : candidates
+                ).map((candidate) => (
                   <div
                     key={candidate.user_id}
-                    className="collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border border-base-300"
+                    className={`collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border ${
+                      candidate.isInProject ? 'border-secondary' : 'border-base-300'
+                    }`}
                   >
                     {/* Collapse Title */}
                     <input type="checkbox" />
                     <div className="collapse-title text-lg font-semibold text-primary flex justify-between items-center">
-                      <span>{candidate.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span>{candidate.name}</span>
+                        {candidate.isInProject && (
+                          <span className="badge badge-secondary badge-sm">Staff</span>
+                        )}
+                      </div>
                       {/* Calculate percentage of matched skills and certificates */}
                       {(() => {
                         const totalRequiredSkills =
@@ -889,7 +940,9 @@ const ProjectDetails = () => {
                   />
                 </svg>
                 <p className="text-base-300 mt-4">
-                  No hay candidatos disponibles para esta posición
+                  {showOnlyAvailable
+                    ? "No hay candidatos disponibles sin proyectos asignados"
+                    : "No hay candidatos disponibles para esta posición"}
                 </p>
               </div>
             ) : (
