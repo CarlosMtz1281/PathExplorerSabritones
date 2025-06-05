@@ -122,11 +122,12 @@ const Profile = () => {
       </div>
 
       <div className="flex">
-        <div className="w-[30vw]">
+        <div className="w-[30vw] gap-10 flex flex-col">
+          <WidgetMeetings/>
           <WidgetPathExplorer />
         </div>
         <div
-          className="flex flex-col gap-10 pr-5 "
+          className="flex flex-col gap-10 "
           style={{ width: "65vw", marginLeft: "2vw" }}
         >
           <WidgetMetas />
