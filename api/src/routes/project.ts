@@ -362,6 +362,101 @@ router.get("/getFreeUsersOfCap", async (req, res) => {
   }
 });
 
+router.get("/getAllUsersOfCap", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const capability = await prisma.capability.findFirst({
+      where: {
+        capability_lead_id: userId,
+      },
+      select: {
+        capability_id: true,
+        capability_name: true,
+        capability_lead_id: true,
+      },
+    });
+
+    if (!capability) {
+      return res
+        .status(404)
+        .json({ error: "Capability not found for this user" });
+    }
+
+    // Get all users in this capability (including leads and employees)
+    const capabilityPeopleLeads = await prisma.capability_Employee.findMany({
+      where: {
+        capability_id: capability.capability_id,
+      },
+      select: {
+        people_lead_id: true,
+      },
+    });
+    const capability_Employees = await prisma.capability_Employee.findMany({
+      where: {
+        capability_id: capability.capability_id,
+      },
+      select: {
+        employee_id: true,
+      },
+    });
+
+    // Combine all user IDs (people leads and employees)
+    const allEmployeeIds = capabilityPeopleLeads
+      .map((lead) => lead.people_lead_id)
+      .concat(capability_Employees.map((emp) => emp.employee_id));
+
+    // Get users currently assigned to ACTIVE project positions
+    const assignedUsers = await prisma.project_Positions.findMany({
+      where: {
+        capability_id: capability.capability_id,
+        NOT: { user_id: null },
+        Projects: {
+          OR: [
+            { end_date: { gte: new Date() } }, // Project hasn't ended yet
+            { end_date: null }, // Or project has no end date (ongoing)
+          ],
+        },
+      },
+      select: {
+        user_id: true,
+      },
+    });
+
+    const assignedUserIds = assignedUsers.map((user) => user.user_id);
+
+    // Get all users in the capability (excluding role_id 4)
+    const allUsers = await prisma.users.findMany({
+      where: {
+        user_id: { in: allEmployeeIds },
+        NOT: { role_id: 4 }, // Exclude users with role_id 4
+      },
+      select: {
+        user_id: true,
+        name: true,
+        mail: true,
+        country_id: true,
+        role_id: true,
+      },
+    });
+
+    // Add isInProject boolean to each user
+    const usersWithProjectStatus = allUsers.map(user => ({
+      ...user,
+      isInProject: assignedUserIds.includes(user.user_id)
+    }));
+
+    res.status(200).json(usersWithProjectStatus);
+  } catch (error) {
+    console.error("Error fetching capability users:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.post("/create", async (req, res) => {
   const {
     project_name,
@@ -402,12 +497,21 @@ router.post("/create", async (req, res) => {
     });
 
     for (const position of positions) {
+      const capabilityId = await prisma.capability.findFirst({
+        where: {
+          capability_name: position.capability,
+        },
+        select: {
+          capability_id: true,
+        },
+      });
+
       const createdPosition = await prisma.project_Positions.create({
         data: {
           project_id: project.project_id,
           position_name: position.name,
           position_desc: position.desc,
-          capability_id: position.capability_id,
+          capability_id: capabilityId?.capability_id || null,
           user_id: null,
         },
       });
@@ -534,6 +638,52 @@ router.get("/projectsByCapability", async (req, res) => {
     res.json(formattedProjects);
   } catch (error) {
     console.error("Error fetching projects by capability:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+router.get("/getTeamMembers/:projectId", async (req, res) => {
+  console.log("Fetching team members for project:", req.params.projectId);
+  try {
+    const projectId = parseInt(req.params.projectId);
+
+    if (isNaN(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const project = await prisma.projects.findUnique({
+      where: { project_id: projectId },
+      include: {
+        Project_Positions: {
+          where: { user_id: { not: null } },
+          include: {
+            Users: true,
+          },
+        },
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const teamMembers = project.Project_Positions.map((position) => ({
+      user_id: position.user_id,
+      name: position.Users.name,
+      mail: position.Users.mail,
+      country_id: position.Users.country_id,
+      position_name: position.position_name,
+    }));
+
+    res.status(200).json(teamMembers);
+  } catch (error) {
+    console.error("Error fetching team members:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -700,7 +850,7 @@ router.get("/getCurrentProjectsDL", async (req, res) => {
       where: {
         delivery_lead_user_id: userId,
         start_date: { lte: currentDate },
-        end_date: { gte: currentDate },
+        OR: [{ end_date: { gte: currentDate } }, { end_date: null }],
       },
       include: {
         Country: { select: { country_name: true } },
@@ -850,6 +1000,8 @@ router.patch("/closeProject", async (req, res) => {
     }
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    today.setHours(today.getHours() - 6);
 
     const updatedProject = await prisma.projects.update({
       where: { project_id: projectId },
@@ -934,6 +1086,165 @@ router.post("/feedbacks", async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating feedbacks:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/getPastProjectsDL", async (req, res) => {
+  try {
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    const role = await prisma.users.findUnique({
+      where: { user_id: userId },
+      select: { role_id: true },
+    });
+
+    if (role?.role_id !== 4) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized to view past projects" });
+    }
+
+    const currentDate = new Date();
+    const projects = await prisma.projects.findMany({
+      where: {
+        delivery_lead_user_id: userId,
+        end_date: { lt: currentDate },
+      },
+      include: {
+        Country: { select: { country_name: true } },
+        Project_Positions: {
+          include: {
+            Feedback: true,
+          },
+        },
+      },
+    });
+
+    const formattedProjects = projects.map((project) => ({
+      id: project.project_id,
+      name: project.project_name,
+      description: project.project_desc,
+      start_date: project.start_date
+        ? project.start_date.toLocaleDateString("es-ES")
+        : null,
+      end_date: project.end_date
+        ? project.end_date.toLocaleDateString("es-ES")
+        : null,
+      country: project.Country?.country_name || "No country",
+      company: project.company_name,
+      people: project.Project_Positions.length,
+      feedbacks: project.Project_Positions.reduce(
+        (acc, position) =>
+          acc + (position.Feedback ? position.Feedback.length : 0),
+        0
+      ),
+    }));
+
+    res.status(200).json(formattedProjects);
+  } catch (error) {
+    console.error("Error fetching past projects for DL:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+router.get("/getMeetings", async (req, res) => {
+  try {
+    // Get user ID from session
+    const userId = await getUserIdFromSession(req.headers["session-key"]);
+    if (!userId || typeof userId !== "number") {
+      return res.status(401).json({ error: "Invalid or expired session" });
+    }
+
+    // Get all meetings where the user is either:
+    // 1. The participant (through postulation)
+    // 2. The delivery lead of the project
+    // 3. The capability lead of the position's capability
+    const meetings = await prisma.meeting.findMany({
+      where: {
+        OR: [
+          // Meetings where user is the participant
+          {
+            Postulations: {
+              user_id: userId,
+              valid: true, // Ensure postulation is valid
+            }
+          },
+          // Meetings where user is the delivery lead of the project
+          {
+            Postulations: {
+              Project_Positions: {
+                Projects: {
+                  delivery_lead_user_id: userId
+                }
+              },
+              valid: true // Ensure postulation is valid
+            }
+          }
+        ],
+        // add condition of postulation being valid
+      },
+      include: {
+        Postulations: {
+          include: {
+            Users: {
+              select: {
+                user_id: true,
+                name: true,
+                mail: true
+              }
+            },
+            Project_Positions: {
+              include: {
+                Projects: {
+                  select: {
+                    project_id: true,
+                    project_name: true,
+                    company_name: true
+                  }
+                },
+                Capability: {
+                  select: {
+                    capability_id: true,
+                    capability_name: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        meeting_date: 'asc' // Sort by meeting date ascending
+      }
+    });
+
+    // Format the response
+    const formattedMeetings = meetings.map(meeting => ({
+      meeting_id: meeting.meeting_id,
+      meeting_date: meeting.meeting_date,
+      meeting_link: meeting.meeting_link,
+      participant: meeting.Postulations.Users,
+      project: {
+        id: meeting.Postulations.Project_Positions.Projects.project_id,
+        name: meeting.Postulations.Project_Positions.Projects.project_name,
+        company: meeting.Postulations.Project_Positions.Projects.company_name
+      },
+      position: {
+        id: meeting.Postulations.Project_Positions.position_id,
+        name: meeting.Postulations.Project_Positions.position_name,
+        capability: meeting.Postulations.Project_Positions.Capability
+      },
+      postulation_date: meeting.Postulations.postulation_date
+    }));
+
+    res.status(200).json(formattedMeetings);
+  } catch (error) {
+    console.error("Error fetching meetings:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

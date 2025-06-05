@@ -6,6 +6,7 @@ import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
+import WidgetMeetings from "@/components/perfil/WidgetMeetings";
 import WidgetPathExplorer from "@/components/perfil/WidgetPathExplorer";
 import WidgetMetas from "@/components/perfil/WidgetMetas";
 import { User } from "@/interfaces/User";
