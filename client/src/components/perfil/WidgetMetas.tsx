@@ -107,7 +107,7 @@ const WidgetMetas = () => {
         </button>
         <ModalAddMetas
                 isOpen={modalIsOpen}
-                onClose={() => setModalIsOpen(false)}
+                onClose={() => {setModalIsOpen(false); fetchGoals();}}
             />
       </div>
 
