@@ -83,6 +83,22 @@ const Profile = () => {
                 <p className=" text-gray-500">
                   Zona Horaria: {userData.Country.timezone}
                 </p>
+                <p className=" text-gray-500">
+                  Antigüedad:{" "}
+                  {(() => {
+                    const hire = new Date(userData.hire_date);
+                    const now = new Date();
+                    let years = now.getFullYear() - hire.getFullYear();
+                    let months = now.getMonth() - hire.getMonth();
+                    if (months < 0) {
+                      years--;
+                      months += 12;
+                    }
+                    return `${years} año${
+                      years !== 1 ? "s" : ""
+                    } y ${months} mes${months !== 1 ? "es" : ""}`;
+                  })()}
+                </p>
               </div>
 
               <div className="mr-5 mt-5 " style={{ width: "25vw" }}>
@@ -106,20 +122,18 @@ const Profile = () => {
       </div>
 
       <div className="flex">
-        <div className="w-[25vw] gap-10 flex flex-col pr-5 max-h-[calc(100vh-4rem)]">
-          <WidgetMeetings />
+        <div className="w-[30vw]">
           <WidgetPathExplorer />
         </div>
         <div
           className="flex flex-col gap-10 pr-5 "
-          style={{ width: "70vw", marginLeft: "2vw",  }}
+          style={{ width: "65vw", marginLeft: "2vw" }}
         >
           <WidgetMetas />
           <WidgetCertificaciones />
           <WidgetTrayectoria />
           <WidgetHabilidades />
         </div>
-
       </div>
     </div>
   );

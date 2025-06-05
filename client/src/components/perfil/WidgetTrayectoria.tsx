@@ -539,7 +539,7 @@
           <div className="flex flex-row w-full gap-x-2 mb-2 items-center">
             <h2 className="card-title text-3xl">
               <PiTarget />
-              Trayectoria
+              Historial Profesional
             </h2>
             
             {/* Dropdown container */}
@@ -678,70 +678,76 @@
 
               {/* Modal Content */}
               <div className="flex-1 overflow-y-auto p-4 bg-base-100">
-                {jobs.map((job, index) => {
-                  const jobProjects = getProjectsForJob(job);
-                  return (
-                    <div key={index} className="mb-8 last:mb-0">
-                      {/* Job Section */}
-                      <div className="flex items-center gap-4 mb-4 p-4 bg-base-100 rounded-lg">
-                        <div className="w-18 h-18 flex-shrink-0 bg-base-200 rounded-lg flex items-center justify-center border">
-                          <img
-                            src={job.company === "Accenture" 
-                              ? "/trayectoria/Accenture.png" 
-                              : "/trayectoria/building.svg"}
-                            alt={job.company}
-                            className="w-12 h-12 object-contain"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="text-xl font-semibold">{job.company}</h3>
-                              <div className="flex items-center gap-2">
-                                <p className="text-lg">{job.position}</p>
-                                {job.positionDesc && (
-                                  <div className="group relative inline-block">
-                                    <button className="text-primary focus:outline-none">
-                                      <IoMdInformationCircleOutline className="text-lg" />
-                                    </button>
-                                    <div className="absolute left-full ml-2 hidden group-hover:block w-64 bg-base-200 border border-base-300 rounded-lg shadow-lg p-3 z-50">
-                                      <p className="text-sm text-base-content">{job.positionDesc}</p>
+                                {(() => {
+                  // Separate Accenture jobs from others
+                  const accentureJobs = jobs.filter(job => job.company === "Accenture");
+                  const otherJobs = jobs.filter(job => job.company !== "Accenture");
+                  // Render Accenture jobs first, then others
+                  return [...accentureJobs, ...otherJobs].map((job, index) => {
+                    const jobProjects = getProjectsForJob(job);
+                    return (
+                      <div key={index} className="mb-8 last:mb-0">
+                        {/* Job Section */}
+                        <div className="flex items-center gap-4 mb-4 p-4 bg-base-100 rounded-lg">
+                          <div className="w-18 h-18 flex-shrink-0 bg-base-200 rounded-lg flex items-center justify-center border">
+                            <img
+                              src={job.company === "Accenture" 
+                                ? "/trayectoria/Accenture.png" 
+                                : "/trayectoria/building.svg"}
+                              alt={job.company}
+                              className="w-12 h-12 object-contain"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h3 className="text-xl font-semibold">{job.company}</h3>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-lg">{job.position}</p>
+                                  {job.positionDesc && (
+                                    <div className="group relative inline-block">
+                                      <button className="text-primary focus:outline-none">
+                                        <IoMdInformationCircleOutline className="text-lg" />
+                                      </button>
+                                      <div className="absolute left-full ml-2 hidden group-hover:block w-64 bg-base-200 border border-base-300 rounded-lg shadow-lg p-3 z-50">
+                                        <p className="text-sm text-base-content">{job.positionDesc}</p>
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
+                                <p className="text-sm text-accent">
+                                  {job.startDate} - {job.endDate}
+                                </p>
                               </div>
-                              <p className="text-sm text-accent">
-                                {job.startDate} - {job.endDate}
-                              </p>
+                              <button 
+                                onClick={() => handleEditExperience(job)}
+                                className="btn btn-sm btn-ghost text-primary"
+                                title="Editar experiencia"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                              </button>
                             </div>
-                            <button 
-                              onClick={() => handleEditExperience(job)}
-                              className="btn btn-sm btn-ghost text-primary"
-                              title="Editar experiencia"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                              </svg>
-                            </button>
                           </div>
                         </div>
+                
+                        {/* Projects Section */}
+                        {jobProjects.length > 0 ? (
+                          <div className="ml-16 pl-4 border-l-2 border-base-300">
+                            {jobProjects.map((project, pIndex) => (
+                              <ExpandableProjectItem key={pIndex} project={project} />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="ml-16 pl-4 text-sm text-base-content/70">
+                            No hay proyectos registrados para este periodo.
+                          </div>
+                        )}
                       </div>
-
-                      {/* Projects Section */}
-                      {jobProjects.length > 0 ? (
-                        <div className="ml-16 pl-4 border-l-2 border-base-300">
-                          {jobProjects.map((project, pIndex) => (
-                            <ExpandableProjectItem key={pIndex} project={project} />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="ml-16 pl-4 text-sm text-base-content/70">
-                          No hay proyectos registrados para este periodo.
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
 
               {/* Modal Footer */}
