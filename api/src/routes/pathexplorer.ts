@@ -600,4 +600,53 @@ router.get("/get-recommendation/:area_id", async (req, res) => {
   }
 });
 
+router.get("/get-all-area-scores", async (req, res) => {
+  const sessionId = req.headers.authorization;
+
+  if (!sessionId) {
+    return res.status(401).json({ error: "Session ID required" });
+  }
+
+  try {
+    const user_id = await getUserIdFromSession(sessionId);
+
+    if (user_id === "timeout") {
+      return res.status(404).json({ error: "Timeout" });
+    }
+
+    // Get all areas
+    const allAreas = await prisma.areas.findMany({
+      select: {
+        area_id: true,
+        area_name: true,
+        area_desc: true,
+      },
+    });
+
+    // Get user scores for all areas
+    const userScores = await prisma.user_Area_Score.findMany({
+      where: { user_id },
+      select: {
+        area_id: true,
+        score: true,
+      },
+    });
+
+    // Map area_id to score for quick lookup
+    const scoreMap = Object.fromEntries(userScores.map(s => [s.area_id, s.score]));
+
+    // Build response: all areas, with score (0 if not present)
+    const response = allAreas.map(area => ({
+      area_id: area.area_id,
+      area_name: area.area_name,
+      area_desc: area.area_desc,
+      score: scoreMap[area.area_id] || 0,
+    }));
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error fetching all area scores:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 export default router;
