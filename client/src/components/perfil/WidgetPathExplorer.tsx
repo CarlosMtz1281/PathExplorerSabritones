@@ -183,9 +183,8 @@ const radarOptions = {
         display: false,
       },
       ticks: {
-        color: "#6B7280",
-        stepSize: 500,
-        backdropColor: "transparent", // prevent overlapping backgrounds
+        display: false,
+        
       },
     },
   },
