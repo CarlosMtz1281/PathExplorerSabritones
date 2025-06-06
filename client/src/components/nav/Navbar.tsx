@@ -132,7 +132,9 @@ export default function Navbar() {
     }
   `}
             >
-              <FaUser className="w-6 h-6" />
+              <div className="w-4 h-4 flex items-center justify-center">
+                <FaUser className="w-4 h-4" />
+              </div>
               {!isCollapsed && (
                 <h3 className="text-lg whitespace-nowrap ">Perfil</h3>
               )}
@@ -151,7 +153,9 @@ export default function Navbar() {
   }
 `}
               >
-                <FaFolderOpen className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaFolderOpen className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
                   <h3 className="text-lg whitespace-nowrap">Proyectos</h3>
                 )}
@@ -171,7 +175,9 @@ export default function Navbar() {
   }
 `}
               >
-                <FaClipboardCheck className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaClipboardCheck className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
                   <h3 className="text-lg whitespace-nowrap">
                     Delivery dashboard
@@ -193,7 +199,9 @@ export default function Navbar() {
   }
 `}
               >
-                <FaSuitcase className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaSuitcase className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
                   <h3 className="text-lg whitespace-nowrap">Crear Proyectos</h3>
                 )}
@@ -213,7 +221,9 @@ export default function Navbar() {
   }
 `}
               >
-                <FaUserPlus className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaUserPlus className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
                   <h3 className="text-lg whitespace-nowrap">Crear Usuarios</h3>
                 )}
@@ -233,7 +243,9 @@ export default function Navbar() {
   }
 `}
               >
-                <FaAddressBook className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaAddressBook className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
                   <h3 className="text-lg whitespace-nowrap">Empleados</h3>
                 )}
@@ -253,7 +265,9 @@ export default function Navbar() {
   }
 `}
               >
-                <IoAnalytics className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <IoAnalytics className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
                   <h3 className="text-lg whitespace-nowrap">Dashboard de PL</h3>
                 )}
@@ -273,7 +287,9 @@ export default function Navbar() {
   }
 `}
               >
-                <ImTree className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <ImTree className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
                   <h3 className="text-lg whitespace-nowrap">Dashboard de CL</h3>
                 )}
@@ -292,10 +308,10 @@ export default function Navbar() {
               : "text-white font-normal"
           }`}
         >
-          <span className="relative w-5 h-5">
-            <FaBell className="w-5 h-5" />
+          <span className="relative w-4 h-4">
+            <FaBell className="w-4 h-4" />
             {isCollapsed && notifications.length > 0 && (
-              <span className="absolute top-0 right-0 block w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-secondary"></span>
+              <span className="absolute top-0 right-0 block w-1.5 h-1.5 bg-red-500 rounded-full ring-2 ring-secondary"></span>
             )}
           </span>
           {!isCollapsed && (
@@ -338,19 +354,12 @@ export default function Navbar() {
       </div>
 
       <div className="flex flex-col flex-1 justify-end ">
-        {/* Toggle  */}
-        <input
-          type="checkbox"
-          value="sabritonesDark"
-          className="toggle theme-controller"
-        />
-
         {/* Logout */}
         <button
           onClick={handleLogout}
           className="btn btn-ghost flex items-center gap-4 w-full text-white hover:text-red-500 hover:bg-base-200 justify-start mb-4"
         >
-          <FaSignOutAlt className="w-5 h-5" />
+          <FaSignOutAlt className="w-4 h-4" />
           {!isCollapsed && (
             <h3 className="text-lg font-normal whitespace-nowrap">
               Cerrar Sesión
