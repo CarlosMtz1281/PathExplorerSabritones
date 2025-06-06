@@ -6,18 +6,18 @@ import { signOut, useSession } from "next-auth/react";
 import {
   FaUser,
   FaSignOutAlt,
-  FaChevronLeft,
-  FaChevronRight,
   FaSuitcase,
-  FaGgCircle,
   FaUserTie,
   FaFolderOpen,
   FaUserPlus,
   FaTruckMoving,
   FaAddressBook,
   FaLightbulb,
+  FaClipboardCheck,
   FaBell,
 } from "react-icons/fa";
+import { ImTree } from "react-icons/im";
+import { IoAnalytics } from "react-icons/io5";
 import { usePathname } from "next/navigation";
 import axios from "axios";
 import NotificationItem from "./NotificationItem";
@@ -72,7 +72,7 @@ export default function Navbar() {
   };
 
   const rolePermissions = {
-    showProjects: [1, 2, 3, 4, 5],
+    showProjects: [3],
     showDLDashboard: [4],
     showCreateProjects: [4],
     showCreateUsers: [5],
@@ -123,16 +123,20 @@ export default function Navbar() {
           <li className="w-full">
             <a
               href={`/dashboard/profile`}
-              className={`btn btn-ghost flex items-center gap-2 w-full justify-start
-    text-whitehover:text-primary hover:bg-base-200
-    ${isActive("/dashboard/profile") ? "bg-base-200 text-primary" : ""}
+              className={`btn btn-ghost flex items-center gap-4 w-full justify-start
+    hover:text-primary hover:bg-base-200
+    ${
+      isActive("/dashboard/profile")
+        ? "bg-base-200 text-primary font-bold"
+        : "text-white font-normal"
+    }
   `}
             >
-              <FaUser className="w-6 h-6" />
+              <div className="w-4 h-4 flex items-center justify-center">
+                <FaUser className="w-4 h-4" />
+              </div>
               {!isCollapsed && (
-                <h3 className="text-lg font-normal whitespace-nowrap ">
-                  Perfil
-                </h3>
+                <h3 className="text-lg whitespace-nowrap ">Perfil</h3>
               )}
             </a>
           </li>
@@ -141,13 +145,19 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/repo-projects"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/repo-projects") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/repo-projects")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
-                <FaFolderOpen className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaFolderOpen className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
-                  <h3 className="text-lg font-norma">Proyectos</h3>
+                  <h3 className="text-lg whitespace-nowrap">Proyectos</h3>
                 )}
               </a>
             </li>
@@ -157,13 +167,19 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/dl-dashboard"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/dl-dashboard") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/dl-dashboard")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
-                <FaTruckMoving className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaClipboardCheck className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
+                  <h3 className="text-lg whitespace-nowrap">
                     Delivery dashboard
                   </h3>
                 )}
@@ -175,15 +191,19 @@ export default function Navbar() {
             <li className="w-full mt-2">
               <a
                 href="/dashboard/crea-projects"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/crea-projects") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/crea-projects")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
-                <FaSuitcase className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaSuitcase className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Crear Proyectos
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Crear Proyectos</h3>
                 )}
               </a>
             </li>
@@ -193,15 +213,19 @@ export default function Navbar() {
             <li className="w-full mt-2">
               <a
                 href="/dashboard/create-users"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/create-users") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/create-users")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
-                <FaUserPlus className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaUserPlus className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Crear Usuarios
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Crear Usuarios</h3>
                 )}
               </a>
             </li>
@@ -211,15 +235,19 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/repo-empleados"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/repo-empleados") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/repo-empleados")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
-                <FaAddressBook className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <FaAddressBook className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Empleados
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Empleados</h3>
                 )}
               </a>
             </li>
@@ -229,15 +257,19 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/pl-dashboard"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/pl-dashboard") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/pl-dashboard")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
-                <FaLightbulb className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <IoAnalytics className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Dashboard de PL
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Dashboard de PL</h3>
                 )}
               </a>
             </li>
@@ -247,15 +279,19 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/cl-dashboard"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/cl-dashboard") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/cl-dashboard")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
-                <FaUserTie className="w-5 h-5" />
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <ImTree className="w-4 h-4" />
+                </div>
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Dashboard de CL
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Dashboard de CL</h3>
                 )}
               </a>
             </li>
@@ -266,24 +302,24 @@ export default function Navbar() {
       <div className="w-full">
         <button
           onClick={() => setShowNotifications((prev) => !prev)}
-          className={`btn btn-ghost flex items-center gap-2 w-full hover:text-primary hover:bg-base-200 justify-start group ${
-            showNotifications ? "bg-base-200 text-primary" : "text-white"
+          className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start group ${
+            showNotifications
+              ? "bg-base-200 text-primary font-bold"
+              : "text-white font-normal"
           }`}
         >
-          <span className="relative w-5 h-5">
-            <FaBell className="w-5 h-5" />
+          <span className="relative w-4 h-4">
+            <FaBell className="w-4 h-4" />
             {isCollapsed && notifications.length > 0 && (
-              <span className="absolute top-0 right-0 block w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-secondary"></span>
+              <span className="absolute top-0 right-0 block w-1.5 h-1.5 bg-red-500 rounded-full ring-2 ring-secondary"></span>
             )}
           </span>
           {!isCollapsed && (
             <div className="flex items-center w-full justify-between">
-              <h3 className="text-lg font-normal whitespace-nowrap">
-                Notificaciones
-              </h3>
+              <h3 className="text-lg whitespace-nowrap">Notificaciones</h3>
               {notifications.length > 0 && (
                 <div
-                  className={`badge badge-md badge-white text-primary group-hover:text-white group-hover:badge-primary ${
+                  className={`badge badge-md font-normal badge-white text-primary group-hover:text-white group-hover:badge-primary ${
                     showNotifications ? "badge-primary text-white" : ""
                   }`}
                 >
@@ -318,19 +354,12 @@ export default function Navbar() {
       </div>
 
       <div className="flex flex-col flex-1 justify-end ">
-        {/* Toggle  */}
-        <input
-          type="checkbox"
-          value="sabritonesDark"
-          className="toggle theme-controller"
-        />
-
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="btn btn-ghost flex items-center gap-2 w-full text-white hover:text-red-500 hover:bg-base-200 justify-start mb-4"
+          className="btn btn-ghost flex items-center gap-4 w-full text-white hover:text-red-500 hover:bg-base-200 justify-start mb-4"
         >
-          <FaSignOutAlt className="w-5 h-5" />
+          <FaSignOutAlt className="w-4 h-4" />
           {!isCollapsed && (
             <h3 className="text-lg font-normal whitespace-nowrap">
               Cerrar Sesión
