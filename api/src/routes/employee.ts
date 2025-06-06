@@ -1057,8 +1057,6 @@ router.delete("/deleteExperience/:positionId", async (req, res) => {
 });
 
 router.get("/goals", async (req, res) => {
-  console.log("Fetching user goals...");
-  console.log(req.headers);
   try {
     const sessionKey = req.headers["session-key"];
     if (!sessionKey) {
@@ -1322,6 +1320,8 @@ router.get("/notificationsCertificates", async (req, res) => {
     }
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    today.setHours(today.getHours() - 6);
 
     const certificates = await prisma.certificate_Users.findMany({
       where: {
