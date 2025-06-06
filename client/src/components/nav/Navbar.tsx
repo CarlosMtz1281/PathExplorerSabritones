@@ -80,7 +80,7 @@ export default function Navbar() {
       <li className="w-full">
         <a
             href={`/dashboard/profile`}
-            className={`btn btn-ghost flex items-center gap-2 w-full justify-start
+            className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
               text-whitehover:text-primary hover:bg-base-200
               ${isActive("/dashboard/profile") ? "bg-base-200 text-primary" : ""}
             `}
