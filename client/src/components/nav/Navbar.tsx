@@ -6,18 +6,18 @@ import { signOut, useSession } from "next-auth/react";
 import {
   FaUser,
   FaSignOutAlt,
-  FaChevronLeft,
-  FaChevronRight,
   FaSuitcase,
-  FaGgCircle,
   FaUserTie,
   FaFolderOpen,
   FaUserPlus,
   FaTruckMoving,
   FaAddressBook,
   FaLightbulb,
+  FaClipboardCheck,
   FaBell,
 } from "react-icons/fa";
+import { ImTree } from "react-icons/im";
+import { IoAnalytics } from "react-icons/io5";
 import { usePathname } from "next/navigation";
 import axios from "axios";
 import NotificationItem from "./NotificationItem";
@@ -31,7 +31,7 @@ type Notification = {
 };
 
 export default function Navbar() {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: session } = useSession();
   const roleId = session?.user?.role_id || 0;
 
@@ -73,9 +73,9 @@ export default function Navbar() {
 
   const rolePermissions = {
     showProjects: [1, 2, 3, 4, 5],
-    showDLDashboard: [4],
-    showCreateProjects: [4],
-    showCreateUsers: [5],
+    showDLDashboard: [3, 4],
+    showCreateProjects: [3, 4],
+    showCreateUsers: [3, 5],
     showRepoEmpleados: [1, 2, 3, 4, 5],
     showPLDashboard: [2, 3],
     showCLDashboard: [3],
@@ -83,7 +83,7 @@ export default function Navbar() {
 
   const handleMouseEnter = () => setIsCollapsed(false);
   const handleMouseLeave = () => {
-    setIsCollapsed(true);
+    setIsCollapsed(false);
     setShowNotifications(false);
   };
 
@@ -123,7 +123,7 @@ export default function Navbar() {
           <li className="w-full">
             <a
               href={`/dashboard/profile`}
-              className={`btn btn-ghost flex items-center gap-2 w-full justify-start
+              className={`btn btn-ghost flex items-center gap-4 w-full justify-start
     text-whitehover:text-primary hover:bg-base-200
     ${isActive("/dashboard/profile") ? "bg-base-200 text-primary" : ""}
   `}
@@ -141,7 +141,7 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/repo-projects"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
+                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
   ${isActive("/dashboard/repo-projects") ? "bg-base-200 text-primary" : ""}
 `}
               >
@@ -157,11 +157,11 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/dl-dashboard"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
+                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
   ${isActive("/dashboard/dl-dashboard") ? "bg-base-200 text-primary" : ""}
 `}
               >
-                <FaTruckMoving className="w-5 h-5" />
+                <FaClipboardCheck className="w-5 h-5" />
                 {!isCollapsed && (
                   <h3 className="text-lg font-normal whitespace-nowrap">
                     Delivery dashboard
@@ -211,7 +211,7 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/repo-empleados"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
+                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
   ${isActive("/dashboard/repo-empleados") ? "bg-base-200 text-primary" : ""}
 `}
               >
@@ -229,11 +229,11 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/pl-dashboard"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
+                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
   ${isActive("/dashboard/pl-dashboard") ? "bg-base-200 text-primary" : ""}
 `}
               >
-                <FaLightbulb className="w-5 h-5" />
+                <IoAnalytics className="w-5 h-5" />
                 {!isCollapsed && (
                   <h3 className="text-lg font-normal whitespace-nowrap">
                     Dashboard de PL
@@ -247,11 +247,11 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/cl-dashboard"
-                className={`btn btn-ghost flex items-center gap-2 w-full text-white hover:text-primary hover:bg-base-200 justify-start
+                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
   ${isActive("/dashboard/cl-dashboard") ? "bg-base-200 text-primary" : ""}
 `}
               >
-                <FaUserTie className="w-5 h-5" />
+                <ImTree className="w-5 h-5" />
                 {!isCollapsed && (
                   <h3 className="text-lg font-normal whitespace-nowrap">
                     Dashboard de CL
@@ -266,7 +266,7 @@ export default function Navbar() {
       <div className="w-full">
         <button
           onClick={() => setShowNotifications((prev) => !prev)}
-          className={`btn btn-ghost flex items-center gap-2 w-full hover:text-primary hover:bg-base-200 justify-start group ${
+          className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start group ${
             showNotifications ? "bg-base-200 text-primary" : "text-white"
           }`}
         >
@@ -328,7 +328,7 @@ export default function Navbar() {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="btn btn-ghost flex items-center gap-2 w-full text-white hover:text-red-500 hover:bg-base-200 justify-start mb-4"
+          className="btn btn-ghost flex items-center gap-4 w-full text-white hover:text-red-500 hover:bg-base-200 justify-start mb-4"
         >
           <FaSignOutAlt className="w-5 h-5" />
           {!isCollapsed && (
