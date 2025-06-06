@@ -130,7 +130,7 @@ export default function WidgetCertificaciones({ userId }: Props) {
       );
       setRecommendedCertificates(processedRecommendations);
     } catch (error) {
-      console.error("Error fetching certificates:", error);
+      console.log("Error fetching certificates:", error);
     }
   };
 
