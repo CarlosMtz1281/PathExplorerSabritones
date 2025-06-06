@@ -1,13 +1,14 @@
 import { test, expect, Page, request } from '@playwright/test';
 
 
-type UserType = 'DL' | 'CL' | 'PL' | 'EMP';
+type UserType = 'DL' | 'CL' | 'PL' | 'EMP' | 'ADM';
 
 const credentials: Record<UserType, { email: string; password: string }> = {
   DL: { email: 'james.wilson@accenture.com', password: 'wilson123' },
   CL: { email: 'michael.brown@accenture.com', password: 'brown123' },
   PL: { email: 'christopher.taylor@accenture.com', password: 'taylor123' },
   EMP: { email: 'william.green@accenture.com', password: 'green123' },
+  ADM: { email: 'admin1@accenture.com', password: 'admin123'},
 };
 
 async function login(page: Page, type: UserType): Promise<number> {

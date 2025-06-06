@@ -6,9 +6,9 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- TABLA DE PAISES CON REGION Y TIMEZONE --
 CREATE TABLE "Country" (
   "country_id" SERIAL PRIMARY KEY,
-  "country_name" varchar,
-  "region_name" varchar,
-  "timezone" varchar
+  "country_name" varchar (255),
+  "region_name" varchar (255),
+  "timezone" varchar (255)
 );
 
 -- PERMISOS --
@@ -26,22 +26,22 @@ CREATE TABLE "Permits" (
 -- ==================================
 CREATE TABLE "Skills" (
   "skill_id" SERIAL PRIMARY KEY,
-  "name" varchar,
+  "name" varchar (255),
   "technical" boolean
 );
 
 CREATE TABLE "Certificates" (
   "certificate_id" SERIAL PRIMARY KEY,
-  "certificate_name" varchar,
+  "certificate_name" varchar (255),
   "certificate_desc" text,
   "certificate_estimated_time" integer,
   "certificate_level" integer,
-  "provider" varchar
+  "provider" varchar (255)
 );
 
 CREATE TABLE "Goals" (
   "goal_id" SERIAL PRIMARY KEY,
-  "goal_name" varchar,
+  "goal_name" varchar (255),
   "goal_desc" text
 );
 
@@ -62,9 +62,9 @@ CREATE TABLE "Certificate_Skills" (
 -- ==================================
 CREATE TABLE "Users" (
   "user_id" SERIAL PRIMARY KEY,
-  "mail" varchar,
-  "password" varchar,
-  "name" varchar,
+  "mail" varchar (255),
+  "password" varchar (255),
+  "name" varchar (255),
   "birthday" timestamp,
   "hire_date" timestamp,
   "role_id" integer REFERENCES "Permits"("role_id"),
@@ -74,9 +74,9 @@ CREATE TABLE "Users" (
 -- Puestos de empleos NO DE PROYECTOS
 CREATE TABLE "Work_Position" (
   "position_id" SERIAL PRIMARY KEY,
-  "position_name" varchar,
+  "position_name" varchar (255),
   "position_desc" text,
-  "company" varchar
+  "company" varchar (255)
 );
 
 -- Relacion entre los puestos y los empleados
@@ -92,7 +92,7 @@ CREATE TABLE "Employee_Position" (
 -- Capabilitys
 CREATE TABLE "Capability" (
   "capability_id" SERIAL PRIMARY KEY,
-  "capability_name" varchar,
+  "capability_name" varchar (255),
   "capability_lead_id" integer REFERENCES "Users"("user_id"),
   "country_id" integer REFERENCES "Country"("country_id")
 );
@@ -126,8 +126,8 @@ CREATE TABLE "Certificate_Users" (
   "certificate_start_date" timestamp,
   "certificate_date" timestamp,
   "certificate_expiration_date" timestamp,
-  "certificate_link" varchar,
-  "status" varchar CHECK ("status" IN ('completed', 'expired', 'in progress')),
+  "certificate_link" varchar (255),
+  "status" varchar (255) CHECK ("status" IN ('completed', 'expired', 'in progress')),
   PRIMARY KEY ("certificate_id", "user_id")
 );
 
@@ -137,7 +137,7 @@ CREATE TABLE "Goal_Users" (
   "user_id" integer REFERENCES "Users"("user_id"),
   "create_date" timestamp,
   "finished_date" timestamp,
-  "priority" varchar,
+  "priority" varchar (255),
   "completed" boolean,
   PRIMARY KEY ("goal_id", "user_id")
 );
@@ -148,8 +148,8 @@ CREATE TABLE "Goal_Users" (
 CREATE TABLE "Projects" (
   "project_id" SERIAL PRIMARY KEY,
   "delivery_lead_user_id" integer REFERENCES "Users"("user_id"),
-  "project_name" varchar,
-  "company_name" varchar,
+  "project_name" varchar (255),
+  "company_name" varchar (255),
   "project_desc" text,
   "start_date" timestamp,
   "end_date" timestamp,
@@ -160,7 +160,7 @@ CREATE TABLE "Projects" (
 CREATE TABLE "Project_Positions" (
   "position_id" SERIAL PRIMARY KEY,
   "project_id" integer REFERENCES "Projects"("project_id"),
-  "position_name" varchar,
+  "position_name" varchar (255),
   "position_desc" text,
   "capability_id" integer REFERENCES "Capability"("capability_id"),
   "user_id" integer REFERENCES "Users"("user_id")
@@ -193,7 +193,7 @@ CREATE TABLE "Postulations" (
 CREATE TABLE "Meeting" (
   "meeting_id" SERIAL PRIMARY KEY,
   "meeting_date" timestamp,
-  "meeting_link" varchar,
+  "meeting_link" varchar (255),
   "postulation_id" integer REFERENCES "Postulations"("postulation_id")
 );
 
@@ -210,7 +210,7 @@ CREATE TABLE "Feedback" (
 -- ==================================
 CREATE TABLE "Areas" (
   "area_id" SERIAL PRIMARY KEY,
-  "area_name" varchar,
+  "area_name" varchar (255),
   "area_desc" text
 );
 
@@ -240,7 +240,7 @@ CREATE TABLE "User_Area_Score" (
 -- Sesion de usuario
 -- ==================================
 CREATE TABLE "Session" (
-  "session_id" varchar PRIMARY KEY DEFAULT encode(gen_random_bytes(32), 'base64'),
+  "session_id" varchar (255) PRIMARY KEY DEFAULT encode(gen_random_bytes(32), 'base64'),
   "user_id" integer NOT NULL REFERENCES "Users"("user_id") ON DELETE CASCADE,
   "expires_at" timestamp NOT NULL DEFAULT NOW() + INTERVAL '1 week'
 );
@@ -1062,7 +1062,7 @@ DECLARE
     cert_id integer;
     cert_date date;
     months_ago integer;
-    cert_link varchar;
+    cert_link varchar (255);
     used_certificates integer[];
 BEGIN
     FOR user_id IN 4..19 LOOP
@@ -1210,7 +1210,7 @@ DECLARE
     cert_id integer;
     cert_date date;
     months_ago integer;
-    cert_link varchar;
+    cert_link varchar (255);
     in_progress_cert_id integer;
 BEGIN
     FOR user_id IN 20..34 LOOP
@@ -1332,8 +1332,8 @@ DECLARE
     in_progress_goal_id integer;
     create_date date;
     finished_date date;
-    priority_options varchar[] := ARRAY['low', 'medium', 'high'];
-    selected_priority varchar;
+    priority_options varchar (255)[] := ARRAY['low', 'medium', 'high'];
+    selected_priority varchar (255);
 BEGIN
     FOR user_id IN 4..95 LOOP
         -- Seleccionar una meta aleatoria para completar (1-22)
