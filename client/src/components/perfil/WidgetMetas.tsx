@@ -95,7 +95,7 @@ const WidgetMetas = () => {
   }, []);
 
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-300 p-4 flex flex-col relative">
+    <div className="w-full bg-base-100 rounded-xl border border-gray-300 p-4 flex flex-col relative">
       {/* Header */}
       <div className="flex items-center mb-6">
         <span className="text-3xl mr-3">
@@ -107,7 +107,7 @@ const WidgetMetas = () => {
         </button>
         <ModalAddMetas
                 isOpen={modalIsOpen}
-                onClose={() => setModalIsOpen(false)}
+                onClose={() => {setModalIsOpen(false); fetchGoals();}}
             />
       </div>
 

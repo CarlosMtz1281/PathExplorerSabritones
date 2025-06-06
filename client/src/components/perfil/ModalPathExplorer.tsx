@@ -157,7 +157,7 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
         </div>
 
         {/* Content Section */}
-        <div className="w-full bg-base-300 rounded-lg p-4 ">
+        <div className="w-full bg-base-300 rounded-lg p-4 h-[65vh] overflow-y-auto">
           {loading ? (
             <div className="col-span-3 flex justify-center items-center">
               <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full text-primary"></div>
@@ -249,7 +249,6 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
                       {activeTabData.introduction}
                     </p>
 
-            
                     <p className="text-sm text-gray-500 mb-4">
                       {activeTabData.area.previous_certificates}
                     </p>
@@ -258,33 +257,30 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
                       {activeTabData.area.previous_positions}
                     </p>
                   </div>
-
-                  <div>
+                    <div className="ml-4">
                     <h4 className="text-lg font-bold mb-2">
                       Habilidades relacionadas
                     </h4>
-                    <div className="carousel w-full space-x-4">
+                    <div className="flex flex-wrap gap-2">
                       {activeTabData.area.recommendations.certification[0]
-                        ?.skills?.length > 0 ? (
-                        activeTabData.area.recommendations.certification[0].skills.map(
-                          (skill, index) => (
-                            <div
-                              key={index}
-                              className="carousel-item flex-none w-auto"
-                            >
-                              <span className="badge badge-outline badge-primary text-sm">
-                                {skill}
-                              </span>
-                            </div>
-                          )
+                      ?.skills?.length > 0 ? (
+                      activeTabData.area.recommendations.certification[0].skills.map(
+                        (skill, index) => (
+                        <span
+                          key={index}
+                          className="badge badge-outline badge-primary text-sm"
+                        >
+                          {skill}
+                        </span>
                         )
+                      )
                       ) : (
-                        <p className="text-gray-500">
-                          No hay habilidades relacionadas.
-                        </p>
+                      <p className="text-gray-500">
+                        No hay habilidades relacionadas.
+                      </p>
                       )}
                     </div>
-                  </div>
+                    </div>
                 </div>
 
                 {/*BOTTOM */}

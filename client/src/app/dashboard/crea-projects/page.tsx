@@ -253,6 +253,8 @@ export default function CreateProyects() {
         certifications: p.certificaciones,
       })),
     };
+
+    console.log("Enviando proyecto:", proyecto);
   
     try {
       const res = await fetch(

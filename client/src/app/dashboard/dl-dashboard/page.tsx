@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import CurrentProjects from "@/components/dl-dashboard/current-projects/CurrentProjects";
 import PastProjects from "@/components/dl-dashboard/past-projects/PastProjects";
@@ -91,10 +92,12 @@ interface Meeting {
   meetingId: number;
   meetingDate?: string | Date;
   meetingLink?: string;
+  hasRecording?: boolean;
 }
 
 // Componente principal del dashboard
 const DashboardDL = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [projects, setProjects] = useState<Project[]>([]);
   const [postulations, setPostulations] = useState<Postulation[]>([]);
@@ -118,6 +121,7 @@ const DashboardDL = () => {
         return;
       }
 
+      // Fetch initial data
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_BASE}/dl/dataFuturo`,
         {
@@ -132,13 +136,55 @@ const DashboardDL = () => {
         return;
       }
 
-      const data = res.data;
+      let data = res.data;
       console.log("Fetched data:", data);
-      setProjects(data.projects || []);
-      setPostulations(data.postulations || []);
+      
+      // Check for recordings in meetings
+      const meetingsWithRecordings = await Promise.all(
+        data.postulations.flatMap(async (postulation: Postulation) => {
+          if (!postulation.meetings || postulation.meetings.length === 0) {
+            return postulation;
+          }
 
-      console.log(postulations);
-      console.log(projects);
+          const updatedMeetings = await Promise.all(
+            postulation.meetings.map(async (meeting: Meeting) => {
+              if (!meeting.meetingLink) return meeting;
+              
+              try {
+                const recordingCheck = await axios.get(
+                  `http://localhost:5002/checkMeeting`,
+                  {
+                    params: { meeting_link: meeting.meetingLink }
+                  }
+                );
+                
+                return {
+                  ...meeting,
+                  hasRecording: recordingCheck.data?.exists || false
+                };
+              } catch (error) {
+                console.error(`Error checking recording for meeting ${meeting.meetingId}:`, error);
+                return {
+                  ...meeting,
+                  hasRecording: false
+                };
+              }
+            })
+          );
+
+          return {
+            ...postulation,
+            meetings: updatedMeetings
+          };
+        })
+      );
+
+      console.log("Meetings with recordings:", meetingsWithRecordings);
+
+      // Update state with the enriched data
+      setProjects(data.projects || []);
+      setPostulations(meetingsWithRecordings || []);
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -231,19 +277,34 @@ const DashboardDL = () => {
       const meetingDate = new Date(selectedDate);
       meetingDate.setHours(parseInt(hours), parseInt(minutes));
 
+      // flask API para crear la reunión
+      const flaskResponse = await axios.post(
+        `${process.env.NEXT_PUBLIC_FLASK_WEB_API_URL}/api/create-meeting`,
+        {
+          username: session?.user?.name || "Host"
+        }
+      );
+
+      if (!flaskResponse.data.meeting_id) {
+        throw new Error("No se pudo crear el ID de reunión");
+      }
+
+      const meetingId = flaskResponse.data.meeting_id;
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE}/dl/scheduleMeeting`,
         {
           postulationId: selectedPostulation.postulationId,
           meetingDate: meetingDate.toISOString(),
           meetingTime: selectedTime,
+          meetingLink: meetingId, // Usar el ID de reunión de Flask
         },
         {
           headers: { "session-key": session?.sessionId },
         }
       );
 
-      console.log("Hola");
+      //console.log("Hola");
 
       console.log("Response data:", response.data);
 
@@ -572,59 +633,83 @@ const DashboardDL = () => {
                               {/* botones de postulación (agender o ver meeting, aceptar postulacion, rechazar) con iconos */}
                               <div className="flex gap-1">
                                 {postulation.meetings.length > 0 ? (
-                                  <div className="dropdown dropdown-end">
-                                    <button
-                                      tabIndex={0}
-                                      className="btn btn-sm btn-square btn-primary"
-                                      title="Ver reunión programada"
-                                    >
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-4 w-4"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
+                                  postulation.meetings[0].hasRecording ? (
+                                    <div className="dropdown dropdown-end">
+                                      <button
+                                        tabIndex={0}
+                                        className="btn btn-sm btn-square btn-accent"
+                                        title="Ver reunión grabada"
                                       >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                        />
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                        />
-                                      </svg>
-                                    </button>
-                                    <div
-                                      tabIndex={0}
-                                      className="dropdown-content z-[1] menu p-4 shadow bg-base-100 rounded-box w-64"
-                                    >
-                                      <h4 className="font-bold mb-2">
-                                        Reunión programada
-                                      </h4>
-                                      <p className="mb-2">
-                                        <span className="font-semibold">
-                                          Fecha:
-                                        </span>{" "}
-                                        {new Date(
-                                          postulation.meetings[0].meetingDate!
-                                        ).toLocaleString()}
-                                      </p>
-                                      <a
-                                        href={
-                                          postulation.meetings[0].meetingLink
-                                        }
-                                        target="_blank"
-                                        className="btn btn-sm btn-primary mt-2"
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                      </button>
+                                      <div
+                                        tabIndex={0}
+                                        className="dropdown-content z-[1] menu p-4 shadow bg-base-100 rounded-box w-64"
                                       >
-                                        Unirse a la reunión
-                                      </a>
+                                        <h4 className="font-bold mb-2">
+                                          Reunión grabada
+                                        </h4>
+                                        {/* boton de descarga de grabación */}
+                                        <button
+                                          onClick={() => {
+                                            // Crear un enlace temporal para la descarga
+                                            const downloadLink = document.createElement('a');
+                                            downloadLink.href = `http://localhost:5002/getVideo?meeting_id=${postulation.meetings[0].meetingLink}`;
+                                            downloadLink.target = '_blank';
+                                            downloadLink.download = `reunion_${postulation.meetings[0].meetingLink}.webm`;
+                                            document.body.appendChild(downloadLink);
+                                            downloadLink.click();
+                                            document.body.removeChild(downloadLink);
+                                          }}
+                                          className="btn btn-sm btn-primary mt-2"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                          </svg>
+                                          Descargar grabación
+                                        </button>
+
+                                      </div>
                                     </div>
-                                  </div>
+                                  ) : (
+                                    <div className="dropdown dropdown-end">
+                                      <button
+                                        tabIndex={0}
+                                        className="btn btn-sm btn-square btn-primary"
+                                        title="Ver reunión programada"
+                                      >
+                                        <svg xmlns="http://www.w0.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                      </button>
+                                      <div
+                                        tabIndex={0}
+                                        className="dropdown-content z-[1] menu p-4 shadow bg-base-100 rounded-box w-64"
+                                      >
+                                        <h4 className="font-bold mb-2">
+                                          Reunión programada
+                                        </h4>
+                                        <p className="mb-2">
+                                          <span className="font-semibold">Fecha:</span>{" "}
+                                          {new Date(
+                                            postulation.meetings[0].meetingDate!
+                                          ).toLocaleString()}
+                                        </p>
+                                        <a
+                                          href={`/meet/${postulation.meetings[0].meetingLink}?username=${session?.user?.name}&record=true`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="btn btn-sm btn-primary mt-2 inline-block text-base font-semibold pt-0.5"
+                                        >
+                                          Unirse a la reunión
+                                        </a>
+                                      </div>
+                                    </div>
+                                  )
                                 ) : (
                                   <button
                                     className="btn btn-sm btn-square btn-secondary"
