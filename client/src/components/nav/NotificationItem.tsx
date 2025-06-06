@@ -18,7 +18,7 @@ const NotificationItem = ({ notification }: NotificationItemProps) => {
               <div className="status status-error"></div>
             </div>
           )}
-          {notification.days_left > 5 && (
+          {notification.days_left > 1 && (
             <div
               aria-label="status"
               className="status status-primary status-md"

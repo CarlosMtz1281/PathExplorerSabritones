@@ -31,7 +31,7 @@ type Notification = {
 };
 
 export default function Navbar() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const { data: session } = useSession();
   const roleId = session?.user?.role_id || 0;
 
@@ -72,10 +72,10 @@ export default function Navbar() {
   };
 
   const rolePermissions = {
-    showProjects: [1, 2, 3, 4, 5],
-    showDLDashboard: [3, 4],
-    showCreateProjects: [3, 4],
-    showCreateUsers: [3, 5],
+    showProjects: [3],
+    showDLDashboard: [4],
+    showCreateProjects: [4],
+    showCreateUsers: [5],
     showRepoEmpleados: [1, 2, 3, 4, 5],
     showPLDashboard: [2, 3],
     showCLDashboard: [3],
@@ -83,7 +83,7 @@ export default function Navbar() {
 
   const handleMouseEnter = () => setIsCollapsed(false);
   const handleMouseLeave = () => {
-    setIsCollapsed(false);
+    setIsCollapsed(true);
     setShowNotifications(false);
   };
 
@@ -124,15 +124,17 @@ export default function Navbar() {
             <a
               href={`/dashboard/profile`}
               className={`btn btn-ghost flex items-center gap-4 w-full justify-start
-    text-whitehover:text-primary hover:bg-base-200
-    ${isActive("/dashboard/profile") ? "bg-base-200 text-primary" : ""}
+    hover:text-primary hover:bg-base-200
+    ${
+      isActive("/dashboard/profile")
+        ? "bg-base-200 text-primary font-bold"
+        : "text-white font-normal"
+    }
   `}
             >
               <FaUser className="w-6 h-6" />
               {!isCollapsed && (
-                <h3 className="text-lg font-normal whitespace-nowrap ">
-                  Perfil
-                </h3>
+                <h3 className="text-lg whitespace-nowrap ">Perfil</h3>
               )}
             </a>
           </li>
@@ -141,13 +143,17 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/repo-projects"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/repo-projects") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/repo-projects")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
                 <FaFolderOpen className="w-5 h-5" />
                 {!isCollapsed && (
-                  <h3 className="text-lg font-norma">Proyectos</h3>
+                  <h3 className="text-lg whitespace-nowrap">Proyectos</h3>
                 )}
               </a>
             </li>
@@ -157,13 +163,17 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/dl-dashboard"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/dl-dashboard") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/dl-dashboard")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
                 <FaClipboardCheck className="w-5 h-5" />
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
+                  <h3 className="text-lg whitespace-nowrap">
                     Delivery dashboard
                   </h3>
                 )}
@@ -175,15 +185,17 @@ export default function Navbar() {
             <li className="w-full mt-2">
               <a
                 href="/dashboard/crea-projects"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/crea-projects") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/crea-projects")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
                 <FaSuitcase className="w-5 h-5" />
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Crear Proyectos
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Crear Proyectos</h3>
                 )}
               </a>
             </li>
@@ -193,15 +205,17 @@ export default function Navbar() {
             <li className="w-full mt-2">
               <a
                 href="/dashboard/create-users"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/create-users") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/create-users")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
                 <FaUserPlus className="w-5 h-5" />
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Crear Usuarios
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Crear Usuarios</h3>
                 )}
               </a>
             </li>
@@ -211,15 +225,17 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/repo-empleados"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/repo-empleados") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/repo-empleados")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
                 <FaAddressBook className="w-5 h-5" />
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Empleados
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Empleados</h3>
                 )}
               </a>
             </li>
@@ -229,15 +245,17 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/pl-dashboard"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/pl-dashboard") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/pl-dashboard")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
                 <IoAnalytics className="w-5 h-5" />
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Dashboard de PL
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Dashboard de PL</h3>
                 )}
               </a>
             </li>
@@ -247,15 +265,17 @@ export default function Navbar() {
             <li className="w-full">
               <a
                 href="/dashboard/cl-dashboard"
-                className={`btn btn-ghost flex items-center gap-4 w-full text-white hover:text-primary hover:bg-base-200 justify-start
-  ${isActive("/dashboard/cl-dashboard") ? "bg-base-200 text-primary" : ""}
+                className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
+  ${
+    isActive("/dashboard/cl-dashboard")
+      ? "bg-base-200 text-primary font-bold"
+      : "text-white font-normal"
+  }
 `}
               >
                 <ImTree className="w-5 h-5" />
                 {!isCollapsed && (
-                  <h3 className="text-lg font-normal whitespace-nowrap">
-                    Dashboard de CL
-                  </h3>
+                  <h3 className="text-lg whitespace-nowrap">Dashboard de CL</h3>
                 )}
               </a>
             </li>
@@ -267,7 +287,9 @@ export default function Navbar() {
         <button
           onClick={() => setShowNotifications((prev) => !prev)}
           className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start group ${
-            showNotifications ? "bg-base-200 text-primary" : "text-white"
+            showNotifications
+              ? "bg-base-200 text-primary font-bold"
+              : "text-white font-normal"
           }`}
         >
           <span className="relative w-5 h-5">
@@ -278,12 +300,10 @@ export default function Navbar() {
           </span>
           {!isCollapsed && (
             <div className="flex items-center w-full justify-between">
-              <h3 className="text-lg font-normal whitespace-nowrap">
-                Notificaciones
-              </h3>
+              <h3 className="text-lg whitespace-nowrap">Notificaciones</h3>
               {notifications.length > 0 && (
                 <div
-                  className={`badge badge-md badge-white text-primary group-hover:text-white group-hover:badge-primary ${
+                  className={`badge badge-md font-normal badge-white text-primary group-hover:text-white group-hover:badge-primary ${
                     showNotifications ? "badge-primary text-white" : ""
                   }`}
                 >
