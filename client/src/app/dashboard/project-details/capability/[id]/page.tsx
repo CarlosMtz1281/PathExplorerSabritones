@@ -5,6 +5,13 @@ import { useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { GrProjects } from "react-icons/gr";
+import { RiTeamLine } from "react-icons/ri";
+import { MdEmojiPeople } from "react-icons/md";
+import { IoDocumentsOutline } from "react-icons/io5";
+
+
+
 
 // Interfaces
 interface Skill {
@@ -447,11 +454,12 @@ const ProjectDetails = () => {
         <div className="col-span-1 space-y-8">
           {/* Project Info */}
           <div className="bg-base-100 rounded-lg shadow-md border border-base-300">
-            <div className="card">
-              <div className="card-title bg-primary text-primary-content p-4 rounded-t-lg">
+            <div className="card p-4">
+              <div className="card-title rounded-t-lg">
+                <GrProjects className="inline-block mr-2 text-3xl text-primary" />
                 <h2 className="text-2xl font-bold">{project.name}</h2>
               </div>
-              <div className="card-body p-6">
+              <div className="mt-5">
                 <p className="text-sm text-secondary mb-2">
                   <strong>Fechas:</strong> {project.start_date} -{" "}
                   {project.end_date || "En progreso"}
@@ -479,13 +487,17 @@ const ProjectDetails = () => {
 
           {/* Vacancies */}
           <div className="bg-base-100 rounded-lg shadow-md border border-base-300">
-            <div className="card">
-              <div className="card-title bg-primary text-primary-content p-4 rounded-t-lg">
-                <h2 className="text-2xl font-bold">
-                  Vacantes ({vacantPositions.length})
-                </h2>
+            <div className="card p-4">
+              <div className="card-title rounded-t-lg">
+                <div className="flex items-center">
+                  <IoDocumentsOutline className="inline-block mr-2 text-3xl text-primary" />
+                  <h2 className="text-2xl font-bold">
+                    Vacantes ({vacantPositions.length})
+                  </h2>
+                </div>
+                  
               </div>
-              <div className="card-body p-6">
+              <div className="mt-5">
                 {vacantPositions.length > 0 ? (
                   <>
                     <div className="form-control w-full mb-4">
@@ -613,9 +625,12 @@ const ProjectDetails = () => {
         <div className="col-span-2">
           {/* Current Team Section */}
           <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 mb-8">
-            <h2 className="text-2xl font-bold text-primary mb-4">
-              Equipo Actual ({currentTeam.length})
-            </h2>
+            <div className="flex align-items-center mb-4">
+              <RiTeamLine className="inline-block mr-2 text-3xl text-primary" />
+              <h2 className="text-2xl font-bold mb-4">
+                Equipo Actual ({currentTeam.length})
+              </h2>
+            </div>
 
             {loadingCurrentTeam ? (
               <div className="flex justify-center py-8">
@@ -672,15 +687,18 @@ const ProjectDetails = () => {
           {/* Candidates Section */}
           <div className="bg-base-100 p-6 rounded-lg shadow-md border border-base-300 overflow-y-auto max-h-[calc(55vh-5rem)]">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-primary">
-                Candidatos Disponibles (
-                {showOnlyAvailable 
-                  ? candidates.filter(c => !c.isInProject).length 
-                  : candidates.length
-                })
-              </h2>
+              <div className="flex items-center">
+                <MdEmojiPeople className="inline-block mr-2 text-3xl text-primary" />
+                <h2 className="text-2xl font-bold">
+                  Candidatos Disponibles (
+                  {showOnlyAvailable
+                    ? candidates.filter(c => !c.isInProject).length
+                    : candidates.length
+                  })
+                </h2>
+              </div>
               <label className="cursor-pointer label">
-                <span className="label-text mr-2">Mostrar solo disponibles</span> 
+                <span className="label-text mr-2">Mostrar solo disponibles</span>
                 <input 
                   type="checkbox" 
                   className="toggle toggle-primary" 
