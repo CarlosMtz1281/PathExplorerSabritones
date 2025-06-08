@@ -9,9 +9,7 @@ import { GrProjects } from "react-icons/gr";
 import { RiTeamLine } from "react-icons/ri";
 import { MdEmojiPeople } from "react-icons/md";
 import { IoDocumentsOutline } from "react-icons/io5";
-
-
-
+import { get } from "http";
 
 // Interfaces
 interface Skill {
@@ -69,6 +67,7 @@ interface TeamMember {
   matchedCertificates?: Certificate[];
   totalMatches?: number;
   isInProject?: boolean;
+  matchPercentage?: number;
 }
 
 interface Project {
@@ -99,7 +98,7 @@ interface Project {
 const ProjectDetails = () => {
   const { data: session } = useSession();
   const router = useRouter();
-  
+
   useEffect(() => {
     if (session?.user?.role_id !== 3) {
       alert("❌ No tienes permisos para acceder a esta página.");
@@ -113,11 +112,15 @@ const ProjectDetails = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedVacancy, setSelectedVacancy] = useState<number | null>(null);
   const [candidates, setCandidates] = useState<TeamMember[]>([]);
-  const [capabilityTeamMembers, setCapabilityTeamMembers] = useState<TeamMember[]>([]);
+  const [capabilityTeamMembers, setCapabilityTeamMembers] = useState<
+    TeamMember[]
+  >([]);
   const [loadingTeam, setLoadingTeam] = useState(true);
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [positionSkills, setPositionSkills] = useState<Skill[]>([]);
-  const [positionCertificates, setPositionCertificates] = useState<Certificate[]>([]);
+  const [positionCertificates, setPositionCertificates] = useState<
+    Certificate[]
+  >([]);
   const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
   const [currentTeam, setCurrentTeam] = useState<TeamMember[]>([]);
   const [loadingCurrentTeam, setLoadingCurrentTeam] = useState(true);
@@ -133,11 +136,14 @@ const ProjectDetails = () => {
         }
 
         setLoading(true);
-  
+
         // Fetch project data
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getProjectByIdCap/${id}`, {
-          headers: { "session-key": sessionId },
-        });
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE}/project/getProjectByIdCap/${id}`,
+          {
+            headers: { "session-key": sessionId },
+          }
+        );
 
         //console.log("Project data:", res.data);
 
@@ -145,27 +151,36 @@ const ProjectDetails = () => {
         setProject(data);
 
         // Fetch current team members
-        const teamRes = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getTeamMembers/${id}`, {
-          headers: { "session-key": sessionId },
-        });
+        const teamRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE}/project/getTeamMembers/${id}`,
+          {
+            headers: { "session-key": sessionId },
+          }
+        );
 
         //console.log("Current team data:", teamRes.data);
 
         const teamData = teamRes.data;
-        setCurrentTeam(teamData.map((member: any) => ({
-          user_id: member.user_id,
-          name: member.name,
-          mail: member.mail,
-          position: member.position_name || "Miembro del equipo"
-        })));
+        setCurrentTeam(
+          teamData.map((member: any) => ({
+            user_id: member.user_id,
+            name: member.name,
+            mail: member.mail,
+            position: member.position_name || "Miembro del equipo",
+          }))
+        );
 
         // Set initial selected vacancy if vacant positions exist
-        const vacantPositions = data.positions.filter((p) => p.user_id === null);
+        const vacantPositions = data.positions.filter(
+          (p) => p.user_id === null
+        );
         if (vacantPositions.length > 0) {
           setSelectedVacancy(vacantPositions[0].position_id);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
         console.error("Error fetching project details:", err);
       } finally {
         setLoading(false);
@@ -187,10 +202,13 @@ const ProjectDetails = () => {
         setLoadingTeam(true);
 
         const sessionId = session?.sessionId;
-  
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/project/getAllUsersOfCap`, {
-          headers: { "session-key": sessionId },
-        });
+
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE}/project/getAllUsersOfCap`,
+          {
+            headers: { "session-key": sessionId },
+          }
+        );
 
         const data = await res.data;
         setCapabilityTeamMembers(data);
@@ -224,10 +242,14 @@ const ProjectDetails = () => {
         }
 
         // Fetch position skills if not already included in the project data
-        setPositionSkills(position.Project_Position_Skills.map((pps) => pps.Skills));
+        setPositionSkills(
+          position.Project_Position_Skills.map((pps) => pps.Skills)
+        );
 
-          // Use the certificates already in the position data
-        setPositionCertificates(position.Project_Position_Certificates.map((ppc) => ppc.Certificates));
+        // Use the certificates already in the position data
+        setPositionCertificates(
+          position.Project_Position_Certificates.map((ppc) => ppc.Certificates)
+        );
       } catch (error) {
         console.error("Error fetching position requirements:", error);
       } finally {
@@ -287,31 +309,39 @@ const ProjectDetails = () => {
         const candidateData = await Promise.all(
           capabilityTeamMembers.map(async (member) => {
             try {
-              const [skillsResponse, certificatesResponse] = await Promise.all([
-                fetch(
-                  `${process.env.NEXT_PUBLIC_API_BASE}/employee/getsSkillsId/${member.user_id}`
-                ),
-                fetch(
-                  `${process.env.NEXT_PUBLIC_API_BASE}/course/getCertificatesByUserId/${member.user_id}`
-                ),
-              ]);
+              const recommendationData = await fetchRecommendationUser(
+                member.user_id,
+                selectedVacancy
+              );
+              const positionRecommendation =
+                recommendationData?.recommendations?.find(
+                  (rec: any) => rec.position_id === selectedVacancy
+                );
 
-              const skills = await skillsResponse.json();
+              const coincidentSkills =
+                positionRecommendation?.coincident_skills || [];
+              const certificatesResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_API_BASE}/course/getCertificatesByUserId/${member.user_id}`
+              );
               const certificates = await certificatesResponse.json();
 
-              // Match skills and certificates
-              const matchedSkills = skills.filter((skill: any) =>
-                requiredSkills.includes(skill.skill_name || skill.name)
-              );
               const matchedCertificates = certificates.filter((cert: any) =>
                 requiredCertificates.includes(cert.certificate_name)
               );
 
               return {
                 ...member,
-                matchedSkills,
+                matchedSkills: coincidentSkills.map((name: string) => ({
+                  name,
+                })),
                 matchedCertificates,
-                totalMatches: matchedSkills.length + matchedCertificates.length,
+                totalMatches:
+                  coincidentSkills.length + matchedCertificates.length,
+                matchPercentage: await getMatchPercentage(
+                  member.user_id,
+                  selectedVacancy,
+                  positionRecommendation
+                ),
               };
             } catch (error) {
               console.error(
@@ -323,6 +353,7 @@ const ProjectDetails = () => {
                 matchedSkills: [],
                 matchedCertificates: [],
                 totalMatches: 0,
+                matchPercentage: 0,
               };
             }
           })
@@ -331,8 +362,8 @@ const ProjectDetails = () => {
         // Sort candidates by total matches in descending order
         candidateData.sort((a, b) => {
           // Primero ordena por mayor coincidencias y despues por disponibilidad
-          if (b.totalMatches !== a.totalMatches) {
-            return b.totalMatches - a.totalMatches;
+          if ((b.matchPercentage ?? 0) !== (a.matchPercentage ?? 0)) {
+            return (b.matchPercentage ?? 0) - (a.matchPercentage ?? 0);
           }
           // Si tienen el mismo número de coincidencias, ordena por si están en el proyecto
           if (b.isInProject !== a.isInProject) {
@@ -363,7 +394,9 @@ const ProjectDetails = () => {
     if (!endDate) return "En progreso";
     const start = new Date(startDate.split("/").reverse().join("-"));
     const end = new Date(endDate.split("/").reverse().join("-"));
-    const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    const months =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth());
     return `${months} ${months === 1 ? "mes" : "meses"}`;
   };
 
@@ -371,6 +404,66 @@ const ProjectDetails = () => {
   const getVacantPositions = () => {
     if (!project) return [];
     return project.positions.filter((p) => p.user_id === null);
+  };
+
+  const fetchRecommendationUser = async (
+    user_id: number,
+    position_id: number
+  ) => {
+    if (!user_id || !position_id) {
+      return null;
+    }
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_FLASK_API_URL}/recommend/positions/${user_id}`,
+        {
+          headers: {
+            "admin-password":
+              process.env.NEXT_PUBLIC_FLASK_API_ADMIN_PASSWORD_ML,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recommendation user:", error);
+      return null;
+    }
+  };
+
+  const getMatchPercentage = async (
+    user_id: number,
+    position_id: number | null,
+    recommendation_data: any
+  ) => {
+    if (position_id === null) {
+      return 0;
+    }
+    const userRecommendation = recommendation_data;
+
+    const rawScore = userRecommendation.score;
+    if (rawScore < 0) {
+      return 0;
+    }
+
+    const coincidentSkills = userRecommendation.coincident_skills?.length || 0;
+    const totalSkills = userRecommendation.skills?.length || 1;
+    const skillRatio = coincidentSkills / totalSkills;
+
+    const finalScore = rawScore * 0.7 + skillRatio * 0.7;
+
+    if (skillRatio < 0.2) {
+      if (finalScore * 100 - 30 < 0) {
+        return 0;
+      }
+
+      return rawScore * 100 - 30;
+    }
+
+    if (finalScore * 100 >= 100) {
+      return 99;
+    }
+
+    return Math.round(finalScore * 100);
   };
 
   if (loading) {
@@ -405,16 +498,18 @@ const ProjectDetails = () => {
   }
 
   const vacantPositions = getVacantPositions();
-  const selectedPosition = project.positions.find((p) => p.position_id === selectedVacancy);
+  const selectedPosition = project.positions.find(
+    (p) => p.position_id === selectedVacancy
+  );
   const duration = calculateDuration(project.start_date, project.end_date);
 
   async function handlePostular(
-  user_id: number,
-  position_id: number
-): Promise<void> {
+    user_id: number,
+    position_id: number
+  ): Promise<void> {
     try {
       const sessionId = session?.sessionId;
-      
+
       if (!sessionId) {
         console.error("Session ID is missing");
         alert("Your session has expired. Please log in again.");
@@ -423,15 +518,16 @@ const ProjectDetails = () => {
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE}/project/postulate`,
-        {  // Send data directly in the body
+        {
+          // Send data directly in the body
           user_id,
-          position_id
+          position_id,
         },
         {
-          headers: { 
-            "sessionId": sessionId,
-            "Content-Type": "application/json"
-          }
+          headers: {
+            sessionId: sessionId,
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -495,7 +591,6 @@ const ProjectDetails = () => {
                     Vacantes ({vacantPositions.length})
                   </h2>
                 </div>
-                  
               </div>
               <div className="mt-5">
                 {vacantPositions.length > 0 ? (
@@ -692,16 +787,18 @@ const ProjectDetails = () => {
                 <h2 className="text-2xl font-bold">
                   Candidatos Disponibles (
                   {showOnlyAvailable
-                    ? candidates.filter(c => !c.isInProject).length
-                    : candidates.length
-                  })
+                    ? candidates.filter((c) => !c.isInProject).length
+                    : candidates.length}
+                  )
                 </h2>
               </div>
               <label className="cursor-pointer label">
-                <span className="label-text mr-2">Mostrar solo disponibles</span>
-                <input 
-                  type="checkbox" 
-                  className="toggle toggle-primary" 
+                <span className="label-text mr-2">
+                  Mostrar solo disponibles
+                </span>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-primary"
                   checked={showOnlyAvailable}
                   onChange={() => setShowOnlyAvailable(!showOnlyAvailable)}
                 />
@@ -712,19 +809,21 @@ const ProjectDetails = () => {
               <div className="flex justify-center py-8">
                 <span className="loading loading-spinner loading-lg"></span>
               </div>
-            ) : (showOnlyAvailable 
-                ? candidates.filter(c => !c.isInProject) 
+            ) : (showOnlyAvailable
+                ? candidates.filter((c) => !c.isInProject)
                 : candidates
-            ).length > 0 ? (
+              ).length > 0 ? (
               <div className="space-y-4">
-                {(showOnlyAvailable 
-                  ? candidates.filter(c => !c.isInProject) 
+                {(showOnlyAvailable
+                  ? candidates.filter((c) => !c.isInProject)
                   : candidates
                 ).map((candidate) => (
                   <div
                     key={candidate.user_id}
                     className={`collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border ${
-                      candidate.isInProject ? 'border-secondary' : 'border-base-300'
+                      candidate.isInProject
+                        ? "border-secondary"
+                        : "border-base-300"
                     }`}
                   >
                     {/* Collapse Title */}
@@ -733,8 +832,14 @@ const ProjectDetails = () => {
                       <div className="flex items-center gap-2">
                         <span>{candidate.name}</span>
                         {candidate.isInProject && (
-                          <span className="badge badge-secondary badge-sm">Staff</span>
+                          <span className="badge badge-secondary badge-sm">
+                            Staff
+                          </span>
                         )}
+                      </div>
+                      <div className="flex flex-row flex-1 justify-end items-center mr-20 gap-5">
+                        <span>Compatibilidad:</span>
+                        <span>{candidate.matchPercentage ?? 0}%</span>
                       </div>
                       {/* Calculate percentage of matched skills and certificates */}
                       {(() => {
