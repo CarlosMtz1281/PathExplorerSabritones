@@ -453,6 +453,21 @@
       fetchAll();
     }, []);
 
+    useEffect(() => {
+      const isAnyModalOpen =
+        isModalOpen || isAddExperienceModalOpen || isEditExperienceModalOpen;
+
+      if (isAnyModalOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }, [isModalOpen, isAddExperienceModalOpen, isEditExperienceModalOpen]);
+
     return (
       <div className="card w-full h-full min-h-[350px]">
         <div className="p-3 md:p-4 bg-base-100 rounded-lg border border-base-300 h-full flex flex-col">

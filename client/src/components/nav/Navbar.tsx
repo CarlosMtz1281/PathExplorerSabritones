@@ -188,7 +188,7 @@ export default function Navbar() {
           )}
 
           {rolePermissions.showCreateProjects.includes(roleId) && (
-            <li className="w-full mt-2">
+            <li className="w-full">
               <a
                 href="/dashboard/crea-projects"
                 className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start
@@ -210,7 +210,7 @@ export default function Navbar() {
           )}
 
           {rolePermissions.showCreateUsers.includes(roleId) && (
-            <li className="w-full mt-2">
+            <li className="w-full">
               <a
                 href="/dashboard/create-users"
                 className={`btn btn-ghost flex items-center gap-4 w-full hover:text-primary hover:bg-base-200 justify-start

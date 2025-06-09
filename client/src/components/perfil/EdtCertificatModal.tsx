@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
@@ -55,9 +55,23 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
   currentPriority,
   onGoalUpdated,
 }) => {
-  const [priority, setPriority] = useState<"high" | "medium" | "low">(currentPriority);
+  const [priority, setPriority] = useState<"high" | "medium" | "low">(
+    currentPriority
+  );
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -73,13 +87,13 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
         {
           goal_id: goalId,
           priority: priority,
-          completed: false
+          completed: false,
         },
         {
           headers: {
-        "session-key": session?.sessionId,
-        "Content-Type": "application/json"
-          }
+            "session-key": session?.sessionId,
+            "Content-Type": "application/json",
+          },
         }
       );
       alert("Meta actualizada exitosamente.");
@@ -94,9 +108,10 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
       setLoading(false);
     }
   };
-  
+
   const handleComplete = async () => {
-    if (!window.confirm("¿Estás seguro de que quieres completar esta meta?")) return;
+    if (!window.confirm("¿Estás seguro de que quieres completar esta meta?"))
+      return;
     setLoading(true);
     try {
       await axios.patch(
@@ -104,13 +119,13 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
         {
           goal_id: goalId,
           priority: priority,
-          completed: true
+          completed: true,
         },
         {
           headers: {
-        "session-key": session?.sessionId,
-        "Content-Type": "application/json"
-          }
+            "session-key": session?.sessionId,
+            "Content-Type": "application/json",
+          },
         }
       );
       alert("Meta completada exitosamente.");
@@ -118,8 +133,7 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
       onClose();
     } catch (error: any) {
       alert(
-        error?.response?.data?.error ||
-          "Ocurrió un error al completar la meta."
+        error?.response?.data?.error || "Ocurrió un error al completar la meta."
       );
       onClose();
     } finally {
@@ -132,7 +146,9 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
         {/* Close Button */}
         <button
           className="absolute top-4 right-4 bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-full w-8 h-8 flex items-center justify-center text-xl"
-          onClick={() => { onClose(); }}
+          onClick={() => {
+            onClose();
+          }}
         >
           ×
         </button>

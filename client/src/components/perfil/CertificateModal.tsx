@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -72,6 +72,14 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
 
   const [isMoreMB, setIsMoreMB] = React.useState(false);
   const [file, setFile] = React.useState<File | null | undefined>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
