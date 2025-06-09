@@ -85,6 +85,13 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
     fetchActiveTabData();
   }, [activeTab]);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   function calculateLevel(points: number): number {
     if (points < 240) return 1;
     if (points < 740) return 2;
@@ -114,7 +121,7 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-    <div className="bg-base-100 rounded-lg shadow-lg w-5/6 md:w-4/5 lg:w-3/4 p-8 relative h-5/6">
+      <div className="bg-base-100 rounded-lg shadow-lg w-5/6 md:w-4/5 lg:w-3/4 p-8 relative h-5/6">
         {/* Close Button */}
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
@@ -195,7 +202,10 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
 
                   {/* Middle Column (40%) */}
                   <div className="flex flex-col basis-4/10">
-                    <h4 className="text-lg font-bold mb-2">Nivel {calculateLevel(Number(activeTabData.area.user_points))}</h4>
+                    <h4 className="text-lg font-bold mb-2">
+                      Nivel{" "}
+                      {calculateLevel(Number(activeTabData.area.user_points))}
+                    </h4>
                     <div className="flex items-center gap-2 w-full">
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
                         <div
@@ -252,35 +262,35 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
                     <p className="text-sm text-gray-500 mb-4">
                       {activeTabData.area.previous_certificates}
                     </p>
-               
+
                     <p className="text-sm text-gray-500 mb-4">
                       {activeTabData.area.previous_positions}
                     </p>
                   </div>
-                    <div className="ml-4">
+                  <div className="ml-4">
                     <h4 className="text-lg font-bold mb-2">
                       Habilidades relacionadas
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {activeTabData.area.recommendations.certification[0]
-                      ?.skills?.length > 0 ? (
-                      activeTabData.area.recommendations.certification[0].skills.map(
-                        (skill, index) => (
-                        <span
-                          key={index}
-                          className="badge badge-outline badge-primary text-sm"
-                        >
-                          {skill}
-                        </span>
+                        ?.skills?.length > 0 ? (
+                        activeTabData.area.recommendations.certification[0].skills.map(
+                          (skill, index) => (
+                            <span
+                              key={index}
+                              className="badge badge-outline badge-primary text-sm"
+                            >
+                              {skill}
+                            </span>
+                          )
                         )
-                      )
                       ) : (
-                      <p className="text-gray-500">
-                        No hay habilidades relacionadas.
-                      </p>
+                        <p className="text-gray-500">
+                          No hay habilidades relacionadas.
+                        </p>
                       )}
                     </div>
-                    </div>
+                  </div>
                 </div>
 
                 {/*BOTTOM */}

@@ -9,19 +9,18 @@ interface AddCertificateModalProps {
 }
 
 interface certificates {
-    certificate_id: number;
-    user_id: number;
-    certificate_name: string;
-    certificate_desc: string;
-    skills: string[];
-    provider: string;
+  certificate_id: number;
+  user_id: number;
+  certificate_name: string;
+  certificate_desc: string;
+  skills: string[];
+  provider: string;
 }
 
 const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
   onClose,
 }) => {
-    const { data: session } = useSession();
-
+  const { data: session } = useSession();
 
   const [formData, setFormData] = useState({
     company: "",
@@ -35,7 +34,9 @@ const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -58,84 +59,88 @@ const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
     }));
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  try {
-    if (!session || !session.user) {
-      console.error("Session is missing or invalid");
-      return;
-    }
-
-    const sessionKey = session.sessionId; // Retrieve session key from session hook
-    if (!sessionKey) {
-      console.error("Session key is missing");
-      return;
-    }
-
-    // Check if the user already has the selected certificate
-    const existingCertificate = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE}/course/certificates`,
-      {
-        headers: {
-          "session-key": sessionKey,
-        },
+    try {
+      if (!session || !session.user) {
+        console.error("Session is missing or invalid");
+        return;
       }
-    );
-    console.log("Existing Certificates:", existingCertificate.data);
-    const userCertificates = existingCertificate.data; // Array of user's certificates
-    const alreadyExists = userCertificates.some(
-      (cert: certificates) =>
-        cert.certificate_name === formData.certificate_name
-    );
 
-    if (alreadyExists) {
-      alert("El usuario ya tiene este certificado.");
-      // Reset the form
-      setFormData({
-        company: "",
-        certificate_name: "",
-        status: "",
-        issue_date: "",
-        expiration_date: "",
-        link: "",
-        skills: [],
-        pdf: null,
-      });
-      return;
-    }
-
-    const payload = {
-      certificate_id: certifications.find(
-        (cert) => cert.certificate_name === formData.certificate_name
-      )?.certificate_id,
-      certificate_date: formData.issue_date,
-      certificate_expiration_date: formData.expiration_date || null,
-      certificate_link: formData.link || null,
-      certificate_status: formData.status,
-    };
-
-    if (!payload.certificate_id || !payload.certificate_date || !payload.certificate_status) {
-      console.error("Certificate ID, date, and status are required");
-      return;
-    }
-
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_BASE}/course/add-certificate`,
-      payload,
-      {
-        headers: {
-          "session-key": sessionKey,
-        },
+      const sessionKey = session.sessionId; // Retrieve session key from session hook
+      if (!sessionKey) {
+        console.error("Session key is missing");
+        return;
       }
-    );
 
-    console.log("Certificate added successfully:", response.data);
-    onClose(); // Close the modal after successful submission
-  } catch (error) {
-    console.error("Error adding certificate:", error);
-  }
-};
+      // Check if the user already has the selected certificate
+      const existingCertificate = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE}/course/certificates`,
+        {
+          headers: {
+            "session-key": sessionKey,
+          },
+        }
+      );
+      console.log("Existing Certificates:", existingCertificate.data);
+      const userCertificates = existingCertificate.data; // Array of user's certificates
+      const alreadyExists = userCertificates.some(
+        (cert: certificates) =>
+          cert.certificate_name === formData.certificate_name
+      );
+
+      if (alreadyExists) {
+        alert("El usuario ya tiene este certificado.");
+        // Reset the form
+        setFormData({
+          company: "",
+          certificate_name: "",
+          status: "",
+          issue_date: "",
+          expiration_date: "",
+          link: "",
+          skills: [],
+          pdf: null,
+        });
+        return;
+      }
+
+      const payload = {
+        certificate_id: certifications.find(
+          (cert) => cert.certificate_name === formData.certificate_name
+        )?.certificate_id,
+        certificate_date: formData.issue_date,
+        certificate_expiration_date: formData.expiration_date || null,
+        certificate_link: formData.link || null,
+        certificate_status: formData.status,
+      };
+
+      if (
+        !payload.certificate_id ||
+        !payload.certificate_date ||
+        !payload.certificate_status
+      ) {
+        console.error("Certificate ID, date, and status are required");
+        return;
+      }
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE}/course/add-certificate`,
+        payload,
+        {
+          headers: {
+            "session-key": sessionKey,
+          },
+        }
+      );
+
+      console.log("Certificate added successfully:", response.data);
+      onClose(); // Close the modal after successful submission
+    } catch (error) {
+      console.error("Error adding certificate:", error);
+    }
+  };
 
   const companyLogo = formData.company
     ? `/companies/${formData.company.toLowerCase()}.svg`
@@ -143,6 +148,14 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   const [providers, setProviders] = useState<string[]>([]);
   const [certifications, setCertifications] = useState<certificates[]>([]);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   useEffect(() => {
     const fetchProvidersAndCertifications = async () => {
@@ -258,7 +271,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                     Fecha de Expedición
                   </label>
                   <div className="relative">
-
                     <input
                       type="date"
                       name="issue_date"
@@ -306,17 +318,17 @@ const handleSubmit = async (e: React.FormEvent) => {
 
             <div className="w-1/4 ml-4">
               {/* Company Logo */}
-                {formData.company && (
+              {formData.company && (
                 <div className="flex justify-center">
                   <Image
-                  width={100}
-                  height={100}
-                  src={companyLogo}
-                  alt="Company Logo"
-                  className="w-24 h-24 object-contain"
+                    width={100}
+                    height={100}
+                    src={companyLogo}
+                    alt="Company Logo"
+                    className="w-24 h-24 object-contain"
                   />
                 </div>
-                )}
+              )}
 
               {/* Skills */}
               <div className="mt-5">
@@ -350,7 +362,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   PDF Certificate
                 </label>
                 <input
-                    disabled
+                  disabled
                   type="file"
                   accept="application/pdf"
                   onChange={handleFileChange}
@@ -360,11 +372,13 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
           </div>
 
-                   {/* Submit Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             className="btn btn-primary w-full"
-            disabled={formData.status === "expired" || formData.status === "in progress"}
+            disabled={
+              formData.status === "expired" || formData.status === "in progress"
+            }
           >
             Guardar Certificado
           </button>

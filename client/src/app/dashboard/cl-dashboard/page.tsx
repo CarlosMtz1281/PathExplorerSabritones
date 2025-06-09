@@ -119,6 +119,14 @@ const DashboardCL = () => {
     fetchData();
   }, [session]);
 
+    useEffect(() => {
+      if(!isModalOpen) {
+        document.body.style.overflow = "";
+        return;
+      }
+      document.body.style.overflow = "hidden";
+    }, [isModalOpen]);
+
   // Filtrar people leads para excluir al que también es capability lead
   const filteredPeopleLeads = dashboardData?.peopleLeads.filter(pl => !pl.isCapabilityLead) || [];
 

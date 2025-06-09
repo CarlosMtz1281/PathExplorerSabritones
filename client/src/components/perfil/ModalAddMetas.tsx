@@ -26,7 +26,7 @@ const ModalAddMetas = ({
   const [metas, setMetas] = useState<Meta[]>([]);
   const [loading, setLoading] = useState(true);
   const [priority, setPriority] = useState<"Alta" | "Media" | "Baja">("Media");
-    const { data: session } = useSession();
+  const { data: session } = useSession();
   const priorityIcon = {
     Alta: (
       <svg width="25" height="25" fill="none" viewBox="0 0 24 24">
@@ -71,6 +71,16 @@ const ModalAddMetas = ({
       .then((res) => setMetas(res.data))
       .catch(() => setMetas([]))
       .finally(() => setLoading(false));
+
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
