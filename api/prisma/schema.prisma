@@ -18,6 +18,7 @@ model Capability {
   Country                Country?                 @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_capability_region")
   Capability_Employee    Capability_Employee[]
   Capability_People_Lead Capability_People_Lead[]
+  Project_Positions      Project_Positions[]
 }
 
 model Capability_Employee {
@@ -50,13 +51,16 @@ model Certificate_Skills {
 }
 
 model Certificates {
-  certificate_id             Int                  @id @default(autoincrement())
-  certificate_name           String?              @db.VarChar(255)
-  certificate_desc           String?
-  certificate_estimated_time Int?
-  certificate_level          Int?
-  provider                   String?              @db.VarChar(255)
-  Certificate_Skills         Certificate_Skills[]
+  certificate_id                Int                             @id @default(autoincrement())
+  certificate_name              String?                         @db.VarChar(255)
+  certificate_desc              String?
+  certificate_estimated_time    Int?
+  certificate_level             Int?
+  provider                      String?                         @db.VarChar(255)
+  Area_Certificates             Area_Certificates[]
+  Certificate_Skills            Certificate_Skills[]
+  Certificate_Users             Certificate_Users[]
+  Project_Position_Certificates Project_Position_Certificates[]
 }
 
 model Employee_Position {
@@ -85,6 +89,7 @@ model Goals {
   goal_name   String?       @db.VarChar(255)
   goal_desc   String?
   Goal_Skills Goal_Skills[]
+  Goal_Users  Goal_Users[]
 }
 
 model Permits {
@@ -98,12 +103,13 @@ model Permits {
 }
 
 model Skills {
-  skill_id           Int                  @id @default(autoincrement())
-  name               String?              @db.VarChar(255)
-  technical          Boolean?
-  Certificate_Skills Certificate_Skills[]
-  Goal_Skills        Goal_Skills[]
-  User_Skills        User_Skills[]
+  skill_id                Int                       @id @default(autoincrement())
+  name                    String?                   @db.VarChar(255)
+  technical               Boolean?
+  Certificate_Skills      Certificate_Skills[]
+  Goal_Skills             Goal_Skills[]
+  Project_Position_Skills Project_Position_Skills[]
+  User_Skills             User_Skills[]
 }
 
 model User_Skills {
@@ -129,7 +135,14 @@ model Users {
   Capability_Employee_Capability_Employee_employee_idToUsers    Capability_Employee[]    @relation("Capability_Employee_employee_idToUsers")
   Capability_Employee_Capability_Employee_people_lead_idToUsers Capability_Employee[]    @relation("Capability_Employee_people_lead_idToUsers")
   Capability_People_Lead                                        Capability_People_Lead[]
+  Certificate_Users                                             Certificate_Users[]
   Employee_Position                                             Employee_Position[]
+  Goal_Users                                                    Goal_Users[]
+  Postulations                                                  Postulations[]
+  Project_Positions                                             Project_Positions[]
+  Projects                                                      Projects[]
+  Session                                                       Session[]
+  User_Area_Score                                               User_Area_Score[]
   User_Skills                                                   User_Skills[]
   Country                                                       Country?                 @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_region")
   Permits                                                       Permits?                 @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
@@ -149,5 +162,155 @@ model Country {
   region_name  String?      @db.VarChar(255)
   timezone     String?      @db.VarChar(255)
   Capability   Capability[]
+  Projects     Projects[]
   Users        Users[]
+}
+
+model Area_Certificates {
+  area_id        Int
+  certificate_id Int
+  Areas          Areas        @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction)
+  Certificates   Certificates @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([area_id, certificate_id])
+}
+
+model Areas {
+  area_id                Int                      @id @default(autoincrement())
+  area_name              String?                  @db.VarChar(255)
+  area_desc              String?
+  Area_Certificates      Area_Certificates[]
+  Project_Position_Areas Project_Position_Areas[]
+  User_Area_Score        User_Area_Score[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Certificate_Users {
+  certificate_id              Int
+  user_id                     Int
+  certificate_start_date      DateTime?    @db.Timestamp(6)
+  certificate_date            DateTime?    @db.Timestamp(6)
+  certificate_expiration_date DateTime?    @db.Timestamp(6)
+  certificate_link            String?      @db.VarChar(255)
+  certificate_uri             String?      @db.VarChar
+  status                      String?      @db.VarChar(255)
+  Certificates                Certificates @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction)
+  Users                       Users        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([certificate_id, user_id])
+}
+
+model Feedback {
+  feedback_id       Int                @id @default(autoincrement())
+  position_id       Int?
+  desc              String?
+  score             Int?
+  Project_Positions Project_Positions? @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Goal_Users {
+  goal_id       Int
+  user_id       Int
+  create_date   DateTime? @db.Timestamp(6)
+  finished_date DateTime? @db.Timestamp(6)
+  priority      String?   @db.VarChar(255)
+  completed     Boolean?
+  Goals         Goals     @relation(fields: [goal_id], references: [goal_id], onDelete: NoAction, onUpdate: NoAction)
+  Users         Users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([goal_id, user_id])
+}
+
+model Meeting {
+  meeting_id     Int           @id @default(autoincrement())
+  meeting_date   DateTime?     @db.Timestamp(6)
+  meeting_link   String?       @db.VarChar(255)
+  postulation_id Int?
+  Postulations   Postulations? @relation(fields: [postulation_id], references: [postulation_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Postulations {
+  postulation_id      Int                @id @default(autoincrement())
+  project_position_id Int?
+  user_id             Int?
+  postulation_date    DateTime?          @db.Timestamp(6)
+  valid               Boolean?           @default(true)
+  Meeting             Meeting[]
+  Project_Positions   Project_Positions? @relation(fields: [project_position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction)
+  Users               Users?             @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Project_Position_Areas {
+  position_id       Int
+  area_id           Int
+  Areas             Areas             @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction)
+  Project_Positions Project_Positions @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([position_id, area_id])
+}
+
+model Project_Position_Certificates {
+  position_id       Int
+  certificate_id    Int
+  Certificates      Certificates      @relation(fields: [certificate_id], references: [certificate_id], onDelete: NoAction, onUpdate: NoAction)
+  Project_Positions Project_Positions @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([position_id, certificate_id])
+}
+
+model Project_Position_Skills {
+  position_id       Int
+  skill_id          Int
+  Project_Positions Project_Positions @relation(fields: [position_id], references: [position_id], onDelete: NoAction, onUpdate: NoAction)
+  Skills            Skills            @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([position_id, skill_id])
+}
+
+model Project_Positions {
+  position_id                   Int                             @id @default(autoincrement())
+  project_id                    Int?
+  position_name                 String?                         @db.VarChar(255)
+  position_desc                 String?
+  capability_id                 Int?
+  user_id                       Int?
+  Feedback                      Feedback[]
+  Postulations                  Postulations[]
+  Project_Position_Areas        Project_Position_Areas[]
+  Project_Position_Certificates Project_Position_Certificates[]
+  Project_Position_Skills       Project_Position_Skills[]
+  Capability                    Capability?                     @relation(fields: [capability_id], references: [capability_id], onDelete: NoAction, onUpdate: NoAction)
+  Projects                      Projects?                       @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction)
+  Users                         Users?                          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Projects {
+  project_id            Int                 @id @default(autoincrement())
+  delivery_lead_user_id Int?
+  project_name          String?             @db.VarChar(255)
+  company_name          String?             @db.VarChar(255)
+  project_desc          String?
+  start_date            DateTime?           @db.Timestamp(6)
+  end_date              DateTime?           @db.Timestamp(6)
+  country_id            Int?
+  Project_Positions     Project_Positions[]
+  Country               Country?            @relation(fields: [country_id], references: [country_id], onDelete: NoAction, onUpdate: NoAction)
+  Users                 Users?              @relation(fields: [delivery_lead_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Session {
+  session_id String   @id @default(dbgenerated("encode(gen_random_bytes(32), 'base64'::text)")) @db.VarChar(255)
+  user_id    Int
+  expires_at DateTime @default(dbgenerated("(now() + '7 days'::interval)")) @db.Timestamp(6)
+  Users      Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model User_Area_Score {
+  user_id Int
+  area_id Int
+  score   Decimal? @db.Decimal
+  Areas   Areas    @relation(fields: [area_id], references: [area_id], onDelete: NoAction, onUpdate: NoAction)
+  Users   Users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, area_id])
 }
