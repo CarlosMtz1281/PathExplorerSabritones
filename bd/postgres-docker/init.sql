@@ -128,7 +128,8 @@ CREATE TABLE "Certificate_Users" (
   "certificate_date" timestamp,
   "certificate_expiration_date" timestamp,
   "certificate_link" varchar (255),
-  "status" varchar (255) CHECK ("status" IN ('completed', 'expired', 'in progress'))  "certificate_uri" varchar,
+  "certificate_uri" varchar,
+  "status" varchar (255) CHECK ("status" IN ('completed', 'expired', 'in progress')),
   PRIMARY KEY ("certificate_id", "user_id")
 );
 
