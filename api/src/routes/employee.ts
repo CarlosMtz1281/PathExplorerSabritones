@@ -1057,8 +1057,6 @@ router.delete("/deleteExperience/:positionId", async (req, res) => {
 });
 
 router.get("/goals", async (req, res) => {
-  console.log("Fetching user goals...");
-  console.log(req.headers);
   try {
     const sessionKey = req.headers["session-key"];
     if (!sessionKey) {
@@ -1140,7 +1138,9 @@ router.post("/goals", async (req, res) => {
     });
 
     if (userGoalsCount >= 3) {
-      return res.status(400).json({ error: "You already have 3 goals. Remove one to add another." });
+      return res.status(400).json({
+        error: "You already have 3 goals. Remove one to add another.",
+      });
     }
 
     // Check if this goal is already assigned to the user
@@ -1149,7 +1149,9 @@ router.post("/goals", async (req, res) => {
     });
 
     if (alreadyAssigned) {
-      return res.status(400).json({ error: "This goal is already assigned to the user." });
+      return res
+        .status(400)
+        .json({ error: "This goal is already assigned to the user." });
     }
 
     // Create the relation between the user and the goal
@@ -1161,7 +1163,9 @@ router.post("/goals", async (req, res) => {
       },
     });
 
-    res.status(201).json({ message: "Goal assigned to user successfully", goal_id });
+    res
+      .status(201)
+      .json({ message: "Goal assigned to user successfully", goal_id });
   } catch (error) {
     console.error("Error assigning goal:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -1185,7 +1189,7 @@ router.get("/all-goals", async (req, res) => {
       goal_id: goal.goal_id,
       goal_name: goal.goal_name,
       goal_desc: goal.goal_desc,
-      
+
       skills: goal.Goal_Skills.map((gs) => ({
         skill_id: gs.skill_id,
         skill_name: gs.Skills?.name,
@@ -1218,7 +1222,9 @@ router.patch("/goals", async (req, res) => {
     }
     console.log("GOALLL", priority, completed);
     if (typeof completed === "undefined" && !priority) {
-      return res.status(400).json({ error: "At least one of completed or priority must be provided." });
+      return res.status(400).json({
+        error: "At least one of completed or priority must be provided.",
+      });
     }
 
     // Find the goal-user relation
@@ -1298,6 +1304,60 @@ router.get("/completed-goals", async (req, res) => {
     res.status(200).json(formattedGoals);
   } catch (error) {
     console.error("Error fetching completed goals:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/notificationsCertificates", async (req, res) => {
+  try {
+    const sessionKey = req.headers["session-key"];
+    if (!sessionKey) {
+      return res.status(401).json({ error: "Missing session-key header" });
+    }
+    const userId = await getUserIdFromSession(sessionKey);
+    if (!userId || typeof userId !== "number") {
+      return res.status(400).json({ error: "Invalid or expired session" });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    today.setHours(today.getHours() - 6);
+
+    const certificates = await prisma.certificate_Users.findMany({
+      where: {
+        AND: [
+          { user_id: userId },
+          { certificate_expiration_date: { gte: today } },
+        ],
+      },
+      include: {
+        Certificates: true,
+      },
+    });
+
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    const filteredCertificates = certificates.filter(
+      (cert) =>
+        cert.certificate_expiration_date &&
+        cert.certificate_expiration_date.getTime() - today.getTime() <=
+          30 * oneDay
+    );
+
+    const formattedCertificates = filteredCertificates.map((cert) => ({
+      certificate_id: cert.certificate_id,
+      certificate_name: cert.Certificates.certificate_name,
+      days_left: Math.ceil(
+        (cert.certificate_expiration_date.getTime() - today.getTime()) / oneDay
+      ),
+      expiration_date: cert.certificate_expiration_date
+        .toISOString()
+        .split("T")[0],
+    }));
+
+    res.status(200).json(formattedCertificates);
+  } catch (error) {
+    console.error("Error: ", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -85,6 +85,13 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
     fetchActiveTabData();
   }, [activeTab]);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   function calculateLevel(points: number): number {
     if (points < 240) return 1;
     if (points < 740) return 2;
@@ -114,7 +121,7 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-    <div className="bg-base-100 rounded-lg shadow-lg w-5/6 md:w-4/5 lg:w-3/4 p-8 relative h-5/6">
+      <div className="bg-base-100 rounded-lg shadow-lg w-5/6 md:w-4/5 lg:w-3/4 p-8 relative h-5/6">
         {/* Close Button */}
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
@@ -157,7 +164,7 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
         </div>
 
         {/* Content Section */}
-        <div className="w-full bg-base-300 rounded-lg p-4 ">
+        <div className="w-full bg-base-300 rounded-lg p-4 h-[65vh] overflow-y-auto">
           {loading ? (
             <div className="col-span-3 flex justify-center items-center">
               <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full text-primary"></div>
@@ -195,7 +202,10 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
 
                   {/* Middle Column (40%) */}
                   <div className="flex flex-col basis-4/10">
-                    <h4 className="text-lg font-bold mb-2">Nivel {calculateLevel(Number(activeTabData.area.user_points))}</h4>
+                    <h4 className="text-lg font-bold mb-2">
+                      Nivel{" "}
+                      {calculateLevel(Number(activeTabData.area.user_points))}
+                    </h4>
                     <div className="flex items-center gap-2 w-full">
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
                         <div
@@ -249,33 +259,29 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
                       {activeTabData.introduction}
                     </p>
 
-            
                     <p className="text-sm text-gray-500 mb-4">
                       {activeTabData.area.previous_certificates}
                     </p>
-               
+
                     <p className="text-sm text-gray-500 mb-4">
                       {activeTabData.area.previous_positions}
                     </p>
                   </div>
-
-                  <div>
+                  <div className="ml-4">
                     <h4 className="text-lg font-bold mb-2">
                       Habilidades relacionadas
                     </h4>
-                    <div className="carousel w-full space-x-4">
+                    <div className="flex flex-wrap gap-2">
                       {activeTabData.area.recommendations.certification[0]
                         ?.skills?.length > 0 ? (
                         activeTabData.area.recommendations.certification[0].skills.map(
                           (skill, index) => (
-                            <div
+                            <span
                               key={index}
-                              className="carousel-item flex-none w-auto"
+                              className="badge badge-outline badge-primary text-sm"
                             >
-                              <span className="badge badge-outline badge-primary text-sm">
-                                {skill}
-                              </span>
-                            </div>
+                              {skill}
+                            </span>
                           )
                         )
                       ) : (

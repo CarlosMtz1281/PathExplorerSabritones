@@ -27,7 +27,7 @@ const WidgetFeedbackColegas = ({ userId }: { userId: number }) => {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_BASE}/employee/experience?userId=${userId}`
         );
-  
+
         const feedbacksFromProjects = res.data.projects
           .filter((p: any) => p.feedbackDesc && p.feedbackDesc.trim() !== "")
           .map((p: any, i: number) => ({
@@ -40,16 +40,15 @@ const WidgetFeedbackColegas = ({ userId }: { userId: number }) => {
               project_name: p.projectName || "Proyecto Desconocido",
             },
           }));
-  
+
         setFeedbacks(feedbacksFromProjects);
       } catch (err) {
         console.error("Error loading feedback:", err);
       }
     };
-  
+
     fetchFeedback();
   }, [userId]);
-  
 
   const renderStars = (score: number) => {
     return (
@@ -62,6 +61,14 @@ const WidgetFeedbackColegas = ({ userId }: { userId: number }) => {
   };
 
   const feedbackPreview = feedbacks.slice(0, 1);
+
+  useEffect(() => {
+    if (!modalOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+    document.body.style.overflow = "hidden";
+  }, [modalOpen]);
 
   return (
     <div className="card bg-base-100 border border-base-300 shadow-md">
@@ -93,13 +100,19 @@ const WidgetFeedbackColegas = ({ userId }: { userId: number }) => {
           <div className="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Todos los Feedbacks</h2>
-              <button className="btn btn-ghost btn-sm" onClick={() => setModalOpen(false)}>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setModalOpen(false)}
+              >
                 <IoMdClose className="text-lg" />
               </button>
             </div>
 
             {feedbacks.map((fb) => (
-              <div key={fb.feedback_id} className="mb-6 border-b border-base-300 pb-4">
+              <div
+                key={fb.feedback_id}
+                className="mb-6 border-b border-base-300 pb-4"
+              >
                 <h3 className="font-semibold text-primary">
                   {fb.Projects?.project_name || "Proyecto Desconocido"}
                 </h3>

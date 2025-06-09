@@ -6,9 +6,9 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- TABLA DE PAISES CON REGION Y TIMEZONE --
 CREATE TABLE "Country" (
   "country_id" SERIAL PRIMARY KEY,
-  "country_name" varchar,
-  "region_name" varchar,
-  "timezone" varchar
+  "country_name" varchar (255),
+  "region_name" varchar (255),
+  "timezone" varchar (255)
 );
 
 -- PERMISOS --
@@ -26,22 +26,22 @@ CREATE TABLE "Permits" (
 -- ==================================
 CREATE TABLE "Skills" (
   "skill_id" SERIAL PRIMARY KEY,
-  "name" varchar,
+  "name" varchar (255),
   "technical" boolean
 );
 
 CREATE TABLE "Certificates" (
   "certificate_id" SERIAL PRIMARY KEY,
-  "certificate_name" varchar,
+  "certificate_name" varchar (255),
   "certificate_desc" text,
   "certificate_estimated_time" integer,
   "certificate_level" integer,
-  "provider" varchar
+  "provider" varchar (255)
 );
 
 CREATE TABLE "Goals" (
   "goal_id" SERIAL PRIMARY KEY,
-  "goal_name" varchar,
+  "goal_name" varchar (255),
   "goal_desc" text
 );
 
@@ -62,11 +62,12 @@ CREATE TABLE "Certificate_Skills" (
 -- ==================================
 CREATE TABLE "Users" (
   "user_id" SERIAL PRIMARY KEY,
-  "mail" varchar,
-  "password" varchar,
-  "name" varchar,
+  "mail" varchar (255),
+  "password" varchar (255),
+  "name" varchar (255),
   "birthday" timestamp,
   "hire_date" timestamp,
+  "gender" boolean,
   "role_id" integer REFERENCES "Permits"("role_id"),
   "country_id" integer REFERENCES "Country"("country_id")
 );
@@ -74,9 +75,9 @@ CREATE TABLE "Users" (
 -- Puestos de empleos NO DE PROYECTOS
 CREATE TABLE "Work_Position" (
   "position_id" SERIAL PRIMARY KEY,
-  "position_name" varchar,
+  "position_name" varchar (255),
   "position_desc" text,
-  "company" varchar
+  "company" varchar (255)
 );
 
 -- Relacion entre los puestos y los empleados
@@ -92,7 +93,7 @@ CREATE TABLE "Employee_Position" (
 -- Capabilitys
 CREATE TABLE "Capability" (
   "capability_id" SERIAL PRIMARY KEY,
-  "capability_name" varchar,
+  "capability_name" varchar (255),
   "capability_lead_id" integer REFERENCES "Users"("user_id"),
   "country_id" integer REFERENCES "Country"("country_id")
 );
@@ -126,9 +127,8 @@ CREATE TABLE "Certificate_Users" (
   "certificate_start_date" timestamp,
   "certificate_date" timestamp,
   "certificate_expiration_date" timestamp,
-  "certificate_link" varchar,
-  "certificate_uri" varchar,
-  "status" varchar CHECK ("status" IN ('completed', 'expired', 'in progress')),
+  "certificate_link" varchar (255),
+  "status" varchar (255) CHECK ("status" IN ('completed', 'expired', 'in progress'))  "certificate_uri" varchar,
   PRIMARY KEY ("certificate_id", "user_id")
 );
 
@@ -138,7 +138,7 @@ CREATE TABLE "Goal_Users" (
   "user_id" integer REFERENCES "Users"("user_id"),
   "create_date" timestamp,
   "finished_date" timestamp,
-  "priority" varchar,
+  "priority" varchar (255),
   "completed" boolean,
   PRIMARY KEY ("goal_id", "user_id")
 );
@@ -149,8 +149,8 @@ CREATE TABLE "Goal_Users" (
 CREATE TABLE "Projects" (
   "project_id" SERIAL PRIMARY KEY,
   "delivery_lead_user_id" integer REFERENCES "Users"("user_id"),
-  "project_name" varchar,
-  "company_name" varchar,
+  "project_name" varchar (255),
+  "company_name" varchar (255),
   "project_desc" text,
   "start_date" timestamp,
   "end_date" timestamp,
@@ -161,7 +161,7 @@ CREATE TABLE "Projects" (
 CREATE TABLE "Project_Positions" (
   "position_id" SERIAL PRIMARY KEY,
   "project_id" integer REFERENCES "Projects"("project_id"),
-  "position_name" varchar,
+  "position_name" varchar (255),
   "position_desc" text,
   "capability_id" integer REFERENCES "Capability"("capability_id"),
   "user_id" integer REFERENCES "Users"("user_id")
@@ -194,7 +194,7 @@ CREATE TABLE "Postulations" (
 CREATE TABLE "Meeting" (
   "meeting_id" SERIAL PRIMARY KEY,
   "meeting_date" timestamp,
-  "meeting_link" varchar,
+  "meeting_link" varchar (255),
   "postulation_id" integer REFERENCES "Postulations"("postulation_id")
 );
 
@@ -211,7 +211,7 @@ CREATE TABLE "Feedback" (
 -- ==================================
 CREATE TABLE "Areas" (
   "area_id" SERIAL PRIMARY KEY,
-  "area_name" varchar,
+  "area_name" varchar (255),
   "area_desc" text
 );
 
@@ -241,7 +241,7 @@ CREATE TABLE "User_Area_Score" (
 -- Sesion de usuario
 -- ==================================
 CREATE TABLE "Session" (
-  "session_id" varchar PRIMARY KEY DEFAULT encode(gen_random_bytes(32), 'base64'),
+  "session_id" varchar (255) PRIMARY KEY DEFAULT encode(gen_random_bytes(32), 'base64'),
   "user_id" integer NOT NULL REFERENCES "Users"("user_id") ON DELETE CASCADE,
   "expires_at" timestamp NOT NULL DEFAULT NOW() + INTERVAL '1 week'
 );
@@ -575,108 +575,108 @@ INSERT INTO "Certificate_Skills" ("certificate_id", "skill_id") VALUES
 -- 68-76
 -- 77-85
 -- 86-94
-INSERT INTO "Users" ("mail", "password", "name", "birthday", "hire_date", "role_id", "country_id") VALUES
+INSERT INTO "Users" ("mail", "password", "name", "birthday", "hire_date", "role_id", "country_id", "gender") VALUES
 -- Admins (role 5)
-('admin1@accenture.com', crypt('admin123', gen_salt('bf')), 'Admin One', '1980-01-15', '2010-06-01', 5, 2), -- 1
-('admin2@accenture.com', crypt('admin223', gen_salt('bf')), 'Admin Two', '1982-05-22', '2012-03-15', 5, 4), -- 2
-('admin3@accenture.com', crypt('admin323', gen_salt('bf')), 'Admin Three', '1985-11-30', '2015-09-10', 5, 5), -- 3
+('admin1@accenture.com', crypt('admin123', gen_salt('bf')), 'Admin One', '1980-01-15', '2010-06-01', 5, 2, true), -- 1
+('admin2@accenture.com', crypt('admin223', gen_salt('bf')), 'Admin Two', '1982-05-22', '2012-03-15', 5, 4, false), -- 2
+('admin3@accenture.com', crypt('admin323', gen_salt('bf')), 'Admin Three', '1985-11-30', '2015-09-10', 5, 5, true), -- 3
 -- Delivery Leads (role 4)
-('james.wilson@accenture.com', crypt('wilson123', gen_salt('bf')), 'James Wilson', '1975-03-10', '2015-02-20', 4, 2), -- 4
-('sarah.johnson@accenture.com', crypt('johnson123', gen_salt('bf')), 'Sarah Johnson', '1978-07-25', '2016-05-12', 4, 2), -- 5
-('robert.garcia@accenture.com', crypt('garcia123', gen_salt('bf')), 'Robert Garcia', '1980-11-05', '2017-08-30', 4, 1), -- 6
-('emily.smith@accenture.com', crypt('smith123', gen_salt('bf')), 'Emily Smith', '1982-02-18', '2018-01-15', 4, 4), -- 7
-('david.miller@accenture.com', crypt('miller123', gen_salt('bf')), 'David Miller', '1983-09-22', '2019-04-05', 4, 5), -- 8
+('james.wilson@accenture.com', crypt('wilson123', gen_salt('bf')), 'James Wilson', '1975-03-10', '2015-02-20', 4, 2, true), -- 4
+('sarah.johnson@accenture.com', crypt('johnson123', gen_salt('bf')), 'Sarah Johnson', '1978-07-25', '2016-05-12', 4, 2, false), -- 5
+('robert.garcia@accenture.com', crypt('garcia123', gen_salt('bf')), 'Robert Garcia', '1980-11-05', '2017-08-30', 4, 1, true), -- 6
+('emily.smith@accenture.com', crypt('smith123', gen_salt('bf')), 'Emily Smith', '1982-02-18', '2018-01-15', 4, 4, false), -- 7
+('david.miller@accenture.com', crypt('miller123', gen_salt('bf')), 'David Miller', '1983-09-22', '2019-04-05', 4, 5, true), -- 8
 -- Capability Leads (role 3)
-('michael.brown@accenture.com', crypt('brown123', gen_salt('bf')), 'Michael Brown', '1985-04-12', '2016-07-10', 3, 2), -- 9
-('jennifer.davis@accenture.com', crypt('davis123', gen_salt('bf')), 'Jennifer Davis', '1986-08-30', '2017-03-22', 3, 2), -- 10
-('william.rodriguez@accenture.com', crypt('rodriguez123', gen_salt('bf')), 'William Rodriguez', '1987-01-25', '2018-09-15', 3, 1), -- 11
-('linda.martinez@accenture.com', crypt('martinez123', gen_salt('bf')), 'Linda Martinez', '1988-06-18', '2019-02-10', 3, 4), -- 12
-('john.anderson@accenture.com', crypt('anderson123', gen_salt('bf')), 'John Anderson', '1989-11-05', '2020-05-20', 3, 5), -- 13
-('patricia.thomas@accenture.com', crypt('thomas123', gen_salt('bf')), 'Patricia Thomas', '1990-03-30', '2021-01-08', 3, 6), -- 14
+('michael.brown@accenture.com', crypt('brown123', gen_salt('bf')), 'Michael Brown', '1985-04-12', '2016-07-10', 3, 2, true), -- 9
+('jennifer.davis@accenture.com', crypt('davis123', gen_salt('bf')), 'Jennifer Davis', '1986-08-30', '2017-03-22', 3, 2, false), -- 10
+('william.rodriguez@accenture.com', crypt('rodriguez123', gen_salt('bf')), 'William Rodriguez', '1987-01-25', '2018-09-15', 3, 1, true), -- 11
+('linda.martinez@accenture.com', crypt('martinez123', gen_salt('bf')), 'Linda Martinez', '1988-06-18', '2019-02-10', 3, 4, false), -- 12
+('john.anderson@accenture.com', crypt('anderson123', gen_salt('bf')), 'John Anderson', '1989-11-05', '2020-05-20', 3, 5, true), -- 13
+('patricia.thomas@accenture.com', crypt('thomas123', gen_salt('bf')), 'Patricia Thomas', '1990-03-30', '2021-01-08', 3, 6, false), -- 14
 -- People Leads (role 2)
-('christopher.taylor@accenture.com', crypt('taylor123', gen_salt('bf')), 'Christopher Taylor', '1988-05-15', '2017-06-12', 2, 2), -- 15
-('jessica.hernandez@accenture.com', crypt('hernandez123', gen_salt('bf')), 'Jessica Hernandez', '1989-09-20', '2018-03-25', 2, 1), -- 16
-('matthew.moore@accenture.com', crypt('moore123', gen_salt('bf')), 'Matthew Moore', '1990-02-10', '2019-01-18', 2, 2), -- 17
-('ashley.martin@accenture.com', crypt('martin123', gen_salt('bf')), 'Ashley Martin', '1991-07-05', '2020-04-30', 2, 4), -- 18
-('daniel.jackson@accenture.com', crypt('jackson123', gen_salt('bf')), 'Daniel Jackson', '1992-11-22', '2021-02-15', 2, 5), -- 19
-('samantha.thompson@accenture.com', crypt('thompson123', gen_salt('bf')), 'Samantha Thompson', '1993-04-18', '2022-03-10', 2, 6), -- 20
-('joseph.white@accenture.com', crypt('white123', gen_salt('bf')), 'Joseph White', '1991-08-30', '2019-07-22', 2, 2), -- 21
-('amanda.lopez@accenture.com', crypt('lopez123', gen_salt('bf')), 'Amanda Lopez', '1992-01-25', '2020-05-15', 2, 1), -- 22
-('ryan.lee@accenture.com', crypt('lee123', gen_salt('bf')), 'Ryan Lee', '1993-06-12', '2021-01-08', 2, 2), -- 23
-('emma.gonzalez@accenture.com', crypt('gonzalez123', gen_salt('bf')), 'Emma Gonzalez', '1994-10-05', '2022-02-20', 2, 4), -- 24
-('joshua.harris@accenture.com', crypt('harris123', gen_salt('bf')), 'Joshua Harris', '1995-03-30', '2023-04-12', 2, 5), -- 25
-('olivia.clark@accenture.com', crypt('clark123', gen_salt('bf')), 'Olivia Clark', '1993-07-22', '2020-08-15', 2, 6), -- 26
-('andrew.lewis@accenture.com', crypt('lewis123', gen_salt('bf')), 'Andrew Lewis', '1994-12-18', '2021-06-10', 2, 2), -- 27
-('isabella.robinson@accenture.com', crypt('robinson123', gen_salt('bf')), 'Isabella Robinson', '1995-05-10', '2022-03-05', 2, 1), -- 28
-('ethan.walker@accenture.com', crypt('walker123', gen_salt('bf')), 'Ethan Walker', '1996-09-25', '2023-01-20', 2, 2), -- 29
-('mia.allen@accenture.com', crypt('allen123', gen_salt('bf')), 'Mia Allen', '1994-02-15', '2021-04-12', 2, 4), -- 30
-('alexander.young@accenture.com', crypt('young123', gen_salt('bf')), 'Alexander Young', '1995-08-08', '2022-02-28', 2, 5), -- 31
-('sophia.hall@accenture.com', crypt('hall123', gen_salt('bf')), 'Sophia Hall', '1996-01-30', '2023-05-15', 2, 6), -- 32
-('jacob.king@accenture.com', crypt('king123', gen_salt('bf')), 'Jacob King', '1994-04-22', '2021-07-10', 2, 2), -- 33
-('charlotte.scott@accenture.com', crypt('scott123', gen_salt('bf')), 'Charlotte Scott', '1995-10-15', '2022-03-25', 2, 1), -- 34
+('christopher.taylor@accenture.com', crypt('taylor123', gen_salt('bf')), 'Christopher Taylor', '1988-05-15', '2017-06-12', 2, 2, true), -- 15
+('jessica.hernandez@accenture.com', crypt('hernandez123', gen_salt('bf')), 'Jessica Hernandez', '1989-09-20', '2018-03-25', 2, 1, false), -- 16
+('matthew.moore@accenture.com', crypt('moore123', gen_salt('bf')), 'Matthew Moore', '1990-02-10', '2019-01-18', 2, 2, true), -- 17
+('ashley.martin@accenture.com', crypt('martin123', gen_salt('bf')), 'Ashley Martin', '1991-07-05', '2020-04-30', 2, 4, false), -- 18
+('daniel.jackson@accenture.com', crypt('jackson123', gen_salt('bf')), 'Daniel Jackson', '1992-11-22', '2021-02-15', 2, 5, true), -- 19
+('samantha.thompson@accenture.com', crypt('thompson123', gen_salt('bf')), 'Samantha Thompson', '1993-04-18', '2022-03-10', 2, 6, false), -- 20
+('joseph.white@accenture.com', crypt('white123', gen_salt('bf')), 'Joseph White', '1991-08-30', '2019-07-22', 2, 2, true), -- 21
+('amanda.lopez@accenture.com', crypt('lopez123', gen_salt('bf')), 'Amanda Lopez', '1992-01-25', '2020-05-15', 2, 1, false), -- 22
+('ryan.lee@accenture.com', crypt('lee123', gen_salt('bf')), 'Ryan Lee', '1993-06-12', '2021-01-08', 2, 2, true), -- 23
+('emma.gonzalez@accenture.com', crypt('gonzalez123', gen_salt('bf')), 'Emma Gonzalez', '1994-10-05', '2022-02-20', 2, 4, false), -- 24
+('joshua.harris@accenture.com', crypt('harris123', gen_salt('bf')), 'Joshua Harris', '1995-03-30', '2023-04-12', 2, 5, true), -- 25
+('olivia.clark@accenture.com', crypt('clark123', gen_salt('bf')), 'Olivia Clark', '1993-07-22', '2020-08-15', 2, 6, false), -- 26
+('andrew.lewis@accenture.com', crypt('lewis123', gen_salt('bf')), 'Andrew Lewis', '1994-12-18', '2021-06-10', 2, 2, true), -- 27
+('isabella.robinson@accenture.com', crypt('robinson123', gen_salt('bf')), 'Isabella Robinson', '1995-05-10', '2022-03-05', 2, 1, false), -- 28
+('ethan.walker@accenture.com', crypt('walker123', gen_salt('bf')), 'Ethan Walker', '1996-09-25', '2023-01-20', 2, 2, true), -- 29
+('mia.allen@accenture.com', crypt('allen123', gen_salt('bf')), 'Mia Allen', '1994-02-15', '2021-04-12', 2, 4, false), -- 30
+('alexander.young@accenture.com', crypt('young123', gen_salt('bf')), 'Alexander Young', '1995-08-08', '2022-02-28', 2, 5, true), -- 31
+('sophia.hall@accenture.com', crypt('hall123', gen_salt('bf')), 'Sophia Hall', '1996-01-30', '2023-05-15', 2, 6, false), -- 32
+('jacob.king@accenture.com', crypt('king123', gen_salt('bf')), 'Jacob King', '1994-04-22', '2021-07-10', 2, 2, true), -- 33
+('charlotte.scott@accenture.com', crypt('scott123', gen_salt('bf')), 'Charlotte Scott', '1995-10-15', '2022-03-25', 2, 1, false), -- 34
 -- Regular Employees (role 1)
-('william.green@accenture.com', crypt('green123', gen_salt('bf')), 'William Green', '1995-06-20', '2020-09-15', 1, 2), -- 35
-('ava.adams@accenture.com', crypt('adams123', gen_salt('bf')), 'Ava Adams', '1996-01-12', '2021-02-10', 1, 1), -- 36
-('noah.baker@accenture.com', crypt('baker123', gen_salt('bf')), 'Noah Baker', '1997-05-30', '2022-04-05', 1, 2), -- 37
-('amelia.nelson@accenture.com', crypt('nelson123', gen_salt('bf')), 'Amelia Nelson', '1995-10-25', '2020-11-18', 1, 4), -- 38
-('liam.carter@accenture.com', crypt('carter123', gen_salt('bf')), 'Liam Carter', '1996-03-15', '2021-06-22', 1, 5), -- 39
-('oliver.mitchell@accenture.com', crypt('mitchell123', gen_salt('bf')), 'Oliver Mitchell', '1997-08-10', '2022-01-15', 1, 6), -- 40
-('elijah.perez@accenture.com', crypt('perez123', gen_salt('bf')), 'Elijah Perez', '1995-12-05', '2020-10-30', 1, 2), -- 41
-('harper.roberts@accenture.com', crypt('roberts123', gen_salt('bf')), 'Harper Roberts', '1996-07-22', '2021-03-12', 1, 1), -- 42
-('lucas.turner@accenture.com', crypt('turner123', gen_salt('bf')), 'Lucas Turner', '1997-02-18', '2022-05-20', 1, 2), -- 43
-('evelyn.phillips@accenture.com', crypt('phillips123', gen_salt('bf')), 'Evelyn Phillips', '1996-04-30', '2021-08-15', 1, 4), -- 44
-('benjamin.campbell@accenture.com', crypt('campbell123', gen_salt('bf')), 'Benjamin Campbell', '1997-09-25', '2022-02-10', 1, 5), -- 45
-('abigail.parker@accenture.com', crypt('parker123', gen_salt('bf')), 'Abigail Parker', '1995-11-15', '2020-12-05', 1, 6), -- 46
-('henry.evans@accenture.com', crypt('evans123', gen_salt('bf')), 'Henry Evans', '1996-06-08', '2021-04-22', 1, 2), -- 47
-('ella.edwards@accenture.com', crypt('edwards123', gen_salt('bf')), 'Ella Edwards', '1997-01-30', '2022-07-18', 1, 1), -- 48
-('alexander.collins@accenture.com', crypt('collins123', gen_salt('bf')), 'Alexander Collins', '1995-08-22', '2020-11-10', 1, 2), -- 49
-('scarlett.stewart@accenture.com', crypt('stewart123', gen_salt('bf')), 'Scarlett Stewart', '1996-03-15', '2021-05-25', 1, 4), -- 50
-('daniel.sanchez@accenture.com', crypt('sanchez123', gen_salt('bf')), 'Daniel Sanchez', '1997-10-05', '2022-01-12', 1, 5), -- 51
-('madison.morris@accenture.com', crypt('morris123', gen_salt('bf')), 'Madison Morris', '1995-05-28', '2020-09-20', 1, 6), -- 52
-('jackson.rogers@accenture.com', crypt('rogers123', gen_salt('bf')), 'Jackson Rogers', '1996-12-20', '2021-06-15', 1, 2), -- 53
-('avery.reed@accenture.com', crypt('reed123', gen_salt('bf')), 'Avery Reed', '1997-07-12', '2022-03-08', 1, 1), -- 54
-('sebastian.cook@accenture.com', crypt('cook123', gen_salt('bf')), 'Sebastian Cook', '1995-09-05', '2020-12-22', 1, 2), -- 55
-('chloe.morgan@accenture.com', crypt('morgan123', gen_salt('bf')), 'Chloe Morgan', '1996-04-30', '2021-08-10', 1, 4), -- 56
-('david.bell@accenture.com', crypt('bell123', gen_salt('bf')), 'David Bell', '1997-11-25', '2022-02-15', 1, 5), -- 57
-('zoey.murphy@accenture.com', crypt('murphy123', gen_salt('bf')), 'Zoey Murphy', '1995-02-18', '2020-10-05', 1, 6), -- 58
-('joseph.bailey@accenture.com', crypt('bailey123', gen_salt('bf')), 'Joseph Bailey', '1996-09-10', '2021-04-20', 1, 2), -- 59
-('victoria.rivera@accenture.com', crypt('rivera123', gen_salt('bf')), 'Victoria Rivera', '1997-04-05', '2022-01-12', 1, 1), -- 60
-('samuel.cooper@accenture.com', crypt('cooper123', gen_salt('bf')), 'Samuel Cooper', '1995-07-30', '2020-11-25', 1, 2), -- 61
-('penelope.richardson@accenture.com', crypt('richardson123', gen_salt('bf')), 'Penelope Richardson', '1996-12-22', '2021-06-18', 1, 4), -- 62
-('gabriel.cox@accenture.com', crypt('cox123', gen_salt('bf')), 'Gabriel Cox', '1997-05-15', '2022-02-10', 1, 5), -- 63
-('layla.howard@accenture.com', crypt('howard123', gen_salt('bf')), 'Layla Howard', '1995-10-08', '2020-12-30', 1, 6), -- 64
-('christopher.ward@accenture.com', crypt('ward123', gen_salt('bf')), 'Christopher Ward', '1996-03-25', '2021-07-15', 1, 2), -- 65
-('riley.torres@accenture.com', crypt('torres123', gen_salt('bf')), 'Riley Torres', '1997-08-20', '2022-03-05', 1, 1), -- 66
-('andrew.peterson@accenture.com', crypt('peterson123', gen_salt('bf')), 'Andrew Peterson', '1995-01-12', '2020-09-22', 1, 2), -- 67
-('hannah.gray@accenture.com', crypt('gray123', gen_salt('bf')), 'Hannah Gray', '1996-06-05', '2021-02-18', 1, 4), -- 68
-('dylan.ramirez@accenture.com', crypt('ramirez123', gen_salt('bf')), 'Dylan Ramirez', '1997-11-30', '2022-05-10', 1, 5), -- 69
-('natalie.james@accenture.com', crypt('james123', gen_salt('bf')), 'Natalie James', '1995-04-22', '2020-10-15', 1, 6), -- 70
-('nathan.watson@accenture.com', crypt('watson123', gen_salt('bf')), 'Nathan Watson', '1996-09-15', '2021-04-05', 1, 2), -- 71
-('zoey.brooks@accenture.com', crypt('brooks123', gen_salt('bf')), 'Zoey Brooks', '1997-02-08', '2022-01-20', 1, 1), -- 72
-('ryan.kelly@accenture.com', crypt('kelly123', gen_salt('bf')), 'Ryan Kelly', '1995-07-30', '2020-11-12', 1, 2), -- 73
-('leah.sanders@accenture.com', crypt('sanders123', gen_salt('bf')), 'Leah Sanders', '1996-12-25', '2021-06-15', 1, 4), -- 74
-('isaac.price@accenture.com', crypt('price123', gen_salt('bf')), 'Isaac Price', '1997-05-18', '2022-02-28', 1, 5), -- 75
-('audrey.bennett@accenture.com', crypt('bennett123', gen_salt('bf')), 'Audrey Bennett', '1995-10-10', '2020-12-22', 1, 6), -- 76
-('caleb.wood@accenture.com', crypt('wood123', gen_salt('bf')), 'Caleb Wood', '1996-03-05', '2021-07-18', 1, 2), -- 77
-('savannah.barnes@accenture.com', crypt('barnes123', gen_salt('bf')), 'Savannah Barnes', '1997-08-30', '2022-04-10', 1, 1), -- 78
-('luke.ross@accenture.com', crypt('ross123', gen_salt('bf')), 'Luke Ross', '1995-01-22', '2020-09-15', 1, 2), -- 79
-('aria.henderson@accenture.com', crypt('henderson123', gen_salt('bf')), 'Aria Henderson', '1996-06-15', '2021-02-28', 1, 4), -- 80
-('christian.coleman@accenture.com', crypt('coleman123', gen_salt('bf')), 'Christian Coleman', '1997-11-10', '2022-05-22', 1, 5), -- 81
-('lily.jenkins@accenture.com', crypt('jenkins123', gen_salt('bf')), 'Lily Jenkins', '1995-04-02', '2020-10-18', 1, 6), -- 82
-('jonathan.perry@accenture.com', crypt('perry123', gen_salt('bf')), 'Jonathan Perry', '1996-09-25', '2021-04-12', 1, 2), -- 83
-('aubrey.powell@accenture.com', crypt('powell123', gen_salt('bf')), 'Aubrey Powell', '1997-02-18', '2022-01-30', 1, 1), -- 84
-('elias.long@accenture.com', crypt('long123', gen_salt('bf')), 'Elias Long', '1995-07-12', '2020-11-05', 1, 2), -- 85
-('claire.patterson@accenture.com', crypt('patterson123', gen_salt('bf')), 'Claire Patterson', '1996-12-05', '2021-06-20', 1, 4), -- 86
-('landon.hughes@accenture.com', crypt('hughes123', gen_salt('bf')), 'Landon Hughes', '1997-05-30', '2022-03-15', 1, 5), -- 87
-('skylar.flores@accenture.com', crypt('flores123', gen_salt('bf')), 'Skylar Flores', '1995-10-22', '2020-12-10', 1, 6), -- 88
-('aaron.washington@accenture.com', crypt('washington123', gen_salt('bf')), 'Aaron Washington', '1996-03-15', '2021-07-25', 1, 2), -- 89
-('paisley.butler@accenture.com', crypt('butler123', gen_salt('bf')), 'Paisley Butler', '1997-08-10', '2022-04-05', 1, 1), -- 90
-('hudson.simmons@accenture.com', crypt('simmons123', gen_salt('bf')), 'Hudson Simmons', '1995-01-30', '2020-09-22', 1, 2), -- 91
-('autumn.foster@accenture.com', crypt('foster123', gen_salt('bf')), 'Autumn Foster', '1996-06-25', '2021-02-15', 1, 4), -- 92
-('ezra.gonzales@accenture.com', crypt('gonzales123', gen_salt('bf')), 'Ezra Gonzales', '1997-11-18', '2022-05-30', 1, 5), -- 93
-('piper.bryant@accenture.com', crypt('bryant123', gen_salt('bf')), 'Piper Bryant', '1995-04-10', '2020-10-25', 1, 6), -- 94
+('william.green@accenture.com', crypt('green123', gen_salt('bf')), 'William Green', '1995-06-20', '2020-09-15', 1, 2, true), -- 35
+('ava.adams@accenture.com', crypt('adams123', gen_salt('bf')), 'Ava Adams', '1996-01-12', '2021-02-10', 1, 1, false), -- 36
+('noah.baker@accenture.com', crypt('baker123', gen_salt('bf')), 'Noah Baker', '1997-05-30', '2022-04-05', 1, 2, true), -- 37
+('amelia.nelson@accenture.com', crypt('nelson123', gen_salt('bf')), 'Amelia Nelson', '1995-10-25', '2020-11-18', 1, 4, false), -- 38
+('liam.carter@accenture.com', crypt('carter123', gen_salt('bf')), 'Liam Carter', '1996-03-15', '2021-06-22', 1, 5, true), -- 39
+('oliver.mitchell@accenture.com', crypt('mitchell123', gen_salt('bf')), 'Oliver Mitchell', '1997-08-10', '2022-01-15', 1, 6, true), -- 40
+('elijah.perez@accenture.com', crypt('perez123', gen_salt('bf')), 'Elijah Perez', '1995-12-05', '2020-10-30', 1, 2, true), -- 41
+('harper.roberts@accenture.com', crypt('roberts123', gen_salt('bf')), 'Harper Roberts', '1996-07-22', '2021-03-12', 1, 1, false), -- 42
+('lucas.turner@accenture.com', crypt('turner123', gen_salt('bf')), 'Lucas Turner', '1997-02-18', '2022-05-20', 1, 2, true), -- 43
+('evelyn.phillips@accenture.com', crypt('phillips123', gen_salt('bf')), 'Evelyn Phillips', '1996-04-30', '2021-08-15', 1, 4, false), -- 44
+('benjamin.campbell@accenture.com', crypt('campbell123', gen_salt('bf')), 'Benjamin Campbell', '1997-09-25', '2022-02-10', 1, 5, true), -- 45
+('abigail.parker@accenture.com', crypt('parker123', gen_salt('bf')), 'Abigail Parker', '1995-11-15', '2020-12-05', 1, 6, false), -- 46
+('henry.evans@accenture.com', crypt('evans123', gen_salt('bf')), 'Henry Evans', '1996-06-08', '2021-04-22', 1, 2, true), -- 47
+('ella.edwards@accenture.com', crypt('edwards123', gen_salt('bf')), 'Ella Edwards', '1997-01-30', '2022-07-18', 1, 1, false), -- 48
+('alexander.collins@accenture.com', crypt('collins123', gen_salt('bf')), 'Alexander Collins', '1995-08-22', '2020-11-10', 1, 2, true), -- 49
+('scarlett.stewart@accenture.com', crypt('stewart123', gen_salt('bf')), 'Scarlett Stewart', '1996-03-15', '2021-05-25', 1, 4, false), -- 50
+('daniel.sanchez@accenture.com', crypt('sanchez123', gen_salt('bf')), 'Daniel Sanchez', '1997-10-05', '2022-01-12', 1, 5, true), -- 51
+('madison.morris@accenture.com', crypt('morris123', gen_salt('bf')), 'Madison Morris', '1995-05-28', '2020-09-20', 1, 6, false), -- 52
+('jackson.rogers@accenture.com', crypt('rogers123', gen_salt('bf')), 'Jackson Rogers', '1996-12-20', '2021-06-15', 1, 2, true), -- 53
+('avery.reed@accenture.com', crypt('reed123', gen_salt('bf')), 'Avery Reed', '1997-07-12', '2022-03-08', 1, 1, false), -- 54
+('sebastian.cook@accenture.com', crypt('cook123', gen_salt('bf')), 'Sebastian Cook', '1995-09-05', '2020-12-22', 1, 2, true), -- 55
+('chloe.morgan@accenture.com', crypt('morgan123', gen_salt('bf')), 'Chloe Morgan', '1996-04-30', '2021-08-10', 1, 4, false), -- 56
+('david.bell@accenture.com', crypt('bell123', gen_salt('bf')), 'David Bell', '1997-11-25', '2022-02-15', 1, 5, true), -- 57
+('zoey.murphy@accenture.com', crypt('murphy123', gen_salt('bf')), 'Zoey Murphy', '1995-02-18', '2020-10-05', 1, 6, false), -- 58
+('joseph.bailey@accenture.com', crypt('bailey123', gen_salt('bf')), 'Joseph Bailey', '1996-09-10', '2021-04-20', 1, 2, true), -- 59
+('victoria.rivera@accenture.com', crypt('rivera123', gen_salt('bf')), 'Victoria Rivera', '1997-04-05', '2022-01-12', 1, 1, false), -- 60
+('samuel.cooper@accenture.com', crypt('cooper123', gen_salt('bf')), 'Samuel Cooper', '1995-07-30', '2020-11-25', 1, 2, true), -- 61
+('penelope.richardson@accenture.com', crypt('richardson123', gen_salt('bf')), 'Penelope Richardson', '1996-12-22', '2021-06-18', 1, 4, false), -- 62
+('gabriel.cox@accenture.com', crypt('cox123', gen_salt('bf')), 'Gabriel Cox', '1997-05-15', '2022-02-10', 1, 5, true), -- 63
+('layla.howard@accenture.com', crypt('howard123', gen_salt('bf')), 'Layla Howard', '1995-10-08', '2020-12-30', 1, 6, false), -- 64
+('christopher.ward@accenture.com', crypt('ward123', gen_salt('bf')), 'Christopher Ward', '1996-03-25', '2021-07-15', 1, 2, true), -- 65
+('riley.torres@accenture.com', crypt('torres123', gen_salt('bf')), 'Riley Torres', '1997-08-20', '2022-03-05', 1, 1, false), -- 66
+('andrew.peterson@accenture.com', crypt('peterson123', gen_salt('bf')), 'Andrew Peterson', '1995-01-12', '2020-09-22', 1, 2, true), -- 67
+('hannah.gray@accenture.com', crypt('gray123', gen_salt('bf')), 'Hannah Gray', '1996-06-05', '2021-02-18', 1, 4, false), -- 68
+('dylan.ramirez@accenture.com', crypt('ramirez123', gen_salt('bf')), 'Dylan Ramirez', '1997-11-30', '2022-05-10', 1, 5, true), -- 69
+('natalie.james@accenture.com', crypt('james123', gen_salt('bf')), 'Natalie James', '1995-04-22', '2020-10-15', 1, 6, false), -- 70
+('nathan.watson@accenture.com', crypt('watson123', gen_salt('bf')), 'Nathan Watson', '1996-09-15', '2021-04-05', 1, 2, true), -- 71
+('zoey.brooks@accenture.com', crypt('brooks123', gen_salt('bf')), 'Zoey Brooks', '1997-02-08', '2022-01-20', 1, 1, false), -- 72
+('ryan.kelly@accenture.com', crypt('kelly123', gen_salt('bf')), 'Ryan Kelly', '1995-07-30', '2020-11-12', 1, 2, true), -- 73
+('leah.sanders@accenture.com', crypt('sanders123', gen_salt('bf')), 'Leah Sanders', '1996-12-25', '2021-06-15', 1, 4, false), -- 74
+('isaac.price@accenture.com', crypt('price123', gen_salt('bf')), 'Isaac Price', '1997-05-18', '2022-02-28', 1, 5, true), -- 75
+('audrey.bennett@accenture.com', crypt('bennett123', gen_salt('bf')), 'Audrey Bennett', '1995-10-10', '2020-12-22', 1, 6, false), -- 76
+('caleb.wood@accenture.com', crypt('wood123', gen_salt('bf')), 'Caleb Wood', '1996-03-05', '2021-07-18', 1, 2, true), -- 77
+('savannah.barnes@accenture.com', crypt('barnes123', gen_salt('bf')), 'Savannah Barnes', '1997-08-30', '2022-04-10', 1, 1, false), -- 78
+('luke.ross@accenture.com', crypt('ross123', gen_salt('bf')), 'Luke Ross', '1995-01-22', '2020-09-15', 1, 2, true), -- 79
+('aria.henderson@accenture.com', crypt('henderson123', gen_salt('bf')), 'Aria Henderson', '1996-06-15', '2021-02-28', 1, 4, false), -- 80
+('christian.coleman@accenture.com', crypt('coleman123', gen_salt('bf')), 'Christian Coleman', '1997-11-10', '2022-05-22', 1, 5, true), -- 81
+('lily.jenkins@accenture.com', crypt('jenkins123', gen_salt('bf')), 'Lily Jenkins', '1995-04-02', '2020-10-18', 1, 6, false), -- 82
+('jonathan.perry@accenture.com', crypt('perry123', gen_salt('bf')), 'Jonathan Perry', '1996-09-25', '2021-04-12', 1, 2, true), -- 83
+('aubrey.powell@accenture.com', crypt('powell123', gen_salt('bf')), 'Aubrey Powell', '1997-02-18', '2022-01-30', 1, 1, false), -- 84
+('elias.long@accenture.com', crypt('long123', gen_salt('bf')), 'Elias Long', '1995-07-12', '2020-11-05', 1, 2, true), -- 85
+('claire.patterson@accenture.com', crypt('patterson123', gen_salt('bf')), 'Claire Patterson', '1996-12-05', '2021-06-20', 1, 4, false), -- 86
+('landon.hughes@accenture.com', crypt('hughes123', gen_salt('bf')), 'Landon Hughes', '1997-05-30', '2022-03-15', 1, 5, true), -- 87
+('skylar.flores@accenture.com', crypt('flores123', gen_salt('bf')), 'Skylar Flores', '1995-10-22', '2020-12-10', 1, 6, false), -- 88
+('aaron.washington@accenture.com', crypt('washington123', gen_salt('bf')), 'Aaron Washington', '1996-03-15', '2021-07-25', 1, 2, true), -- 89
+('paisley.butler@accenture.com', crypt('butler123', gen_salt('bf')), 'Paisley Butler', '1997-08-10', '2022-04-05', 1, 1, false), -- 90
+('hudson.simmons@accenture.com', crypt('simmons123', gen_salt('bf')), 'Hudson Simmons', '1995-01-30', '2020-09-22', 1, 2, true), -- 91
+('autumn.foster@accenture.com', crypt('foster123', gen_salt('bf')), 'Autumn Foster', '1996-06-25', '2021-02-15', 1, 4, false), -- 92
+('ezra.gonzales@accenture.com', crypt('gonzales123', gen_salt('bf')), 'Ezra Gonzales', '1997-11-18', '2022-05-30', 1, 5, true), -- 93
+('piper.bryant@accenture.com', crypt('bryant123', gen_salt('bf')), 'Piper Bryant', '1995-04-10', '2020-10-25', 1, 6, false), -- 94
 -- Managing Director
-('john.doe@accenture.com', crypt('doe123', gen_salt('bf')), 'John Doe', '1985-04-10', '2020-10-25', 3, 1); -- 95
+('john.doe@accenture.com', crypt('doe123', gen_salt('bf')), 'John Doe', '1985-04-10', '2020-10-25', 3, 1, true); -- 95
 
 
 -- 9) Work Positions
@@ -1063,7 +1063,7 @@ DECLARE
     cert_id integer;
     cert_date date;
     months_ago integer;
-    cert_link varchar;
+    cert_link varchar (255);
     used_certificates integer[];
 BEGIN
     FOR user_id IN 4..19 LOOP
@@ -1211,7 +1211,7 @@ DECLARE
     cert_id integer;
     cert_date date;
     months_ago integer;
-    cert_link varchar;
+    cert_link varchar (255);
     in_progress_cert_id integer;
 BEGIN
     FOR user_id IN 20..34 LOOP
@@ -1333,8 +1333,8 @@ DECLARE
     in_progress_goal_id integer;
     create_date date;
     finished_date date;
-    priority_options varchar[] := ARRAY['low', 'medium', 'high'];
-    selected_priority varchar;
+    priority_options varchar (255)[] := ARRAY['low', 'medium', 'high'];
+    selected_priority varchar (255);
 BEGIN
     FOR user_id IN 4..95 LOOP
         -- Seleccionar una meta aleatoria para completar (1-22)

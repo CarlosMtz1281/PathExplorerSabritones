@@ -6,6 +6,7 @@ import Cargabilidad from "@/components/Cargabilidad";
 import WidgetCertificaciones from "@/components/perfil/WidgetCertificaciones";
 import WidgetTrayectoria from "@/components/perfil/WidgetTrayectoria";
 import WidgetHabilidades from "@/components/perfil/WidgetHabilidades";
+import WidgetMeetings from "@/components/perfil/WidgetMeetings";
 import WidgetPathExplorer from "@/components/perfil/WidgetPathExplorer";
 import WidgetMetas from "@/components/perfil/WidgetMetas";
 import { User } from "@/interfaces/User";
@@ -42,7 +43,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-base-200 px-4 md:px-8 py-8 gap-8">
+    <div className="flex flex-col min-h-screen bg-base-200 px-4 md:px-8 py-8 gap-8 overflow-x-hidden ">
       <div className="card w-full bg-base-100 shadow-lg p-6 rounded-lg relative">
         {/* Background Banner */}
         <div className="absolute top-0 left-0 w-full h-35 rounded-t-lg">
@@ -82,6 +83,22 @@ const Profile = () => {
                 <p className=" text-gray-500">
                   Zona Horaria: {userData.Country.timezone}
                 </p>
+                <p className=" text-gray-500">
+                  Antigüedad:{" "}
+                  {(() => {
+                    const hire = new Date(userData.hire_date);
+                    const now = new Date();
+                    let years = now.getFullYear() - hire.getFullYear();
+                    let months = now.getMonth() - hire.getMonth();
+                    if (months < 0) {
+                      years--;
+                      months += 12;
+                    }
+                    return `${years} año${
+                      years !== 1 ? "s" : ""
+                    } y ${months} mes${months !== 1 ? "es" : ""}`;
+                  })()}
+                </p>
               </div>
 
               <div className="mr-5 mt-5 " style={{ width: "25vw" }}>
@@ -105,12 +122,13 @@ const Profile = () => {
       </div>
 
       <div className="flex">
-        <div className="w-[25vw]">
+        <div className="w-[30vw] gap-10 flex flex-col">
+          <WidgetMeetings/>
           <WidgetPathExplorer />
         </div>
         <div
-          className="flex flex-col gap-10 pr-5 max-h-[calc(100vh-4rem)] "
-          style={{ width: "70vw", marginLeft: "2vw", marginBottom: "200px" }}
+          className="flex flex-col gap-10 "
+          style={{ width: "65vw", marginLeft: "2vw" }}
         >
           <WidgetMetas />
           <WidgetCertificaciones />

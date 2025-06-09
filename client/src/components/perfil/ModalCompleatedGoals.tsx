@@ -49,6 +49,12 @@ const ModalCompleatedGoals = ({
       })
       .catch(() => setMetas([]))
       .finally(() => setLoading(false));
+
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen, session]);
 
   if (!isOpen) return null;

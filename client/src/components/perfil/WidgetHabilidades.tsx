@@ -259,8 +259,22 @@ const WidgetHabilidades = ({ userId }: { userId?: number }) => {
     }
   };
 
+  useEffect(() => {
+    const shouldBlockScroll = isModalOpen || showDeleteModal;
+
+    if (shouldBlockScroll) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isModalOpen, showDeleteModal]);
+
   return (
-    <div className="card w-full h-full border border-base-300 bg-base-100">
+    <div className="card w-full h-full border border-base-300 bg-base-100 mb-10">
       <div className="card body p-3 md:p-4">
         <div className="flex flex-row w-full gap-x-2 mb-4 items-center">
           <h2 className="card-title text-3xl">
