@@ -11,7 +11,7 @@ test('Profile returns the correct user data', async ({ request, page }) => {
     const response = await request.get(`http://localhost:3003/employee/user/${userId}`);
     const apiData = await response.json();
 
-    const name = await page.locator('[class="text-3xl font-bold"]').textContent();
+    const name = await page.locator('xpath=/html/body/div/main/div/div[1]/div[2]/div[2]/div/div[1]/h2').textContent();
     const country = await page.locator('p', { hasText: apiData.Country.country_name }).textContent();
     const email = await page.locator(`text=${apiData.mail}`).textContent();
     const timezone = await page.locator(`text=Zona Horaria: ${apiData.Country.timezone}`).textContent();
@@ -67,7 +67,8 @@ test('Register Skill', async ({ page }) => {
 
     await login(page, 'EMP');
 
-    await page.locator('[class="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"]').nth(1).click();
+    await page.locator('[class="flex items-center justify-center w-full h-full"]').click();
+    await page.getByText("Agregar Habilidad").click();
 
     await page.getByPlaceholder('Buscar habilidad...').click();
     await page.getByPlaceholder('Buscar habilidad...').fill("python");
@@ -76,5 +77,56 @@ test('Register Skill', async ({ page }) => {
     await expect(page.locator('[class="text-xs"]').getByText('Python')).toBeVisible();
 
     await page.getByRole('button', { name: "Agregar"}).click();
-    await expect(page.locator('[class="badge badge-outline badge-primary px-8 py-3.5 text-xs"]').getByText('Python')).toBeVisible();
+    await expect(page.locator('[class="badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 badge-primary"]').getByText('Python')).toBeVisible();
+
+});
+
+
+test('Edit Skill', async ({ page }) => {
+    qase.id(53);
+
+    await login(page, 'EMP');
+
+    await page.locator('[class="flex items-center justify-center w-full h-full"]').click();
+        await page.getByText("Editar Habilidades").click();
+
+    await page.locator('[class="badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 border-error bg-error/20 text-error hover:scale-105 cursor-pointer"]').getByText('Python').click();
+    await page.locator('[class="btn btn-error"]').click();
+
+    await expect(page.locator('[class="badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 badge-primary"]').getByText('Python')).not.toBeVisible();
+
+
+});
+
+test('Check employee profile', async ({ page }) => {
+    qase.id(111);
+
+    await login(page, 'CL');
+
+    // Click en la navbar
+    await page.locator('[href="/dashboard/repo-empleados"]').click();
+
+    const viewport = page.viewportSize();
+    if (viewport) {
+        const centerX = viewport.width / 2;
+        const centerY = viewport.height / 2;
+        await page.mouse.move(centerX, centerY);
+        await page.waitForTimeout(100);
+    }
+
+
+    page.getByText("Abigail Parker");
+
+    const targetRow = page.locator('tr', { hasText: 'Abigail Parker' });
+
+    const expandButton = targetRow.locator('[class="btn btn-ghost btn-sm"]');
+    await expandButton.click();
+
+    const profileButton = page.locator('tr', { hasText: 'Correo:' }).locator('button', { hasText: 'Ir a Perfil' });
+    await profileButton.click();
+
+    // Botón para abrir sub menú de trayectoria
+    await expect(page.getByText("Habilidades")).toBeVisible();
+    await expect(page.getByText("Certificaciones")).toBeVisible();
+    await expect(page.getByText("Posición")).toBeVisible();
 });

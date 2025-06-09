@@ -92,3 +92,54 @@ test("GET getProjectById/:projectId", async ({ request, page }) => {
     });
   }
 });
+
+test("GET /employee/experience with userId", async ({ request, page }) => {
+  qase.id(111);
+
+  const userId = await login(page, "PL");
+
+  const response = await request.get(
+    `http://localhost:3003/employee/experience?userId=${userId}`
+  );
+  expect(response.ok()).toBeTruthy();
+
+  const data = await response.json();
+
+  expect(data).toEqual(
+    expect.objectContaining({
+      jobs: expect.any(Array),
+      projects: expect.any(Array),
+    })
+  );
+
+  if (data.jobs.length > 0) {
+    expect(data.jobs[0]).toMatchObject({
+      positionId: expect.any(Number),
+      company: expect.any(String),
+      position: expect.any(String),
+      positionDesc: expect.any(String),
+      startDate: expect.any(String),
+      endDate: expect.any(String),
+      rawStart: expect.anything(),
+      rawEnd: expect.anything(),
+    });
+  }
+
+  if (data.projects.length > 0) {
+    expect(data.projects[0]).toMatchObject({
+      projectName: expect.any(String),
+      company: expect.any(String),
+      positionName: expect.any(String),
+      projectDescription: expect.any(String),
+      startDate: expect.any(String),
+      endDate: expect.any(String),
+      feedbackDesc: expect.any(String),
+      feedbackScore: expect.anything(),
+      deliveryLeadName: expect.any(String),
+      skills: expect.any(Array),
+      areas: expect.any(Array),
+      rawStart: expect.anything(),
+      rawEnd: expect.anything(),
+    });
+  }
+});
