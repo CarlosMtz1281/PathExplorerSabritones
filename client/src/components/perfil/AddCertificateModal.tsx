@@ -360,6 +360,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                   onChange={handleFileChange}
                   className="file-input file-input-bordered w-full"
                 />
+                {formData.pdf ? (
+                  <div className="mt-2 text-success text-xs">Archivo cargado: {formData.pdf.name}</div>
+                ) : (
+                  <div className="mt-2 text-xs text-gray-400">Ningún archivo cargado</div>
+                )}
               </div>
             </div>
           </div>

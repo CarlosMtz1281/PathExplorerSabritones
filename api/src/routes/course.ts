@@ -76,6 +76,7 @@ router.get("/certificates", async (req, res) => {
       certificate_start_date: certificate.certificate_start_date,
       certificate_expiration_date: certificate.certificate_expiration_date,
       certificate_link: certificate.certificate_link,
+      certificate_uri: certificate.certificate_uri, // <-- Added so frontend can access the PDF
       certificate_status: certificate.status,
       certificate_hours: certificate.Certificates.certificate_estimated_time,
       certificate_level: certificate.Certificates.certificate_level,
@@ -121,6 +122,7 @@ router.get("/getCertificatesByUserId/:userId", async (req, res) => {
       certificate_date: certificate.certificate_date,
       certificate_expiration_date: certificate.certificate_expiration_date,
       certificate_link: certificate.certificate_link,
+      certificate_uri: certificate.certificate_uri, // <-- Added so frontend can access the PDF
       provider: certificate.Certificates.provider, // Fetch the provider
       skills: certificate.Certificates.Certificate_Skills.map(
         (skill) => skill.Skills.name
