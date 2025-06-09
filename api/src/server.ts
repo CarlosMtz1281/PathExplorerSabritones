@@ -25,6 +25,10 @@ const PORT = process.env.PORT || 3003;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve certificate PDFs statically
+app.use('/uploads/certificates', express.static(path.join(__dirname, '../uploads/certificates')));
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/general", generalRoutes);

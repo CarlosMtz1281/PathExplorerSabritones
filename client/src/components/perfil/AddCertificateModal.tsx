@@ -68,10 +68,49 @@ const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
         return;
       }
 
-      const sessionKey = session.sessionId; // Retrieve session key from session hook
-      if (!sessionKey) {
-        console.error("Session key is missing");
-        return;
+    if (alreadyExists) {
+      alert("El usuario ya tiene este certificado.");
+      // Reset the form
+      setFormData({
+        company: "",
+        certificate_name: "",
+        status: "",
+        issue_date: "",
+        expiration_date: "",
+        link: "",
+        skills: [],
+        pdf: null,
+      });
+      return;
+    }
+
+    const certificate_id = certifications.find(
+      (cert) => cert.certificate_name === formData.certificate_name
+    )?.certificate_id;
+
+    if (!certificate_id || !formData.issue_date || !formData.status) {
+      console.error("Certificate ID, date, and status are required");
+      return;
+    }
+
+    const formPayload = new FormData();
+    formPayload.append("certificate_id", String(certificate_id));
+    formPayload.append("certificate_date", formData.issue_date);
+    formPayload.append("certificate_expiration_date", formData.expiration_date || "");
+    formPayload.append("certificate_link", formData.link || "");
+    formPayload.append("certificate_status", formData.status);
+    if (formData.pdf) {
+      formPayload.append("pdf", formData.pdf);
+    }
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_BASE}/course/add-certificate`,
+      formPayload,
+      {
+        headers: {
+          "session-key": sessionKey,
+          'Content-Type': 'multipart/form-data',
+        },
       }
 
       // Check if the user already has the selected certificate
@@ -362,12 +401,16 @@ const AddCertificateModal: React.FC<AddCertificateModalProps> = ({
                   PDF Certificate
                 </label>
                 <input
-                  disabled
                   type="file"
                   accept="application/pdf"
                   onChange={handleFileChange}
                   className="file-input file-input-bordered w-full"
                 />
+                {formData.pdf ? (
+                  <div className="mt-2 text-success text-xs">Archivo cargado: {formData.pdf.name}</div>
+                ) : (
+                  <div className="mt-2 text-xs text-gray-400">Ningún archivo cargado</div>
+                )}
               </div>
             </div>
           </div>

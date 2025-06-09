@@ -225,7 +225,18 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
             )}
 
             {/* View Certificate Button */}
-            {isCompleted ? (
+            {isCompleted && (certificate as any).certificate_uri ? (
+              <div className="flex mt-15">
+                <a
+                  href={(certificate as any).certificate_uri.startsWith('/') ? `${process.env.NEXT_PUBLIC_API_BASE}${(certificate as any).certificate_uri}` : (certificate as any).certificate_uri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                >
+                  Ver Certificado
+                </a>
+              </div>
+            ) : isCompleted ? (
               <div className="flex mt-15">
                 <button
                   disabled

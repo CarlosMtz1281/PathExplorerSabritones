@@ -23,6 +23,7 @@
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "js-cookie": "^3.0.5",
+    "multer": "^2.0.0",
     "prisma": "^6.5.0"
   },
   "devDependencies": {

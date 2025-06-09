@@ -16,7 +16,7 @@ router.get("/users", async (req, res) => {
   res.json(users);
 });
 
-router.get("/userID", async (req: Request, res: Response) => {
+router.get("/userID", async (req, res) => {
   try {
     const userId = await getUserIdFromSession(req.headers["session-key"]);
 
@@ -111,7 +111,7 @@ router.get("/cargabilidad", async (req, res) => {
   }
 });
 
-router.get("/getMe", async (req: Request, res: Response) => {
+router.get("/getMe", async (req, res) => {
   try {
     // Get the session ID from the cookies
     const user_id = req.cookies?.sessionId.user_id;
