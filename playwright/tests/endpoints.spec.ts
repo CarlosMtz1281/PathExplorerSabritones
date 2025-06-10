@@ -149,9 +149,13 @@ test("Revisión de información correcta", async ({ request, page }) => {
 
   await login(page, "CL");
 
-  const response = await request.get(
-    `http://localhost:3003/project/projectsByCapability`
-  );
+  const sessionKey = await page.evaluate(() => localStorage.getItem("session-key"));
+
+  const response = await request.get("http://localhost:3003/project/projectsByCapability", {
+    headers: {
+      "session-key": sessionKey || "", 
+    },
+  });
 
   expect(response.ok()).toBeTruthy();
 

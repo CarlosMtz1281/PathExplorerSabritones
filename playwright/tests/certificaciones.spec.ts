@@ -8,18 +8,20 @@ test('Tipos de documentos permitidos (Positivo)', async ({ page }) => {
 
     await login(page, "EMP");
 
+    await page.locator('[class="btn btn-circle btn-accent"]').click();
+
     const certCard = page.locator('[class="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"]');
-    await certCard.getByText("Cisco Certified Network Associate (CCNA)").click();
+    await certCard.getByText("Google Professional Data Engineer").click();
 
     const modal = page.locator('[class="text-2xl font-bold ml-5"]');
-    expect(modal.getByText("Cisco Certified Network Associate (CCNA)")).toBeVisible();
+    expect(modal.getByText("Google Professional Data Engineer")).toBeVisible();
 
     const fileInput = page.locator('input[type="file"]');
     const filePath = path.resolve(__dirname, 'test-files/TestFile2b.pdf');
 
     await fileInput.setInputFiles(filePath);
 
-    await page.getByText("Subir").click();
+    expect(page.getByRole("button").getByText("Subir")).toBeVisible();
 })
 
 test('Documentos muy pesados', async ({ page }) => {
@@ -30,10 +32,10 @@ test('Documentos muy pesados', async ({ page }) => {
     await page.locator('[class="btn btn-circle btn-accent"]').click();
 
     const certCard = page.locator('[class="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"]');
-    await certCard.getByText("Cisco Certified Network Associate (CCNA)").click();
+    await certCard.getByText("Google Professional Data Engineer").click();
 
     const modal = page.locator('[class="text-2xl font-bold ml-5"]');
-    expect(modal.getByText("Cisco Certified Network Associate (CCNA)")).toBeVisible();
+    expect(modal.getByText("Google Professional Data Engineer")).toBeVisible();
 
     const fileInput = page.locator('input[type="file"]');
     const filePath = path.resolve(__dirname, 'test-files/TestFile15b.pdf');
