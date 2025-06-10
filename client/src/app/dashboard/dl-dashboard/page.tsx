@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import CurrentProjects from "@/components/dl-dashboard/current-projects/CurrentProjects";
 import PastProjects from "@/components/dl-dashboard/past-projects/PastProjects";
+import { motion } from "framer-motion";
+
 
 interface Project {
   projectId: number;
@@ -396,6 +398,11 @@ const DashboardDL = () => {
       </div>
 
       {/* Futuros Proy */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.05 }}
+      >
       <div className="flex w-full bg-base-100 p-5 rounded-md border border-base-300 mb-6">
         <div className="w-full">
           <h2 className="text-3xl font-bold mb-4">Futuros Proyectos</h2>
@@ -802,8 +809,21 @@ const DashboardDL = () => {
           </div>
         </div>
       </div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
       <CurrentProjects />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+      >
       <PastProjects />
+      </motion.div>
 
       {/* Modal de Detalles del Proyecto */}
       {isFuturProjModalOpen && selectedProject && (
