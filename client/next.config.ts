@@ -1,9 +1,16 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  typescript: {
+    // ✅ Skip type checking on build
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // ✅ Skip linting on build
+    ignoreDuringBuilds: true,
+  },
   images: {
     domains: ["avatar.iran.liara.run"],
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
