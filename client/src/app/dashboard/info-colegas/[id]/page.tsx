@@ -85,11 +85,11 @@ const InfoColegas = () => {
             <div className="avatar -mt-15 ml-5">
               <div className="w-50 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                 <Image
-                  width={200}
-                  height={200}
-                  src="/profilePhoto.jpg"
+                  width={150}
+                  height={150}
+                  src={`https://avatar.iran.liara.run/public/${userData.gender ? "boy" : "girl"}/?${userData.name}`}
                   alt="Profile"
-                  className="object-cover w-full h-full"
+                  className="object-cover w-100 h-100"
                 />
               </div>
             </div>
