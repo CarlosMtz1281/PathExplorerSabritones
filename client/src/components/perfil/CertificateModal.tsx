@@ -239,7 +239,6 @@ const CertificateModal: React.FC<CertificateModalProps> = ({
             ) : isCompleted ? (
               <div className="flex mt-15">
                 <button
-                  disabled
                   className="btn btn-primary opacity-50 cursor-not-allowed"
                 >
                   Ver Certificado
