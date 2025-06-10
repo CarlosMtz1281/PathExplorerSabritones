@@ -28,4 +28,5 @@ export interface User {
   Permits: Permits;
   level: number;
   position_name: string;
+  gender: boolean
 }

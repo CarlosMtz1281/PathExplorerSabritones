@@ -61,15 +61,15 @@ const Profile = () => {
         <div className="flex flex-col md:flex-row justify-between gap-8 mt-20  W-full">
           <div className="flex flex-col items-center ">
             <div className="avatar -mt-15 ml-5">
-              <div className="w-50 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ">
+                <div className="w-50 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 ">
                 <Image
                   width={150}
                   height={150}
-                  src="/profilePhoto.jpg"
+                  src={`https://avatar.iran.liara.run/public/${userData.gender ? "boy" : "girl"}/?${userData.name}`}
                   alt="Profile"
                   className="object-cover w-100 h-100"
                 />
-              </div>
+                </div>
             </div>
           </div>
 
