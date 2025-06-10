@@ -106,7 +106,7 @@ const WidgetMetas = ({ sudo, userId }: { sudo: boolean; userId: number }) => {
         </span>
         <h2 className="text-3xl font-bold">Objetivos</h2>
         { sudo && (
-          <button className="ml-auto bg-purple-300 hover:bg-purple-400 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl" >
+          <button className="ml-auto bg-purple-300 hover:bg-purple-400 text-white rounded-full w-8 h-8 flex items-center justify-center text-2xl" >
             <FaPlus onClick={() => setModalIsOpen(true)}/>
           </button>
         )}

@@ -11,6 +11,7 @@ import WidgetPathExplorer from "@/components/perfil/WidgetPathExplorer";
 import WidgetMetas from "@/components/perfil/WidgetMetas";
 import { User } from "@/interfaces/User";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const Profile = () => {
   const { data: session, status } = useSession();
@@ -121,21 +122,59 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="flex">
-        <div className="w-[30vw] gap-10 flex flex-col">
-          <WidgetMeetings/>
-          <WidgetPathExplorer />
-        </div>
-        <div
-          className="flex flex-col gap-10 "
-          style={{ width: "65vw", marginLeft: "2vw" }}
-        >
-          <WidgetMetas sudo={true} userId={userData.user_id} />
-          <WidgetCertificaciones />
-          <WidgetTrayectoria />
-          <WidgetHabilidades />
-        </div>
-      </div>
+
+
+<div className="flex">
+  <div className="w-[30vw] gap-10 flex flex-col">
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.05 }}
+    >
+      <WidgetMeetings />
+    </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.15 }}
+    >
+      <WidgetPathExplorer />
+    </motion.div>
+  </div>
+  <div
+    className="flex flex-col gap-10 "
+    style={{ width: "65vw", marginLeft: "2vw" }}
+  >
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.25 }}
+    >
+      <WidgetMetas sudo={true} userId={userData.user_id} />
+    </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.35 }}
+    >
+      <WidgetCertificaciones />
+    </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.45 }}
+    >
+      <WidgetTrayectoria />
+    </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.55 }}
+    >
+      <WidgetHabilidades />
+    </motion.div>
+  </div>
+</div>
     </div>
   );
 };
