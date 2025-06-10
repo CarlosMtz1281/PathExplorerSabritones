@@ -63,7 +63,10 @@ const priorityIcon = {
   ),
 };
 
-const WidgetMetas = () => {
+
+
+
+const WidgetMetas = ({ sudo, userId }: { sudo: boolean; userId: number }) => {
   const [goals, setGoals] = useState<GoalItem[]>([]);
   const [loading, setLoading] = useState(true);
     const { data: session } = useSession(); 
@@ -75,7 +78,7 @@ const WidgetMetas = () => {
   // Move fetchGoals to component scope so it can be reused
   const fetchGoals = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/employee/goals`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/employee/goals/${userId}`, {
         headers: {
           "session-key": session?.sessionId,
         },
@@ -101,14 +104,17 @@ const WidgetMetas = () => {
         <span className="text-3xl mr-3">
           <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 17.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1.5M21 12h-8m0 0 3-3m-3 3 3 3" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </span>
-        <h2 className="text-3xl font-bold">Mis Objetivos</h2>
-        <button className="ml-auto bg-purple-300 hover:bg-purple-400 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl">
-          <FaPlus onClick={() => setModalIsOpen(true)}/>
-        </button>
+        <h2 className="text-3xl font-bold">Objetivos</h2>
+        { sudo && (
+          <button className="ml-auto bg-purple-300 hover:bg-purple-400 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl" >
+            <FaPlus onClick={() => setModalIsOpen(true)}/>
+          </button>
+        )}
+
         <ModalAddMetas
-                isOpen={modalIsOpen}
-                onClose={() => {setModalIsOpen(false); fetchGoals();}}
-            />
+          isOpen={modalIsOpen}
+          onClose={() => {setModalIsOpen(false); fetchGoals();}}
+        />
       </div>
 
       {/* Goals List */}
@@ -151,9 +157,14 @@ const WidgetMetas = () => {
               </div>
               {/* Date & Edit */}
               <div className="flex flex-col items-end justify-between h-full min-w-[160px]">
-                <button className="bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-full p-2 mb-2">
-                  <FaEdit onClick={() => { setEditModalIsOpen(true); setCurrentGoal(meta); }} />
-                </button>
+                { sudo && (
+                  <button className="bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-full p-2 mb-2">
+                    <FaPlus onClick={() => { setModalIsOpen(true); setCurrentGoal(meta); }} />
+                  </button>
+                )
+
+                }
+                
 
                 
                 <span className="italic text-gray-600 text-sm">

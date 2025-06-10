@@ -1056,23 +1056,18 @@ router.delete("/deleteExperience/:positionId", async (req, res) => {
   }
 });
 
-router.get("/goals", async (req, res) => {
+router.get("/goals/:userId", async (req, res) => {
   try {
-    const sessionKey = req.headers["session-key"];
-    if (!sessionKey) {
-      return res.status(401).json({ error: "Missing session-key header" });
-    }
-
-    const userId = await getUserIdFromSession(sessionKey);
+    const userId = parseInt(req.params.userId);
     if (!userId || typeof userId !== "number") {
-      return res.status(400).json({ error: "Invalid or expired session" });
+      return res.status(400).json({ error: "Invalid or missing userId parameter" });
     }
 
     // Fetch ONLY 3 most recent goals for the user, including related skills and user info
     const goals = await prisma.goal_Users.findMany({
       where: { user_id: userId },
       orderBy: { create_date: "desc" },
-      take: 3, // <-- Only 3 goals
+      take: 3,
       select: {
         user_id: true,
         goal_id: true,
