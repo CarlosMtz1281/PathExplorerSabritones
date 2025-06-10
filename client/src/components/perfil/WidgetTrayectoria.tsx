@@ -88,7 +88,7 @@
           <div className="bg-base-200 border-t border-base-300 p-4">
             <div className="flex mb-4">
               {/* Left Column */}
-              <div className="w-1/2 pr-4 border-r border-base-300">
+              <div >
                 <p className="text-base-content font-medium mb-2">
                   {project.positionName}
                 </p>
@@ -109,22 +109,7 @@
                 )}
               </div>
               
-              {/* Right Column */}
-              <div className="w-1/2 pl-4">
-                {project.feedbackDesc && (
-                  <p className="text-base-content mb-2">
-                    "{project.feedbackDesc}"
-                  </p>
-                )}
-                <p className="font-bold text-base-content text-sm">
-                  - {project.deliveryLeadName}
-                </p>
-                {project.feedbackScore && (
-                  <div className="mt-2">
-                    {renderStars(project.feedbackScore)}
-                  </div>
-                )}
-              </div>
+        
             </div>
           </div>
         )}
