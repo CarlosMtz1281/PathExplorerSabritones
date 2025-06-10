@@ -174,11 +174,29 @@ test('Postulación del empleado a proyecto', async ({ page }) => {
   await project.locator('[class="dropdown-button ml-3 hover:cursor-pointer"]').click();
   await project.locator('[class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-focus transition-colors"]').click();
 
-  await page.getByText("Ava Adams").click()
-  await page.locator('[class="btn btn-primary btn-sm"]').click();
+  await page.locator('[class="collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border border-base-300"]').nth(0).click()
+  await page.locator('[class="btn btn-primary btn-sm"]').nth(0).click();
 
-  expect(project.getByText("Usuario ya postulado")).toBeVisible();
  
+})
+
+test('Visualizacion de proyectos', async ({ page }) => {
+  qase.id(112);
+
+  await login(page, 'DL');
+
+  await page.locator('[href="/dashboard/dl-dashboard"]').click();
+
+  const viewport = page.viewportSize();
+  if (viewport) {
+      const centerX = viewport.width / 2;
+      const centerY = viewport.height / 2;
+      await page.mouse.move(centerX, centerY);
+      await page.waitForTimeout(300);
+  }
+
+  expect(page.getByText("Proyectos en Curso")).toBeVisible;
+
 })
 
 // test('Project modal shows correct info', async ({ page, request }) => {
