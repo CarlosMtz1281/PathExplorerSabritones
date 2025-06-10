@@ -2,7 +2,7 @@ import { qase } from "playwright-qase-reporter";
 import { login } from "./functions";
 import { test, expect, Page } from "@playwright/test";
 
-test("Create a proyect", async ({ page }) => {
+test("Creación de proyectos", async ({ page }) => {
   qase.id(59);
 
   await login(page, "DL");
@@ -136,7 +136,7 @@ test("Create a proyect", async ({ page }) => {
   await expect(page.getByText("Proyecto PathExplorer")).toBeVisible();
 });
 
-test("Create a proyect wrong", async ({ page }) => {
+test("Error Handling de Creación de proyectos", async ({ page }) => {
   qase.id(61);
 
   await login(page, "DL");
@@ -198,40 +198,3 @@ test('Visualizacion de proyectos', async ({ page }) => {
   expect(page.getByText("Proyectos en Curso")).toBeVisible;
 
 })
-
-// test('Project modal shows correct info', async ({ page, request }) => {
-//   const userId = await login(page, 'DL');
-
-//   const apiResponse = await request.get('http://localhost:3003/project/getCurrentProjectsDL', {
-//     headers: { 'session-key': userId.toString() },
-//   });
-
-//   expect(apiResponse.ok()).toBeTruthy();
-
-//   const projects = await apiResponse.json();
-//   const project = projects.find((p: any) => p.name === 'Proyecto PathExplorer');
-//   expect(project).toBeTruthy();
-
-//   await page.goto('http://localhost:3000/dashboard/dl-dashboard');
-//   const card = page.getByRole('heading', { name: new RegExp(project.name, 'i') }).locator('..').locator('..');
-//   await card.locator('[class="btn btn-sm btn-circle btn-ghost"]').click(); // click the project card to open modal
-
-//   // Step 4: Verify modal content
-//   await expect(page.locator('.modal')).toBeVisible();
-//   await expect(page.getByText(project.company)).toBeVisible();
-//   await expect(page.getByText(project.description)).toBeVisible();
-//   await expect(page.getByText(new RegExp(project.start_date))).toBeVisible();
-
-//   const endDateText = project.end_date ? project.end_date : 'Indefinido';
-//   await expect(page.getByText(new RegExp(endDateText))).toBeVisible();
-
-//   await expect(page.getByText(`${project.people} personas`)).toBeVisible();
-//   await expect(page.getByText(`${project.feedbacks} feedbacks`)).toBeVisible();
-
-//   if (project.end_date) {
-//     await expect(page.getByText(new RegExp(`${project.daysRemaining} días restantes`))).toBeVisible();
-//   }
-
-//   await expect(page.locator('progress')).toHaveAttribute('value', project.percentCompletedDays.toString());
-// });  
-

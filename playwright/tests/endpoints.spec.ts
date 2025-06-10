@@ -93,7 +93,7 @@ test("GET getProjectById/:projectId", async ({ request, page }) => {
   }
 });
 
-test("GET /employee/experience", async ({ request, page }) => {
+test("Prueba de endpoints de los proyectos", async ({ request, page }) => {
   qase.id(111);
 
   const userId = await login(page, "PL");
@@ -144,7 +144,7 @@ test("GET /employee/experience", async ({ request, page }) => {
   }
 });
 
-test("GET /projectsByCapability", async ({ request, page }) => {
+test("Revisión de información correcta", async ({ request, page }) => {
   qase.id(110);
 
   await login(page, "CL");

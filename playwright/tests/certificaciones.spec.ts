@@ -4,7 +4,7 @@ import { test, expect, Page } from '@playwright/test';
 import path from "path";
 
 test('Tipos de documentos permitidos (Positivo)', async ({ page }) => {
-    qase.id(55);
+    qase.id(56);
 
     await login(page, "EMP");
 

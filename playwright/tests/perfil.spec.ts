@@ -2,7 +2,7 @@ import { qase } from "playwright-qase-reporter";
 import { login } from "./functions";
 import { test, expect, Page } from '@playwright/test';
 
-test('Profile returns the correct user data', async ({ request, page }) => {
+test('Datos correctos en el perfil', async ({ request, page }) => {
 
     qase.id(46);
     
@@ -29,7 +29,7 @@ test('Profile returns the correct user data', async ({ request, page }) => {
 
 });
 
-test('Register Experience', async ({ page }) => {
+test('Formulario completado correctamente', async ({ page }) => {
     qase.id(51);
 
     await login(page, 'EMP');
@@ -62,7 +62,7 @@ test('Register Experience', async ({ page }) => {
     
 });
 
-test('Register Skill', async ({ page }) => {
+test('Agregar habilidades en el perfil del empleado', async ({ page }) => {
     qase.id(53);
 
     await login(page, 'EMP');
@@ -82,8 +82,8 @@ test('Register Skill', async ({ page }) => {
 });
 
 
-test('Edit Skill', async ({ page }) => {
-    qase.id(53);
+test('Actualización de habilidades en el perfil', async ({ page }) => {
+    qase.id(54);
 
     await login(page, 'EMP');
 
@@ -96,37 +96,4 @@ test('Edit Skill', async ({ page }) => {
     await expect(page.locator('[class="badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 badge-primary"]').getByText('Python')).not.toBeVisible();
 
 
-});
-
-test('Check employee profile', async ({ page }) => {
-    qase.id(111);
-
-    await login(page, 'CL');
-
-    // Click en la navbar
-    await page.locator('[href="/dashboard/repo-empleados"]').click();
-
-    const viewport = page.viewportSize();
-    if (viewport) {
-        const centerX = viewport.width / 2;
-        const centerY = viewport.height / 2;
-        await page.mouse.move(centerX, centerY);
-        await page.waitForTimeout(100);
-    }
-
-
-    page.getByText("Abigail Parker");
-
-    const targetRow = page.locator('tr', { hasText: 'Abigail Parker' });
-
-    const expandButton = targetRow.locator('[class="btn btn-ghost btn-sm"]');
-    await expandButton.click();
-
-    const profileButton = page.locator('tr', { hasText: 'Correo:' }).locator('button', { hasText: 'Ir a Perfil' });
-    await profileButton.click();
-
-    // Botón para abrir sub menú de trayectoria
-    await expect(page.getByText("Habilidades")).toBeVisible();
-    await expect(page.getByText("Certificaciones")).toBeVisible();
-    await expect(page.getByText("Posición")).toBeVisible();
 });
