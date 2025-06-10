@@ -3,6 +3,7 @@ import { FaLock } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import Image from "next/image";
+import { a } from "framer-motion/client";
 
 interface AreaRecommendation {
   area: {
@@ -60,13 +61,15 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
   const { data: session } = useSession();
 
   useEffect(() => {
+    console.log(          `${process.env.NEXT_PUBLIC_API_BASE}/path-explorer/get-recommendation/${activeTab}`); // Log the API URL for debugging
     const fetchActiveTabData = async () => {
       if (tabs.length === 0) return;
 
       setLoading(true);
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_BASE}/path-explorer/get-recommendation/${tabs[activeTab].area_id}`,
+          
+          `${process.env.NEXT_PUBLIC_API_BASE}/path-explorer/get-recommendation/${activeTab}`,
           {
             headers: {
               Authorization: session?.sessionId, // Replace with actual session ID
@@ -119,6 +122,8 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
     return 0; // Default fallback
   }
 
+  console.log("Active Tab:", activeTab);
+
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div className="bg-base-100 rounded-lg shadow-lg w-5/6 md:w-4/5 lg:w-3/4 p-8 relative h-5/6">
@@ -138,9 +143,9 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
           {tabs.map((tab, index) => (
             <button
               key={tab.area_id}
-              onClick={() => setActiveTab(index)} // Change tab on click
+              onClick={() => setActiveTab(tab.area_id)} // Change tab on click
               className={`flex-1 text-sm font-bold py-2 px-4 transition-transform duration-200 flex items-center justify-center ${
-                activeTab === index
+                activeTab === tab.area_id
                   ? "bg-primary text-white scale-105"
                   : "bg-accent text-primary hover:bg-primary hover:text-white hover:scale-105"
               } ${
@@ -158,7 +163,7 @@ const ModalPathExplorer = ({ onClose }: { onClose: () => void }) => {
                 height={24}
                 className="mr-2"
               />
-              {activeTab === index && <span>{tab.area_name}</span>}
+              {activeTab === tab.area_id && <span>{tab.area_name}</span>}
             </button>
           ))}
         </div>
