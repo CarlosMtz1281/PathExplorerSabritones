@@ -2,7 +2,7 @@ import { qase } from "playwright-qase-reporter";
 import { login } from "./functions";
 import { test, expect, Page } from '@playwright/test';
 
-test('Profile returns the correct user data', async ({ request, page }) => {
+test('Datos correctos en el perfil', async ({ request, page }) => {
 
     qase.id(46);
     
@@ -11,7 +11,7 @@ test('Profile returns the correct user data', async ({ request, page }) => {
     const response = await request.get(`http://localhost:3003/employee/user/${userId}`);
     const apiData = await response.json();
 
-    const name = await page.locator('[class="text-3xl font-bold"]').textContent();
+    const name = await page.locator('xpath=/html/body/div/main/div/div[1]/div[2]/div[2]/div/div[1]/h2').textContent();
     const country = await page.locator('p', { hasText: apiData.Country.country_name }).textContent();
     const email = await page.locator(`text=${apiData.mail}`).textContent();
     const timezone = await page.locator(`text=Zona Horaria: ${apiData.Country.timezone}`).textContent();
@@ -29,7 +29,7 @@ test('Profile returns the correct user data', async ({ request, page }) => {
 
 });
 
-test('Register Experience', async ({ page }) => {
+test('Formulario completado correctamente', async ({ page }) => {
     qase.id(51);
 
     await login(page, 'EMP');
@@ -62,12 +62,13 @@ test('Register Experience', async ({ page }) => {
     
 });
 
-test('Register Skill', async ({ page }) => {
+test('Agregar habilidades en el perfil del empleado', async ({ page }) => {
     qase.id(53);
 
     await login(page, 'EMP');
 
-    await page.locator('[class="btn btn-circle btn-accent btn-xs md:btn-sm ml-auto text-base-100"]').nth(1).click();
+    await page.locator('[class="flex items-center justify-center w-full h-full"]').click();
+    await page.getByText("Agregar Habilidad").click();
 
     await page.getByPlaceholder('Buscar habilidad...').click();
     await page.getByPlaceholder('Buscar habilidad...').fill("python");
@@ -76,5 +77,23 @@ test('Register Skill', async ({ page }) => {
     await expect(page.locator('[class="text-xs"]').getByText('Python')).toBeVisible();
 
     await page.getByRole('button', { name: "Agregar"}).click();
-    await expect(page.locator('[class="badge badge-outline badge-primary px-8 py-3.5 text-xs"]').getByText('Python')).toBeVisible();
+    await expect(page.locator('[class="badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 badge-primary"]').getByText('Python')).toBeVisible();
+
+});
+
+
+test('Actualización de habilidades en el perfil', async ({ page }) => {
+    qase.id(54);
+
+    await login(page, 'EMP');
+
+    await page.locator('[class="flex items-center justify-center w-full h-full"]').click();
+        await page.getByText("Editar Habilidades").click();
+
+    await page.locator('[class="badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 border-error bg-error/20 text-error hover:scale-105 cursor-pointer"]').getByText('Python').click();
+    await page.locator('[class="btn btn-error"]').click();
+
+    await expect(page.locator('[class="badge badge-outline px-8 py-3.5 text-xs transition-all duration-200 badge-primary"]').getByText('Python')).not.toBeVisible();
+
+
 });

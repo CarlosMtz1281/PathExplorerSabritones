@@ -2,13 +2,21 @@ import { qase } from "playwright-qase-reporter";
 import { login } from "./functions";
 import { test, expect, Page } from '@playwright/test';
 
-test('Check employee profile', async ({ page }) => {
+test('Datos de los puestos', async ({ page }) => {
     qase.id(16);
 
     await login(page, 'EMP');
 
     // Click en la navbar
     await page.locator('[href="/dashboard/repo-empleados"]').click();
+
+    const viewport = page.viewportSize();
+    if (viewport) {
+        const centerX = viewport.width / 2;
+        const centerY = viewport.height / 2;
+        await page.mouse.move(centerX, centerY);
+        await page.waitForTimeout(300);
+    }
 
     page.getByText("Abigail Parker");
 
@@ -27,27 +35,27 @@ test('Check employee profile', async ({ page }) => {
     await expect(page.getByText("Trayectoria Completa")).toBeVisible();
 });
 
-// test('Check if previous jobs dont show when employee has over 5 years in the company', async ({ page }) => {
+test('Visualización de los subordinados', async ({ page}) => {
+    qase.id(100);
 
-//     await login(page);
+    await login(page, 'PL');
 
-//     // Click en la navbar
-//     await page.locator('a[href="/dashboard/repo-empleados"]').click();
+    // Click en la navbar
+    await page.locator('[href="/dashboard/pl-dashboard"]').click();
 
-//     // David Brown tiene más de 6 años en la
-//     page.getByText("David Brown");
+    // Quitar el hover de la nav
+    const viewport = page.viewportSize();
+    if (viewport) {
+        const centerX = viewport.width / 2;
+        const centerY = viewport.height / 2;
+        await page.mouse.move(centerX, centerY);
+        await page.waitForTimeout(300);
+    }
 
-//     const targetRow = page.locator('tr', { hasText: 'Amit Singh' });
+    const title = page.locator('[class="flex w-full items-center bg-base-100 p-5 text-4xl font-bold rounded-md border border-base-300 mb-6 text-secondary"]');
+    expect(title.getByText("Resumen de Cargos")).toBeVisible;
 
-//     const expandButton = targetRow.locator('[class="btn btn-ghost btn-sm"]');
-//     await expandButton.click();
+    const counselees = page.locator('[class="flex w-full items-center bg-base-100 p-5 text-3xl font-bold rounded-md border border-base-300 mb-8 mt-2 text-secondary"]');
+    expect(counselees.getByText("Tus Counselees")).toBeVisible;
 
-//     const profileButton = page.locator('tr', { hasText: 'Correo:' }).locator('button', { hasText: 'Ir a Perfil' });
-//     await profileButton.click();
-
-//     // Botón para abrir sub menú de trayectoria
-//     await page.locator('[class="btn btn-circle btn-accent btn-xs md:btn-sm text-base-100"]').click();
-//     await page.getByText("Ver detalles").click();
-
-//     await expect(page.getByText("Trayectoria Completa")).toBeVisible();
-// });
+})

@@ -92,3 +92,144 @@ test("GET getProjectById/:projectId", async ({ request, page }) => {
     });
   }
 });
+
+test("Prueba de endpoints de los proyectos", async ({ request, page }) => {
+  qase.id(111);
+
+  const userId = await login(page, "PL");
+
+  const response = await request.get(
+    `http://localhost:3003/employee/experience?userId=${userId}`
+  );
+  expect(response.ok()).toBeTruthy();
+
+  const data = await response.json();
+
+  expect(data).toEqual(
+    expect.objectContaining({
+      jobs: expect.any(Array),
+      projects: expect.any(Array),
+    })
+  );
+
+  if (data.jobs.length > 0) {
+    expect(data.jobs[0]).toMatchObject({
+      positionId: expect.any(Number),
+      company: expect.any(String),
+      position: expect.any(String),
+      positionDesc: expect.any(String),
+      startDate: expect.any(String),
+      endDate: expect.any(String),
+      rawStart: expect.anything(),
+      rawEnd: expect.anything(),
+    });
+  }
+
+  if (data.projects.length > 0) {
+    expect(data.projects[0]).toMatchObject({
+      projectName: expect.any(String),
+      company: expect.any(String),
+      positionName: expect.any(String),
+      projectDescription: expect.any(String),
+      startDate: expect.any(String),
+      endDate: expect.any(String),
+      feedbackDesc: expect.any(String),
+      feedbackScore: expect.anything(),
+      deliveryLeadName: expect.any(String),
+      skills: expect.any(Array),
+      areas: expect.any(Array),
+      rawStart: expect.anything(),
+      rawEnd: expect.anything(),
+    });
+  }
+});
+
+test("Revisión de información correcta", async ({ request, page }) => {
+  qase.id(110);
+
+  await login(page, "CL");
+
+  const sessionKey = await page.evaluate(() => localStorage.getItem("session-key"));
+
+  const response = await request.get("http://localhost:3003/project/projectsByCapability", {
+    headers: {
+      "session-key": sessionKey || "", 
+    },
+  });
+
+  expect(response.ok()).toBeTruthy();
+
+  const data = await response.json();
+
+  if (data.length === 0) {
+    expect(data).toEqual([]);
+    return;
+  }
+
+  for (const project of data) {
+    expect(project).toMatchObject({
+      project_id: expect.any(Number),
+      project_name: expect.any(String),
+      company_name: expect.any(String),
+      project_desc: expect.any(String),
+      start_date: expect.any(String),
+      end_date: expect.any(String),
+      country: expect.objectContaining({
+        country_id: expect.any(Number),
+        country_name: expect.any(String),
+        region_name: expect.any(String),
+        timezone: expect.any(String),
+      }),
+      delivery_lead: expect.objectContaining({
+        user_id: expect.any(Number),
+        name: expect.any(String),
+        mail: expect.any(String),
+        password: expect.any(String),
+        birthday: expect.any(String),
+        hire_date: expect.any(String),
+        gender: expect.any(Boolean),
+        role_id: expect.any(Number),
+        country_id: expect.any(Number),
+      }),
+      capability_name: expect.any(String),
+      open_positions: expect.any(Array),
+    });
+
+    for (const position of project.open_positions) {
+      expect(position).toMatchObject({
+        position_id: expect.any(Number),
+        position_name: expect.any(String),
+        position_desc: expect.any(String),
+        required_skills: expect.any(Array),
+        required_certificates: expect.any(Array),
+        required_areas: expect.any(Array),
+      });
+
+      for (const skill of position.required_skills) {
+        expect(skill).toMatchObject({
+          skill_id: expect.any(Number),
+          name: expect.any(String),
+          technical: expect.any(Boolean),
+        });
+      }
+
+      for (const cert of position.required_certificates) {
+        expect(cert).toMatchObject({
+          certificate_id: expect.any(Number),
+          certificate_name: expect.any(String),
+          certificate_desc: expect.any(String),
+          certificate_estimated_time: expect.any(Number),
+          certificate_level: expect.any(Number),
+          provider: expect.any(String),
+        });
+      }
+
+      for (const area of position.required_areas) {
+        expect(area).toMatchObject({
+          area_id: expect.any(Number),
+          area_name: expect.any(String),
+        });
+      }
+    }
+  }
+});

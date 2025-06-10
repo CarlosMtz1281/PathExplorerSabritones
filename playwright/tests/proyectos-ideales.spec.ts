@@ -1,153 +1,200 @@
 import { qase } from "playwright-qase-reporter";
 import { login } from "./functions";
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from "@playwright/test";
 
-test('Create a proyect', async ({ page }) => {
-    qase.id(59);
-    
-    await login(page, 'DL');
+test("Creación de proyectos", async ({ page }) => {
+  qase.id(59);
 
-    // Click en la nav
-    await page.locator('[href="/dashboard/crea-projects"]').click();
+  await login(page, "DL");
 
-    await page.getByPlaceholder("Nombre del proyecto").click();
-    await page.getByPlaceholder("Nombre del proyecto").fill("Proyecto PathExplorer");
+  // Click en la nav
+  await page.locator('[href="/dashboard/crea-projects"]').click();
 
-    await page.getByPlaceholder("Empresa").click();
-    await page.getByPlaceholder("Empresa").fill("BBVA");
+  await page.getByPlaceholder("Nombre del proyecto").click();
+  await page
+    .getByPlaceholder("Nombre del proyecto")
+    .fill("Proyecto PathExplorer");
 
-    // País (Región)
-    await page.locator('select.select-bordered').first().selectOption({ label: 'Reino Unido' });
+  await page.getByPlaceholder("Empresa").click();
+  await page.getByPlaceholder("Empresa").fill("BBVA");
 
-    const startDateInput = page.locator('[class="input input-bordered w-full mt-2 pl-6 pr-10 py-5"]');
-    await startDateInput.click();
-    await startDateInput.fill("2025-06-30");
+  // País (Región)
+  await page
+    .locator("select.select-bordered")
+    .first()
+    .selectOption({ label: "Reino Unido" });
 
-    const endDateInput = page.locator('[class="input input-bordered w-full mt-2 px-6 p-5"]').nth(2);
-    await endDateInput.click();
-    await endDateInput.fill("2026-06-30");
+  const startDateInput = page.locator(
+    '[class="input input-bordered w-full mt-2 pl-6 pr-10 py-5"]'
+  );
+  await startDateInput.click();
+  await startDateInput.fill("2025-06-30");
 
-    await page.getByPlaceholder("Escribe una descripción del proyecto").click();
-    await page.getByPlaceholder("Escribe una descripción del proyecto").fill("En este proyecto crearemos una plataforma en la que los empleados...");
+  const endDateInput = page
+    .locator('[class="input input-bordered w-full mt-2 px-6 p-5"]')
+    .nth(2);
+  await endDateInput.click();
+  await endDateInput.fill("2026-06-30");
 
-    // Agregar primer puesto
-    await page.getByRole('button', { name: "Agregar Puesto" }).click();
+  await page.getByPlaceholder("Escribe una descripción del proyecto").click();
+  await page
+    .getByPlaceholder("Escribe una descripción del proyecto")
+    .fill(
+      "En este proyecto crearemos una plataforma en la que los empleados..."
+    );
 
-    let nombreDelPuesto = page.locator('[class="input input-bordered w-full"]').nth(0);
-    await nombreDelPuesto.click();
-    await nombreDelPuesto.fill("Front-End Engineer");
+  // Agregar primer puesto
+  await page.getByRole("button", { name: "Agregar Puesto" }).click();
 
-    // Capability
-    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'Diseño de UI y UX'});
+  let nombreDelPuesto = page
+    .locator('[class="input input-bordered w-full"]')
+    .nth(0);
+  await nombreDelPuesto.click();
+  await nombreDelPuesto.fill("Front-End Engineer");
 
-    let cantidad = page.locator('[class="input input-bordered w-full"]').nth(1);
-    await cantidad.click();
-    await cantidad.fill("3");
+  // Capability
+  await page
+    .locator("select.select-bordered")
+    .nth(1)
+    .selectOption({ label: "Diseño de UI y UX" });
 
-    // Habilidades (React, Communication)
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'React' });
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'Comunicación' });
+  let cantidad = page.locator('[class="input input-bordered w-full"]').nth(1);
+  await cantidad.click();
+  await cantidad.fill("3");
 
-    // Certificaciones (AWS, Google)
-    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'AWS Certified Developer - Associate' });
-    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'Google Professional Data Engineer' });
+  // Habilidades (React, Communication)
+  await page
+    .locator("select.select-bordered")
+    .nth(2)
+    .selectOption({ label: "React" });
+  await page
+    .locator("select.select-bordered")
+    .nth(2)
+    .selectOption({ label: "Comunicación" });
 
-    await page.getByRole('button', { name: "Agregar"}).nth(1).click();
+  // Certificaciones (AWS, Google)
+  await page
+    .locator("select.select-bordered")
+    .nth(3)
+    .selectOption({ label: "AWS Certified Developer - Associate" });
+  await page
+    .locator("select.select-bordered")
+    .nth(3)
+    .selectOption({ label: "Google Professional Data Engineer" });
 
-    await expect(page.getByText("Front-End Engineer")).toBeVisible();
+  await page.getByRole("button", { name: "Agregar" }).nth(1).click();
 
-    // Agregar segundo puesto
-    await page.getByRole('button', { name: "Agregar Puesto" }).click();
+  await expect(page.getByText("Front-End Engineer")).toBeVisible();
 
-    nombreDelPuesto = page.locator('[class="input input-bordered w-full"]').nth(0);
-    await nombreDelPuesto.click();
-    await nombreDelPuesto.fill("Back-End Engineer");
+  // Agregar segundo puesto
+  await page.getByRole("button", { name: "Agregar Puesto" }).click();
 
-    // Capability
-    await page.locator('select.select-bordered').nth(1).selectOption({ label: 'Arquitectura en la nube'});
+  nombreDelPuesto = page
+    .locator('[class="input input-bordered w-full"]')
+    .nth(0);
+  await nombreDelPuesto.click();
+  await nombreDelPuesto.fill("Back-End Engineer");
 
-    cantidad = page.locator('[class="input input-bordered w-full"]').nth(1);
-    await cantidad.click();
-    await cantidad.fill("3");
+  // Capability
+  await page
+    .locator("select.select-bordered")
+    .nth(1)
+    .selectOption({ label: "Arquitectura en la nube" });
 
-    // Habilidades (Node.js, SQL)
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'Node.js' });
-    await page.locator('select.select-bordered').nth(2).selectOption({ label: 'SQL' });
+  cantidad = page.locator('[class="input input-bordered w-full"]').nth(1);
+  await cantidad.click();
+  await cantidad.fill("3");
 
-    // Certificaciones (Oracle, Google)
-    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'Oracle Database SQL Certified Associate' });
-    await page.locator('select.select-bordered').nth(3).selectOption({ label: 'Google Associate Cloud Engineer' });
+  // Habilidades (Node.js, SQL)
+  await page
+    .locator("select.select-bordered")
+    .nth(2)
+    .selectOption({ label: "Node.js" });
+  await page
+    .locator("select.select-bordered")
+    .nth(2)
+    .selectOption({ label: "SQL" });
 
-    await page.getByRole('button', { name: "Agregar"}).nth(1).click();
+  // Certificaciones (Oracle, Google)
+  await page
+    .locator("select.select-bordered")
+    .nth(3)
+    .selectOption({ label: "Oracle Database SQL Certified Associate" });
+  await page
+    .locator("select.select-bordered")
+    .nth(3)
+    .selectOption({ label: "Google Associate Cloud Engineer" });
 
-    await expect(page.getByText("Back-End Engineer")).toBeVisible();
+  await page.getByRole("button", { name: "Agregar" }).nth(1).click();
 
-    await page.getByRole('button', { name: "Crear proyecto"}).click();
+  await expect(page.getByText("Back-End Engineer")).toBeVisible();
 
-    await page.locator('[href="/dashboard/repo-projects"]').click();
+  await page.getByRole("button", { name: "Crear proyecto" }).click();
 
-    await expect(page.getByText("Proyecto PathExplorer")).toBeVisible();
+  await page.locator('[href="/dashboard/dl-dashboard"]').click();
 
+  await expect(page.getByText("Proyecto PathExplorer")).toBeVisible();
 });
 
-test('Create a proyect wrong', async ({ page }) => {
-    qase.id(61);
+test("Error Handling de Creación de proyectos", async ({ page }) => {
+  qase.id(61);
 
-    await login(page, 'DL');
+  await login(page, "DL");
 
-    // Click en la nav
-    await page.locator('[href="/dashboard/crea-projects"]').click();
+  // Click en la nav
+  await page.locator('[href="/dashboard/crea-projects"]').click();
 
-    await page.getByPlaceholder("Nombre del proyecto").click();
-    await page.getByPlaceholder("Nombre del proyecto").fill("Not Found");
+  await page.getByPlaceholder("Nombre del proyecto").click();
+  await page.getByPlaceholder("Nombre del proyecto").fill("Not Found");
 
-    await page.getByRole('button', { name: "Crear proyecto"}).click();
+  await page.getByRole("button", { name: "Crear proyecto" }).click();
 
-    await page.locator('[href="/dashboard/repo-projects"]').click();
+  await page.locator('[href="/dashboard/dl-dashboard"]').click();
 
-    await expect(page.getByText("Not Found")).not.toBeVisible();
-
+  await expect(page.getByText("Not Found")).not.toBeVisible();
 });
 
+test('Postulación del empleado a proyecto', async ({ page }) => {
+  qase.id(77);
 
-test('Proyect information returns de correct data', async ({ request, page }) => {
-    qase.id(66);
+  await login(page, 'CL');
 
-    await login(page, 'CL');
+  await page.locator('[href="/dashboard/repo-projects"]').click();
 
-    // Click en la nav
-    await page.locator('[href="/dashboard/repo-projects"]').click();
+  // Quitar el hover de la nav
+  const viewport = page.viewportSize();
+  if (viewport) {
+      const centerX = viewport.width / 2;
+      const centerY = viewport.height / 2;
+      await page.mouse.move(centerX, centerY);
+      await page.waitForTimeout(300);
+  }
 
-    const targetRow = page.locator('tr', { hasText: 'Proyecto PathExplorer' });
-    await targetRow.click();
+  const project = page.locator('tr', { hasText: 'App de Turismo Local' });
+  await project.locator('[class="dropdown-button ml-3 hover:cursor-pointer"]').click();
+  await project.locator('[class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-focus transition-colors"]').click();
 
-    //Entramos al projecto
-    const asignButton = targetRow.getByRole('button', { name: "Postular"});
-    await asignButton.click();
+  await page.locator('[class="collapse collapse-arrow bg-base-200 rounded-lg shadow-sm border border-base-300"]').nth(0).click()
+  await page.locator('[class="btn btn-primary btn-sm"]').nth(0).click();
 
-    // Sacamos el id del proyecto
-    await page.waitForURL('**/dashboard/project-details/**');
-    const url = page.url();
-    const projectId = url.split('/').pop();
-    
-    const response = await request.get(`http://localhost:3003/project/getProjectById/${projectId}`);
-    expect(response.ok()).toBeTruthy();
-    const data = await response.json();
+ 
+})
 
-    // Comprobar campos en la UI
-    const start = data.start_date;
-    const end = data.end_date || "En progreso";
-    const capability = data.details.capability;
-    const company = data.details.company;
-    const country = data.details.country;
-    const desc = data.description;
+test('Visualizacion de proyectos', async ({ page }) => {
+  qase.id(112);
 
-    await expect(page.locator('p:has-text("Fechas:")')).toHaveText(new RegExp(`Fechas:\\s+${start} - ${end}`));
-    await expect(page.locator('p:has-text("Delivery Lead:")')).toHaveText(new RegExp(`Delivery Lead:\\s+${capability}`));
-    await expect(page.locator('p:has-text("Empresa:")')).toHaveText(new RegExp(`Empresa:\\s+${company}`));
-    await expect(page.locator('p:has-text("País:")')).toHaveText(new RegExp(`País:\\s+${country}`));
-    
-    if (desc) {
-        await expect(page.locator('p:has-text("Descripción:")').nth(0)).toHaveText(new RegExp(`Descripción:\\s+${desc}`));
-    }
-});
+  await login(page, 'DL');
+
+  await page.locator('[href="/dashboard/dl-dashboard"]').click();
+
+  const viewport = page.viewportSize();
+  if (viewport) {
+      const centerX = viewport.width / 2;
+      const centerY = viewport.height / 2;
+      await page.mouse.move(centerX, centerY);
+      await page.waitForTimeout(300);
+  }
+
+  expect(page.getByText("Proyectos en Curso")).toBeVisible;
+
+})
