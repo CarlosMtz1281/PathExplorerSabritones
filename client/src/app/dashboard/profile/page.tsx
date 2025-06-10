@@ -130,7 +130,7 @@ const Profile = () => {
           className="flex flex-col gap-10 "
           style={{ width: "65vw", marginLeft: "2vw" }}
         >
-          <WidgetMetas />
+          <WidgetMetas sudo={true} userId={userData.user_id} />
           <WidgetCertificaciones />
           <WidgetTrayectoria />
           <WidgetHabilidades />

@@ -10,6 +10,8 @@ import WidgetTrayectoriaColegasEmpleado from "@/components/perfil/WidgetTrayecto
 import WidgetHabilidadesColegas from "@/components/perfil/WidgetHabilidadesColegas";
 import WidgetFeedbackColegas from "@/components/perfil/WidgetFeedbackColegas";
 import WidgetPathExplorerEmpleado from "@/components/perfil/WidgetPathExplorerEmpleado";
+import WidgetMetas from "@/components/perfil/WidgetMetas";
+
 
 import Image from "next/image";
 import { User } from "@/interfaces/User";
@@ -33,6 +35,7 @@ const InfoColegas = () => {
       } catch (error) {
         console.error("Error fetching user data", error);
       }
+      
     };
 
     fetchUserData();
@@ -51,6 +54,7 @@ const InfoColegas = () => {
       } catch (error) {
         console.error("Error checking subordinado:", error);
       }
+      console.log("Subordinado status:", subordinado);
     };
   
     checkSubordinado();
@@ -59,8 +63,10 @@ const InfoColegas = () => {
 
   if (!userData) return <div>Loading...</div>;
 
+
+  console.log("Role ID: ",viewerRoleId);
   return (
-    <div className="flex flex-col h-[calc(100vh)] bg-base-200 px-4 md:px-8 py-8 gap-8">
+    <div className="flex flex-col min-h-screen bg-base-200 px-4 md:px-8 py-8 gap-8 overflow-x-hidden ">
       <div className="card w-full bg-base-100 shadow-lg p-6 rounded-lg relative">
         {/* Background Banner */}
         <div className="absolute top-0 left-0 w-full h-35 rounded-t-lg">
@@ -145,6 +151,7 @@ const InfoColegas = () => {
           {/* People Lead: solo puede ver Habilidades y Feedback si el perfil es subordinado directo */}
             {viewerRoleId === 2 && subordinado && (
               <>
+                <WidgetMetas userId={userData.user_id} sudo={false} />
                 <WidgetCertificacionesColegas userId={userData.user_id} />
                 <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
                 <WidgetHabilidadesColegas userId={userData.user_id} />
@@ -155,6 +162,7 @@ const InfoColegas = () => {
             {/* Capability Lead: puede ver Habilidades y Feedback si el perfil es subordinado directo o indirecto */}
             {viewerRoleId === 3 && subordinado && (
               <>
+                <WidgetMetas userId={userData.user_id} sudo={false} />
                 <WidgetCertificacionesColegas userId={userData.user_id} />
                 <WidgetTrayectoriaColegasEmpleado userId={userData.user_id} />
                 <WidgetHabilidadesColegas userId={userData.user_id} />
