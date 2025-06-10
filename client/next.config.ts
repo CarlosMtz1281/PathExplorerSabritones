@@ -8,6 +8,9 @@ const nextConfig = {
     // ✅ Skip linting on build
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: ["avatar.iran.liara.run"],
+  },
 };
 
 module.exports = nextConfig;
