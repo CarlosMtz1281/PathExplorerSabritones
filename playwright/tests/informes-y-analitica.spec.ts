@@ -53,7 +53,7 @@ test('Buscar un empleado', async ({ page }) => {
     await page.getByPlaceholder('Buscar por nombre o correo...').click();
     await page.getByPlaceholder('Buscar por nombre o correo...').fill("Aaron Washington");
 
-    expect(page.locator('tr', { hasText: 'Aaron Washington'})).toBeVisible();
+    await expect(page.locator('tr', { hasText: 'Aaron Washington'})).toBeVisible();
 
 
 })
