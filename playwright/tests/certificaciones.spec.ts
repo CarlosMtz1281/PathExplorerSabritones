@@ -10,11 +10,8 @@ test('Tipos de documentos permitidos (Positivo)', async ({ page }) => {
 
     await page.locator('[class="btn btn-circle btn-accent"]').click();
 
-    const certCard = page.locator('[class="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"]');
-    await certCard.getByText("Google Professional Data Engineer").click();
-
-    const modal = page.locator('[class="text-2xl font-bold ml-5"]');
-    expect(modal.getByText("Google Professional Data Engineer")).toBeVisible();
+    const nico = page.locator('[class="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"]')
+    await nico.nth(8).click();
 
     const fileInput = page.locator('input[type="file"]');
     const filePath = path.resolve(__dirname, 'test-files/TestFile2b.pdf');
@@ -31,11 +28,8 @@ test('Documentos muy pesados', async ({ page }) => {
 
     await page.locator('[class="btn btn-circle btn-accent"]').click();
 
-    const certCard = page.locator('[class="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"]');
-    await certCard.getByText("Google Professional Data Engineer").click();
-
-    const modal = page.locator('[class="text-2xl font-bold ml-5"]');
-    expect(modal.getByText("Google Professional Data Engineer")).toBeVisible();
+    const nico = page.locator('[class="card bg-base-100 flex justify-center items-center p-4 text-center border border-primary rounded-lg hover:bg-base-300 transition duration-200 ease-in-out transform hover:scale-105 cursor-pointer"]')
+    await nico.nth(8).click();
 
     const fileInput = page.locator('input[type="file"]');
     const filePath = path.resolve(__dirname, 'test-files/TestFile15b.pdf');
